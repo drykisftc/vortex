@@ -32,10 +32,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
+import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.I2cDeviceReader;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -52,26 +57,13 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="TeleOp: base", group="base")
-public class VortexTeleOp_Iterative extends OpMode{
+@Autonomous(name="Auto: base", group="Auto")
+@Disabled
+public class VortexAuto_Iterative extends OpMode{
 
     /* Declare OpMode members. */
     HardwareVortex robot       = new HardwareVortex(); // use the class created to define a Pushbot's hardware
                                                          // could also use HardwareVortexMatrix class.
-
-    float[] wheelPowerLUT = {0.0f, 0.05f, 0.15f, 0.18f, 0.20f,
-            0.22f, 0.24f, 0.26f, 0.28f, 0.30f, 0.32f, 0.34f, 0.36f,
-            0.38f, 0.42f, 0.46f, 0.50f, 0.54f, 0.58f, 0.62f, 0.66f,
-            0.70f, 0.74f, 0.78f, 0.82f, 0.86f, 0.90f, 0.94f, 0.98f, 1.00f };
-
-    float[] armPowerLUT = { 0.0f, 0.01f, 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f,
-            0.08f, 0.09f, 0.10f, 0.11f, 0.12f, 0.13f, 0.14f, 0.15f,
-            0.17f, 0.18f, 0.19f, 0.20f, 0.21f, 0.22f, 0.23f, 0.24f,
-            0.25f, 0.26f, 0.27f, 0.28f, 0.29f, 0.30f, 0.31f, 0.32f,
-            0.33f, 0.34f, 0.35f, 0.36f, 0.37f, 0.38f, 0.39f, 0.40f,
-            0.41f, 0.42f, 0.43f, 0.44f, 0.45f, 0.46f, 0.47f, 0.48f,
-            0.49f, 0.50f, 0.51f, 0.52f, 0.53f, 0.54f, 0.55f, 0.56f,
-            0.60f, 0.65f, 0.70f, 0.75f, 0.80f, 0.85f, 0.90f, 0.95f, 1.0f };
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -84,7 +76,7 @@ public class VortexTeleOp_Iterative extends OpMode{
         robot.init(hardwareMap);
 
         // Send telemetry message to signify robot waiting;
-        telemetry.addData("TeleOp", "Hello Vortex");    //
+        telemetry.addData("Say", "Hello Driver");    //
         updateTelemetry(telemetry);
     }
 
@@ -108,22 +100,6 @@ public class VortexTeleOp_Iterative extends OpMode{
     @Override
     public void loop() {
 
-        // Run wheels in tank mode (note: The joystick goes negative when pushed forwards, so negate it)
-        float throttle = -gamepad1.left_stick_y;
-        float direction = gamepad1.left_stick_x;
-        float right = throttle + direction;
-        float left = throttle - direction;
-
-        // clip the right/left values so that the values never exceed +/- 1
-        right = Range.clip(right, -1, 1);
-        left = Range.clip(left, -1, 1);
-        robot.motorLeftWheel.setPower(left);
-        robot.motorRightWheel.setPower(right);
-
-        // Send telemetry message to signify robot running;
-        telemetry.addData("left",  "%.2f", left);
-        telemetry.addData("right", "%.2f", right);
-        updateTelemetry(telemetry);
     }
 
     /*
