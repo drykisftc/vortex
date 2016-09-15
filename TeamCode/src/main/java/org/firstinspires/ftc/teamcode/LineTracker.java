@@ -227,7 +227,7 @@ public class LineTracker {
                 r <= baselineODS) {
 
             // keep same search direction
-            if (lastDirection >=0) {
+            if (Math.abs(lastDirection) >=0) {
                 lastDirection= Math.max(Math.abs(power), lastDirection);
             }
             else {
