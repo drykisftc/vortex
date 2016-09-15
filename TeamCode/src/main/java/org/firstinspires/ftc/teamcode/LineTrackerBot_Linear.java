@@ -111,8 +111,13 @@ public class LineTrackerBot_Linear extends OpMode {
      */
     @Override
     public void loop() {
+        switch (state) {
+            case 0:
+                lineTracker.loop();
 
-        lineTracker.loop();
+                break;
+            default:
+        }
         updateTelemetry(telemetry);
     }
 

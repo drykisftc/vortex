@@ -22,7 +22,7 @@ public class LineTracker {
     DcMotor rightWheel = null;
 
     // state machine
-    int state = 0;
+    public int state = 0;
 
     int bufferSize = 10;
     double[] leftBuffer = null;
@@ -30,7 +30,7 @@ public class LineTracker {
     double[] middleBuffer = null;
     int bufferIndex = 0;
     double baselineODS = 0.0d;
-    double baselineSensitivity = 3.0;
+    double baselineSensitivity = 2.0;
     double lastDirection = 0.0d;
 
     double[] ods2PowerLUT = {0.0f, 0.05f, 0.15f, 0.18f, 0.20f,
@@ -179,6 +179,12 @@ public class LineTracker {
 
     public int followLine(double power) {
 
+        if (power == 0.0) {
+            leftWheel.setPower(power);
+            rightWheel.setPower(power);
+            return 1;
+        }
+
         double l = leftODS.getLightDetected();
         double r = rightODS.getLightDetected();
 
@@ -199,9 +205,10 @@ public class LineTracker {
                 return 2;
             }
         }
-        double delta = Range.clip(l - r, -1, 1);
+        // ensure that it works when it move backward as well
+        double delta = Range.clip((l - r)* power / Math.abs(power), -1, 1);
         lastDirection = ResQUtils.lookUpTableFunc(delta, ods2PowerLUT);
-        double left = Range.clip(power + lastDirection, -1, 1);
+        double left  = Range.clip(power + lastDirection, -1, 1);
         double right = Range.clip(power - lastDirection, -1, 1);
         leftWheel.setPower(left);
         rightWheel.setPower(right);
@@ -210,6 +217,12 @@ public class LineTracker {
     }
 
     public int searchLine (double power) {
+
+        if (power == 0.0) {
+            leftWheel.setPower(power);
+            rightWheel.setPower(power);
+            return 2;
+        }
 
         double l = leftODS.getLightDetected();
         double r = rightODS.getLightDetected();
