@@ -33,10 +33,11 @@ public class LineTracker {
     double baselineSensitivity = 2.0;
     double lastDirection = 0.0d;
 
-    double[] ods2PowerLUT = {0.0f, 0.05f, 0.15f, 0.18f, 0.20f,
-            0.22f, 0.24f, 0.26f, 0.28f, 0.30f, 0.32f, 0.34f, 0.36f,
-            0.38f, 0.42f, 0.46f, 0.50f, 0.54f, 0.58f, 0.62f, 0.66f,
-            0.70f, 0.74f, 0.78f, 0.82f, 0.86f, 0.90f, 0.94f, 0.98f, 1.00f};
+    double[] ods2PowerLUT = {0.0f, 0.25f, 0.33f, 0.41f,
+            0.49f, 0.56f, 0.63f, 0.70f, 0.77f, 0.84f,
+            0.91f, 0.96f, 1.0f};
+
+    double[] ods2PowerSearchLUT = {0.0f, 0.25f, 0.58f, 0.91f, 1.0f};
 
     Telemetry reporter = null;
 
@@ -90,17 +91,17 @@ public class LineTracker {
         switch (state) {
             case 0:
                 // detect line
-                state = detectLine(0.2);
+                state = detectLine(0.1);
                 reporter.addData("Line Tracker", "state = DETECT");
                 break;
             case 1:
                 // follow line
-                state = followLine(0.2);
+                state = followLine(0.1);
                 reporter.addData("Line Tracker", "state = FOLLOW");
                 break;
             case 2:
                 // search for line
-                state = searchLine(0.2);
+                state = searchLine(0.1);
                 reporter.addData("Line Tracker", "state = SEARCH");
                 break;
             default:
@@ -168,6 +169,9 @@ public class LineTracker {
             // stop
             leftWheel.setPower(0.0d);
             rightWheel.setPower(0.0d);
+
+
+
             return 1;
         } else {
             leftWheel.setPower(power);
@@ -250,13 +254,22 @@ public class LineTracker {
             newState = 1;
             // ensure that it works when it move backward as well
             double delta = Range.clip((l - r) * power / Math.abs(power), -1, 1);
-            lastDirection = ResQUtils.lookUpTableFunc(delta, ods2PowerLUT);
+            lastDirection = ResQUtils.lookUpTableFunc(delta, ods2PowerSearchLUT);
         }
 
-        double left  = Range.clip(power + lastDirection, -1, 1);
-        double right = Range.clip(power - lastDirection, -1, 1);
-        leftWheel.setPower(left);
-        rightWheel.setPower(right);
+        if ( lastDirection >=0 ) {
+            double left = Range.clip(lastDirection*0.6, -1, 1);
+            double right = Range.clip(-lastDirection*1.6, -1, 1);
+            leftWheel.setPower(left);
+            rightWheel.setPower(right);
+        }
+        else {
+            double left = Range.clip(lastDirection*1.6, -1, 1);
+            double right = Range.clip(-lastDirection*0.6, -1, 1);
+            leftWheel.setPower(left);
+            rightWheel.setPower(right);
+        }
+
 
         return newState;
     }
