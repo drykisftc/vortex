@@ -49,8 +49,8 @@ import java.nio.Buffer;
  *
  */
 
-@Autonomous(name="Vortex: line tracker", group="LineTracker")
-public class LineTrackerBot_Linear extends OpMode {
+@Autonomous(name="Vortex: line tracker", group="Tracker")
+public class LineTrackerOpMode extends OpMode {
 
     /* Declare OpMode members. */
     HardwareLineTracker         robot   = new HardwareLineTracker();   // Use a Pushbot's hardware
@@ -59,6 +59,7 @@ public class LineTrackerBot_Linear extends OpMode {
     int state = 0;
 
     int bufferSize= 10;
+
 
     LineTracker lineTracker = null;
 
@@ -70,11 +71,11 @@ public class LineTrackerBot_Linear extends OpMode {
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */
-        robot.init(hardwareMap);
+        robot.init(hardwareMap,3);
 
-        lineTracker = new LineTracker(robot.leftODS,
-                robot.rightODS,
-                robot.middleODS,
+        lineTracker = new LineTracker(robot.sensorArray[0],
+                robot.sensorArray[1],
+                robot.sensorArray[2],
                 robot.motorLeftWheel,
                 robot.motorRightWheel,
                 bufferSize);
@@ -113,7 +114,7 @@ public class LineTrackerBot_Linear extends OpMode {
     public void loop() {
         switch (state) {
             case 0:
-                lineTracker.loop();
+                lineTracker.loop(0.4);
 
                 break;
             default:

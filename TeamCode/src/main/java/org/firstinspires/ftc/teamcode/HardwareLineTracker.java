@@ -5,18 +5,20 @@ import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
 public class HardwareLineTracker extends HardwareVortex {
 
-    OpticalDistanceSensor leftODS = null;
-    OpticalDistanceSensor rightODS = null;
-    OpticalDistanceSensor middleODS = null;
+    OpticalDistanceSensor [] sensorArray = null;
 
-    public void init(HardwareMap ahwMap) {
+    int arraySize = 1;
+
+    public void init(HardwareMap ahwMap, int numbOfSensors) {
 
         // Initialize base Motor and Servo objects
         super.init(ahwMap);
 
-        leftODS = hwMap.opticalDistanceSensor.get("leftODS");
-        rightODS = hwMap.opticalDistanceSensor.get("rightODS");
-        middleODS = hwMap.opticalDistanceSensor.get("middleODS");
+        sensorArray = new OpticalDistanceSensor[numbOfSensors];
+        arraySize = numbOfSensors;
 
+        for (int i = 0; i < numbOfSensors; i++) {
+            sensorArray[i] = hwMap.opticalDistanceSensor.get("ods"+Integer.toString(i));
+        }
     }
 }

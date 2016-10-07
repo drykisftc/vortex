@@ -1,6 +1,4 @@
 /*
-Copyright (c) 2016 Robert Atkinson
-
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -32,38 +30,28 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.GyroSensor;
-import com.qualcomm.robotcore.hardware.I2cDevice;
-import com.qualcomm.robotcore.hardware.I2cDeviceReader;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 /**
- * This file provides basic Telop driving for a Pushbot robot.
- * The code is structured as an Iterative OpMode
  *
- * This OpMode uses the common Pushbot hardware class to define the devices on the robot.
- * All device access is managed through the HardwareVortex class.
- *
- * This particular OpMode executes a basic Tank Drive Teleop for a PushBot
- * It raises and lowers the claw using the Gampad Y and A buttons respectively.
- * It also opens and closes the claws slowly using the left and right Bumper buttons.
- *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
-
-@Autonomous(name="Auto: base", group="Auto")
+@Autonomous(name="Vortex: right wall tracker", group="Tracker")
 @Disabled
-public class VortexAuto_Iterative extends OpMode{
+public class WallTrackerOpMode extends OpMode {
 
     /* Declare OpMode members. */
-    HardwareVortex robot       = new HardwareVortex(); // use the class created to define a Pushbot's hardware
-                                                         // could also use HardwareVortexMatrix class.
+    HardwareWallTracker      robot   = new HardwareWallTracker();   // Use a Pushbot's hardware
+
+    // state machine
+    int state = 0;
+
+    int bufferSize= 10;
+
+    double signValue = 1.0;
+
+    WallTracker wallTracker = null;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -75,8 +63,15 @@ public class VortexAuto_Iterative extends OpMode{
          */
         robot.init(hardwareMap);
 
+        wallTracker = new WallTracker(robot.leftRange,
+                robot.motorLeftWheel,
+                robot.motorRightWheel,
+                bufferSize);
+        wallTracker.init();
+        wallTracker.setReporter(telemetry);
+
         // Send telemetry message to signify robot waiting;
-        telemetry.addData("Say", "Hello Driver");    //
+        telemetry.addData("Say", "Hello WallTracker");    //
         updateTelemetry(telemetry);
     }
 
@@ -85,6 +80,8 @@ public class VortexAuto_Iterative extends OpMode{
      */
     @Override
     public void init_loop() {
+        // collect baseline brightness
+        wallTracker.calibrate();
     }
 
     /*
@@ -92,6 +89,8 @@ public class VortexAuto_Iterative extends OpMode{
      */
     @Override
     public void start() {
+        // compute baseline brightness
+        wallTracker.start(0);
     }
 
     /*
@@ -99,14 +98,20 @@ public class VortexAuto_Iterative extends OpMode{
      */
     @Override
     public void loop() {
-
+        switch (state) {
+            case 0:
+                wallTracker.loop(0.4, 0.0,signValue);
+                break;
+            default:
+        }
+        updateTelemetry(telemetry);
     }
 
     /*
      * Code to run ONCE after the driver hits STOP
      */
-    @Override
     public void stop() {
+        wallTracker.stop();
     }
 
 }

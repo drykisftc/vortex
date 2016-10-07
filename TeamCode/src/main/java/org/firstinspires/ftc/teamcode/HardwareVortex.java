@@ -39,6 +39,8 @@ public class HardwareVortex
     public DcMotor motorRightArm = null;
     public DcMotor motorLeftWheel = null;
     public DcMotor motorRightWheel =null;
+    public DcMotor motorLeftHand = null;
+    public DcMotor motorRightHand = null;
 
     // Servos
 
@@ -66,6 +68,11 @@ public class HardwareVortex
         motorRightArm  = hwMap.dcMotor.get("rightArm");
         motorLeftArm.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         motorRightArm.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+
+        motorLeftHand   = hwMap.dcMotor.get("leftHand");
+        motorRightHand  = hwMap.dcMotor.get("rightHand");
+        motorLeftHand.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        motorRightHand.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
 
     }

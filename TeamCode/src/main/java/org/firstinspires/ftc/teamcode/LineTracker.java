@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.util.Range;
 
@@ -85,22 +86,22 @@ public class LineTracker {
         state =0;
     }
 
-    public void loop () {
+    public void loop (double power) {
 
         switch (state) {
             case 0:
                 // detect line
-                state = detectLine(0.2);
+                state = detectLine(power);
                 reporter.addData("Line Tracker", "state = DETECT");
                 break;
             case 1:
                 // follow line
-                state = followLine(0.2);
+                state = followLine(power);
                 reporter.addData("Line Tracker", "state = FOLLOW");
                 break;
             case 2:
                 // search for line
-                state = searchLine(0.2);
+                state = searchLine(power);
                 reporter.addData("Line Tracker", "state = SEARCH");
                 break;
             default:
