@@ -71,8 +71,8 @@ public class HardwareVortex
 
         motorLeftHand   = hwMap.dcMotor.get("leftHand");
         motorRightHand  = hwMap.dcMotor.get("rightHand");
-        motorLeftHand.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
-        motorRightHand.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+        motorLeftHand.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
+        motorRightHand.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
 
 
     }

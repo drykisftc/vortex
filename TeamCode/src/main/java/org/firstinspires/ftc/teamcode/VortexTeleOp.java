@@ -69,10 +69,12 @@ public class VortexTeleOp extends OpMode{
     final int leftArmLoadPositionOffset = 500;
     final int leftArmSnapPositionOffset = 50;
     final int leftArmShootPositionOffset = 2000;
+    final int leftArmMaxOffset = 5000;
 
     int leftArmLoadPosition = leftArmLoadPositionOffset;
     int leftArmSnapPosition= leftArmSnapPositionOffset;
     int leftArmShootPosition = leftArmShootPositionOffset;
+    int leftArmMaxRange = leftArmMaxOffset;
 
     int leftHandHomePosition = 0;
     int leftHandFirePositionOffset = 400;
@@ -164,6 +166,7 @@ public class VortexTeleOp extends OpMode{
         leftArmLoadPosition = leftArmHomePosition+leftArmLoadPositionOffset;
         leftArmSnapPosition= leftArmHomePosition+leftArmSnapPositionOffset;
         leftArmShootPosition = leftArmHomePosition+leftArmShootPositionOffset;
+        leftArmMaxRange = leftArmHomePosition + leftArmMaxOffset;
 
         robot.motorLeftHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftHandHomePosition = robot.motorLeftHand.getCurrentPosition();
@@ -180,6 +183,7 @@ public class VortexTeleOp extends OpMode{
 
         joystickWheelContol();
         joystickArmContorl();
+        buttonControl();
         updateTelemetry(telemetry);
     }
 
@@ -218,14 +222,22 @@ public class VortexTeleOp extends OpMode{
             double power = Range.clip(VortexUtils.lookUpTableFunc(throttle, armPowerLUT), -1, 1);
             if (boolLeftArmEnable) {
                 robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.motorLeftArm.setPower(power);
-                robot.motorRightArm.setPower(0.0);
+                int currentPos = robot.motorLeftArm.getCurrentPosition();
+                if ( currentPos > leftArmLoadPosition
+                        && currentPos < leftArmMaxRange) {
+                    robot.motorLeftArm.setPower(power);
+                    robot.motorRightArm.setPower(0.0);
+                }
             }
 
             if (boolRightArmEnable) {
                 robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.motorRightArm.setPower(0.0);
-                robot.motorRightArm.setPower(power);
+                int currentPos = robot.motorRightArm.getCurrentPosition();
+                /*if ( currentPos > rightArmLoadPosition
+                        && currentPos < rightArmMaxRange) {
+                    robot.motorRightArm.setPower(0.0);
+                    robot.motorRightArm.setPower(power);
+                }*/
             }
         }
         else {
@@ -239,10 +251,10 @@ public class VortexTeleOp extends OpMode{
 
                 }
                 if (boolRightArmEnable) {
-                    armTargetPosition = robot.motorRightArm.getCurrentPosition();
+                    /*armTargetPosition = robot.motorRightArm.getCurrentPosition();
                     robot.motorRightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     robot.motorRightArm.setTargetPosition(armTargetPosition);
-                    robot.motorRightArm.setPower(1.0);
+                    robot.motorRightArm.setPower(1.0);*/
                 }
                 ArmTargetPositionSet = true;
             }
