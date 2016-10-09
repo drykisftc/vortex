@@ -1,11 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.ArmableUsbDevice;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.util.Range;
 
@@ -208,7 +203,7 @@ public class LineTracker {
         }
         // ensure that it works when it move backward as well
         double delta = Range.clip((l - r)* power / Math.abs(power), -1, 1);
-        lastDirection = ResQUtils.lookUpTableFunc(delta, ods2PowerLUT);
+        lastDirection = VortexUtils.lookUpTableFunc(delta, ods2PowerLUT);
         double left  = Range.clip(power + lastDirection, -1, 1);
         double right = Range.clip(power - lastDirection, -1, 1);
         leftWheel.setPower(left);
@@ -251,7 +246,7 @@ public class LineTracker {
             newState = 1;
             // ensure that it works when it move backward as well
             double delta = Range.clip((l - r) * power / Math.abs(power), -1, 1);
-            lastDirection = ResQUtils.lookUpTableFunc(delta, ods2PowerLUT);
+            lastDirection = VortexUtils.lookUpTableFunc(delta, ods2PowerLUT);
         }
 
         double left  = Range.clip(power + lastDirection, -1, 1);

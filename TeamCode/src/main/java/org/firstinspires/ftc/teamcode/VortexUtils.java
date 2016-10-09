@@ -2,11 +2,10 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.util.Range;
 
-public class ResQUtils {
+public class VortexUtils {
 
     static double lookUpTableFunc (double dVal, double[] scaleArray ) {
         int size = scaleArray.length-1;
@@ -102,7 +101,7 @@ public class ResQUtils {
             double delta = Range.clip(deltaPos/maxDelta, -1.0, 1.0);
 
             // set power
-            motor.setPower(ResQUtils.lookUpTableFunc(delta, lut));
+            motor.setPower(VortexUtils.lookUpTableFunc(delta, lut));
         }
         else {
             motor.setPower(0);

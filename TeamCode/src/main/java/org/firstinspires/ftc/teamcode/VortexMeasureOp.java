@@ -75,7 +75,7 @@ public class VortexMeasureOp extends VortexTeleOp {
          */
         super.init();
         gyroTracker.init(robot.hwMap);
-        lineTracker.init(robot.hwMap);
+        lineTracker.init(robot.hwMap,4);
         wallTracker.init(robot.hwMap);
 
         // Send telemetry message to signify robot waiting;
@@ -111,7 +111,7 @@ public class VortexMeasureOp extends VortexTeleOp {
     @Override
     public void loop() {
 
-        super.loop();
+        joystickWheelContol();
 
         // get wheel info
         telemetry.addData("Left wheel pos", robot.motorLeftWheel.getCurrentPosition());

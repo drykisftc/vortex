@@ -41,4 +41,21 @@ public class WallTrackerRedOpMode extends WallTrackerOpMode {
 
     double signValue = 1.0;
 
+    public void init() {
+        /* Initialize the hardware variables.
+         * The init() method of the hardware class does all the work here
+         */
+        robot.init(hardwareMap);
+
+        wallTracker = new WallTracker(robot.leftRange,
+                robot.motorLeftWheel,
+                robot.motorRightWheel,
+                bufferSize);
+        wallTracker.init();
+        wallTracker.setReporter(telemetry);
+
+        // Send telemetry message to signify robot waiting;
+        telemetry.addData("Say", "Red WallTracker");    //
+        updateTelemetry(telemetry);
+    }
 }

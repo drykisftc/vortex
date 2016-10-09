@@ -195,7 +195,7 @@ public class WallTracker {
         }
 
         double delta = Range.clip((l - distance)/lostDistance * power / Math.abs(power), -1, 1);
-        lastDirection = ResQUtils.lookUpTableFunc(delta, dist2PowerLUT)*signValue;
+        lastDirection = VortexUtils.lookUpTableFunc(delta, dist2PowerLUT)*signValue;
         double left  = Range.clip(power + lastDirection + powerDelta, -1, 1);
         double right = Range.clip(power - lastDirection + powerDelta, -1, 1);
         leftWheel.setPower(left);
