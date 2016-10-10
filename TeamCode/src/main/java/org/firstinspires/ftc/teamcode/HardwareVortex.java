@@ -62,18 +62,44 @@ public class HardwareVortex
         motorRightWheel  = hwMap.dcMotor.get("rightWheel");
         motorLeftWheel.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         motorRightWheel.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
-
+        motorLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         motorLeftArm   = hwMap.dcMotor.get("leftArm");
         motorRightArm  = hwMap.dcMotor.get("rightArm");
         motorLeftArm.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         motorRightArm.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+        motorLeftArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorRightArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         motorLeftHand   = hwMap.dcMotor.get("leftHand");
         motorRightHand  = hwMap.dcMotor.get("rightHand");
         motorLeftHand.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
         motorRightHand.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
+        motorLeftHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorRightHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+    }
 
+    public void close () {
+        motorLeftWheel.setPower(0.0);
+        motorRightWheel.setPower(0.0);
+        motorLeftArm.setPower(0.0);
+        motorRightArm.setPower(0.0);
+        motorLeftHand.setPower(0.0);
+        motorRightHand.setPower(0.0);
+
+        motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorLeftHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRightHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 }

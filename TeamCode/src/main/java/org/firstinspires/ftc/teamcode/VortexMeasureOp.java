@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -52,7 +53,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="TeleOp: measure", group="TeleOp")
+@TeleOp(name="TeleOp: measure", group="Testing")
 public class VortexMeasureOp extends VortexTeleOp {
 
     HardwareLineTracker lineTracker = new HardwareLineTracker();
@@ -90,7 +91,7 @@ public class VortexMeasureOp extends VortexTeleOp {
     public void init_loop() {
         // make sure the gyro is calibrated.
         if (gyroTracker.gyro.isCalibrating())  {
-            telemetry.addData(">", "Gyro is calibrating.  DO NOT start.");
+            telemetry.addData(">", "Gyro is calibrating.  DO NOT start until it finishes!!!!");
         }
         else {
             telemetry.addData(">", "Gyro calibrated.  Press Start.");
@@ -102,7 +103,17 @@ public class VortexMeasureOp extends VortexTeleOp {
      */
     @Override
     public void start() {
+
         gyroTracker.gyro.resetZAxisIntegrator();
+
+        robot.motorLeftArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.motorRightArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.motorLeftHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.motorLeftHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
     }
 
     /*
@@ -110,8 +121,6 @@ public class VortexMeasureOp extends VortexTeleOp {
      */
     @Override
     public void loop() {
-
-        joystickWheelContol();
 
         // get wheel info
         telemetry.addData("Left wheel pos", robot.motorLeftWheel.getCurrentPosition());
@@ -155,15 +164,39 @@ public class VortexMeasureOp extends VortexTeleOp {
         heading = gyroTracker.gyro.getHeading();
         angleZ  = gyroTracker.gyro.getIntegratedZValue();
 
-        telemetry.addData(">", "Press A & B to reset Heading.");
+        telemetry.addData("Gyro", "Press A & B to reset Heading.");
         telemetry.addData("0", "Heading %03d", heading);
         telemetry.addData("1", "Int. Ang. %03d", angleZ);
         telemetry.addData("2", "X av. %03d", xVal);
         telemetry.addData("3", "Y av. %03d", yVal);
         telemetry.addData("4", "Z av. %03d", zVal);
 
-        telemetry.update();
+        joystickWheelControl();
+        joystickArmControlSimple();
 
+        telemetry.update();
+    }
+
+    public void joystickArmControlSimple() {
+        if (gamepad1.left_bumper) {
+            enableLeftArm();
+        }
+        if (gamepad1.right_bumper) {
+            enableRightArm();
+        }
+
+        float throttle = gamepad1.right_stick_y;
+
+
+        if (boolLeftArmEnable) {
+            robot.motorLeftArm.setPower(Range.clip(throttle,-1,1));
+        }
+
+        if (boolRightArmEnable) {
+            robot.motorRightArm.setPower(Range.clip(throttle,-1,1));
+        }
+
+        robot.motorLeftHand.setPower(Range.clip(gamepad1.right_trigger, -1, 1));
     }
 
     /*

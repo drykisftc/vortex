@@ -110,19 +110,31 @@ public class VortexUtils {
     }
 
     static void moveMotorByPower(DcMotor motor, float power) {
-        if (motor.getMode() != DcMotor.RunMode.RUN_USING_ENCODER) {
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
+
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motor.setPower(power);
     }
 
-    static void holdMotorByEncoder(DcMotor motor, int pos, float power){
-        if (!motor.isBusy()) {
-            motor.setTargetPosition(pos);
-            if(motor.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
-                motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            }
-            motor.setPower(power);
-        }
+    static void moveMotorByEncoder(DcMotor motor, int pos, double power) {
+        motor.setTargetPosition(pos);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motor.setPower(power);
+    }
+
+    /**
+     *
+     * @param targetAngle, the target angle
+     * @param currentAngle, current angel
+     * @return
+     */
+    static double getAngleError(double targetAngle, double currentAngle) {
+
+        double robotError;
+
+        // calculate error in -179 to +180 range  (
+        robotError = targetAngle - currentAngle;
+        while (robotError > 180)  robotError -= 360;
+        while (robotError <= -180) robotError += 360;
+        return robotError;
     }
 }

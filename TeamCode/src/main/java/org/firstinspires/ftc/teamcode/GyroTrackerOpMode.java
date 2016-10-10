@@ -38,7 +38,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
  *
  */
 
-@Autonomous(name="Vortex: line tracker", group="Tracker")
+@Autonomous(name="Auto: gyro tracker", group="Testing")
 public class GyroTrackerOpMode extends OpMode {
 
     /* Declare OpMode members. */
@@ -49,6 +49,11 @@ public class GyroTrackerOpMode extends OpMode {
 
     int bufferSize= 10;
 
+    int start2FireDistance = 500;
+    int fire2TurnDegree = 45;
+    int fire2WallDistance = 3000;
+    int wall2TurnDegree = -45;
+    int wall2BeaconDistance = 5000;
 
     GyroTracker gyroTracker = null;
 
@@ -62,7 +67,7 @@ public class GyroTrackerOpMode extends OpMode {
          */
         robot.init(hardwareMap);
 
-        gyroTracker = new GyroTracker(gyroTracker.gyro,
+        gyroTracker = new GyroTracker(robot.gyro,
                 robot.motorLeftWheel,
                 robot.motorRightWheel,
                 bufferSize);
@@ -79,9 +84,13 @@ public class GyroTrackerOpMode extends OpMode {
      */
     @Override
     public void init_loop() {
-        // collect baseline brightness
-
-        updateTelemetry(telemetry);
+        // make sure the gyro is calibrated.
+        if (gyroTracker.gyro.isCalibrating())  {
+            telemetry.addData(">", "Gyro is calibrating.  DO NOT start.");
+        }
+        else {
+            telemetry.addData(">", "Gyro calibrated.  Press Start.");
+        }
     }
 
     /*
@@ -100,12 +109,62 @@ public class GyroTrackerOpMode extends OpMode {
     public void loop() {
         switch (state) {
             case 0:
-                gyroTracker.loop();
-
+                // go straight
+                state = goStraight (0, 1.0/10.0, 1.0, 0, start2FireDistance, 0,1);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 1:
+                // turn 45 degree
+                state = turn(fire2TurnDegree,0.1,0.0,1,2);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 2:
+                // go straight
+                state = goStraight (0, 1.0/10.0, 1.0, 0, fire2WallDistance, 2,3);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 3:
+                // turn -45 degree
+                state = turn(wall2TurnDegree,0.1,0.0,1,2);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 4:
+                // go straight
+                state = goStraight (0, 1.0/10.0, 1.0, 0, wall2BeaconDistance, 4,5);
+                telemetry.addData("State:", "%02d", state);
                 break;
             default:
+                // stop
+                telemetry.addData("State:", "End");
+                stop();
         }
-        updateTelemetry(telemetry);
+        telemetry.update();
+    }
+
+    public int goStraight ( int heading, double sensitivity, double power,
+                            int startDistance, int deltaDistance,
+                            int startState, int endState) {
+        // get motor distance
+        int lD = robot.motorLeftWheel.getCurrentPosition();
+        int rD = robot.motorRightWheel.getCurrentPosition();
+        int d = Math.min(lD, rD);
+
+        if ( d - startDistance < deltaDistance) {
+            gyroTracker.skewAngelPowerGain = sensitivity;
+            gyroTracker.goStraight(heading, power);
+            return startState;
+        }
+
+        return endState;
+    }
+
+    public int turn ( int heading, double sensitivity, double power,
+                      int startState, int endState) {
+        gyroTracker.skewAngelPowerGain = sensitivity;
+        if (gyroTracker.goStraight(heading, power) == true) {
+            return endState;
+        }
+        return startState;
     }
 
     /*

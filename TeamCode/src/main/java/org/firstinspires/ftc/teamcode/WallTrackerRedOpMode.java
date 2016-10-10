@@ -36,7 +36,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 /**
  *
  */
-@Autonomous(name="Vortex: wall tracker red", group="Tracker")
+@Autonomous(name="Auto: wall tracker red", group="Testing")
 public class WallTrackerRedOpMode extends WallTrackerOpMode {
 
     double signValue = 1.0;

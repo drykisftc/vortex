@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -18,18 +19,17 @@ public class GyroTracker {
     public int state = 0;
 
     private int bufferSize = 10;
-    private double[] distanceBuffer = null;
+    private double[] skewAngleBuffer = null;
     private double[] powerBuffer = null;
     private int bufferIndex = 0;
 
-    private double targetDistance = 5.0; // unit cm
-    private double lastDirection = 0.0d;
-    private double lostDistance = 100;
+    private int targetHeading =0;
 
-    double[] dist2PowerLUT = {0.0f, 0.05f, 0.15f, 0.18f, 0.20f,
-            0.22f, 0.24f, 0.26f, 0.28f, 0.30f, 0.32f, 0.34f, 0.36f,
-            0.38f, 0.42f, 0.46f, 0.50f, 0.54f, 0.58f, 0.62f, 0.66f,
-            0.70f, 0.74f, 0.78f, 0.82f, 0.86f, 0.90f, 0.94f, 0.98f, 1.00f};
+    /*
+    adjust to the correct sensitivity for each robot
+     */
+    double skewAngelPowerGain = 1.0/90.0;
+    double skewAngelTolerance = 0;
 
     Telemetry reporter = null;
 
@@ -45,18 +45,13 @@ public class GyroTracker {
         bufferSize = bufferS;
     }
 
-    public void setWallDistance (double d) {
-        targetDistance = d;
-    }
-
     /*
      * Code to run ONCE when the driver hits INIT
      */
     public void init() {
 
-        distanceBuffer = new double[bufferSize];
+        skewAngleBuffer = new double [bufferSize];
         powerBuffer = new double[bufferSize];
-
 
         state =0;
     }
@@ -70,9 +65,35 @@ public class GyroTracker {
         state = startState;
     }
 
-    public void loop () {
+    public boolean goStraight (int target, double power) {
+        targetHeading = target;
 
+        double delta = VortexUtils.getAngleError(target,gyro.getHeading());
+        skewAngleBuffer[bufferIndex] = delta;
+        double deltaPower = skewAngelPowerGain * delta;
+        boolean doNothing = true;
 
+        if (Math.abs(delta) > skewAngelTolerance) {
+            // move motor
+            leftWheel.setPower(Range.clip(power - deltaPower, -1, 1));
+            rightWheel.setPower(Range.clip(power + deltaPower, -1, 1));
+            doNothing = false;
+        } else {
+            deltaPower = 0.0;
+        }
+
+        powerBuffer[bufferIndex] = deltaPower;
+        bufferIndex++;
+        if (bufferIndex >= bufferSize) {
+            bufferIndex = 0;
+        }
+
+        if (reporter != null) {
+            reporter.addData("Heading angle skew", "%.2f vs %.2f", delta, skewAngelTolerance);
+            reporter.addData("Heading power", "%.2f", deltaPower);
+        }
+
+        return doNothing;
     }
 
     /*

@@ -37,7 +37,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 /**
  *
  */
-@Autonomous(name="Vortex: right wall tracker", group="Tracker")
+@Autonomous(name="Auto: right wall tracker", group="Testing")
 @Disabled
 public class WallTrackerOpMode extends OpMode {
 

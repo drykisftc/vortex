@@ -49,7 +49,7 @@ import java.nio.Buffer;
  *
  */
 
-@Autonomous(name="Vortex: line tracker", group="Tracker")
+@Autonomous(name="Auto: line tracker", group="Testing")
 public class LineTrackerOpMode extends OpMode {
 
     /* Declare OpMode members. */
