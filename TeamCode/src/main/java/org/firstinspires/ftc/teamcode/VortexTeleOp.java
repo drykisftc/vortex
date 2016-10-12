@@ -65,8 +65,8 @@ public class VortexTeleOp extends OpMode{
     protected int leftArmHomePosition = 0;
     protected int rightArmHomePosition = 0;
 
-    protected final int leftArmHomeParkingOffset = 200;
-    protected final int leftArmLoadPositionOffset = 800;
+    protected final int leftArmHomeParkingOffset = 150;
+    protected final int leftArmLoadPositionOffset = 850;
     protected final int leftArmSnapPositionOffset = 50;
     protected final int leftArmFirePositionOffset = 4000;
     protected final int leftArmMaxOffset = 5500;
@@ -77,11 +77,13 @@ public class VortexTeleOp extends OpMode{
     protected int leftArmSnapPosition= leftArmSnapPositionOffset;
     protected int leftArmFirePosition = leftArmFirePositionOffset;
     protected int leftArmFiringSafeZone = leftArmFiringSafeZoneOffset;
+    protected int leftArmPeakPosition = leftArmMaxOffset/2;
     protected int leftArmMaxRange = leftArmMaxOffset;
 
     protected double leftArmJoystickDeadZone = 0.05;
     protected double leftArmHoldPower = 0.3;
     protected double leftArmAutoMovePower = 0.5;
+    protected double leftArmAutoSlowMovePower = 0.2;
 
     // hand parameters
     protected int leftHandHomePosition = 0;
@@ -115,12 +117,11 @@ public class VortexTeleOp extends OpMode{
 
     double [] armPowerLUT = { 0.0f, 0.01f, 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f,
             0.08f, 0.09f, 0.10f, 0.11f, 0.12f, 0.13f, 0.14f, 0.15f,
-            0.17f, 0.18f, 0.19f, 0.20f, 0.21f, 0.22f, 0.23f, 0.24f,
-            0.25f, 0.26f, 0.27f, 0.28f, 0.29f, 0.30f, 0.31f, 0.32f,
-            0.33f, 0.34f, 0.35f, 0.36f, 0.37f, 0.38f, 0.39f, 0.40f,
+            0.16f, 0.17f, 0.18f, 0.19f, 0.20f, 0.21f, 0.22f, 0.23f,
+            0.24f, 0.25f, 0.26f, 0.27f, 0.28f, 0.29f, 0.30f, 0.31f,
+            0.32f, 0.33f, 0.34f, 0.35f, 0.36f, 0.37f, 0.38f, 0.39f, 0.40f,
             0.41f, 0.42f, 0.43f, 0.44f, 0.45f, 0.46f, 0.47f, 0.48f,
-            0.49f, 0.50f, 0.51f, 0.52f, 0.53f, 0.54f, 0.55f, 0.56f,
-            0.60f, 0.62f, 0.64f, 0.66f, 0.68f, 0.70f, 0.72f, 0.74f, 0.76f};
+            0.49f, 0.50f, 0.51f, 0.52f, 0.53f, 0.54f, 0.55f, 0.56f, 0.76f};
 
     double [] armDistanceLUT = { 0.0f, 0.01f, 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f,
             0.08f, 0.09f, 0.10f, 0.11f, 0.12f, 0.13f, 0.14f, 0.15f,
@@ -185,6 +186,7 @@ public class VortexTeleOp extends OpMode{
         leftArmSnapPosition= leftArmHomePosition+leftArmSnapPositionOffset;
         leftArmFirePosition = leftArmHomePosition+ leftArmFirePositionOffset;
         leftArmFiringSafeZone = leftArmHomePosition+ leftArmFiringSafeZoneOffset;
+        leftArmPeakPosition = leftArmHomePosition + leftArmMaxOffset/2;
         leftArmMaxRange = leftArmHomePosition + leftArmMaxOffset;
 
         robot.motorLeftHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -281,16 +283,20 @@ public class VortexTeleOp extends OpMode{
         }
         else {
             switch (leftArmState) {
-                case HOME:
+                case HOME: {
                     // go to home position
-                    if (robot.motorLeftArm.getCurrentPosition() <= leftArmHomeParkingPostion) {
+                    int currentP = robot.motorLeftArm.getCurrentPosition();
+                    if (currentP <= leftArmHomeParkingPostion) {
                         robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         robot.motorLeftArm.setPower(0.0);
+                    } else if (currentP < leftArmPeakPosition) {
+                        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPostion, leftArmAutoSlowMovePower);
                     } else {
                         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPostion, leftArmAutoMovePower);
                     }
+                }
                     break;
-                case LOAD:
+                case LOAD: {
                     // if trigger snap, move between snap position and load position
                     double snapTrigger = gamepad1.left_trigger;
                     if (snapTrigger > leftArmJoystickDeadZone) {
@@ -298,16 +304,18 @@ public class VortexTeleOp extends OpMode{
                                 - (int) ((leftArmLoadPosition - leftArmHomePosition) * snapTrigger);
                         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, target, 1.0);
                     } else {
-                        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmLoadPosition, 1.0);
+                        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmLoadPosition, leftArmAutoMovePower);
                     }
+                }
                     break;
                 case FIRE:
                     // move to fire position
+                {
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmFirePosition, leftArmAutoMovePower);
+                }
                     break;
                 case MANUAL:
                 default:
-                    telemetry.addData("left arm", "default  ");
                     // hold current position
                     if (isArmHoldingPositionSet) {
                         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, armTargetPosition, leftArmHoldPower);
