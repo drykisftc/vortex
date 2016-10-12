@@ -68,20 +68,23 @@ public class GyroTracker {
     public boolean goStraight (int target, double power) {
         targetHeading = target;
 
-        double delta = VortexUtils.getAngleError(target,gyro.getHeading());
-        skewAngleBuffer[bufferIndex] = delta;
-        double deltaPower = skewAngelPowerGain * delta;
         boolean doNothing = true;
 
+        // compute power delta
+        int heading = gyro.getHeading();
+        double delta = VortexUtils.getAngleError(target, heading);
+        double deltaPower = 0.0;
         if (Math.abs(delta) > skewAngelTolerance) {
-            // move motor
-            leftWheel.setPower(Range.clip(power - deltaPower, -1, 1));
-            rightWheel.setPower(Range.clip(power + deltaPower, -1, 1));
+            deltaPower = skewAngelPowerGain * delta;
             doNothing = false;
-        } else {
-            deltaPower = 0.0;
         }
 
+        // move motor
+        leftWheel.setPower(Range.clip(power - deltaPower, -1, 1));
+        rightWheel.setPower(Range.clip(power + deltaPower, -1, 1));
+
+        // save history
+        skewAngleBuffer[bufferIndex] = delta;
         powerBuffer[bufferIndex] = deltaPower;
         bufferIndex++;
         if (bufferIndex >= bufferSize) {
@@ -89,8 +92,10 @@ public class GyroTracker {
         }
 
         if (reporter != null) {
-            reporter.addData("Heading angle skew", "%.2f vs %.2f", delta, skewAngelTolerance);
-            reporter.addData("Heading power", "%.2f", deltaPower);
+            reporter.addData("Heading angle       =", "%3d", heading);
+            reporter.addData("Heading angle skew  =", "%.2f vs %.2f", delta, skewAngelTolerance);
+            reporter.addData("Heading power       =", "%.2f", power);
+            reporter.addData("Heading delta power =", "%.2f", deltaPower);
         }
 
         return doNothing;

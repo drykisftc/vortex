@@ -55,6 +55,9 @@ public class GyroTrackerOpMode extends OpMode {
     int wall2TurnDegree = -45;
     int wall2BeaconDistance = 5000;
 
+    double cruisingPower = 1.0;
+    double searchingPower = 0.3;
+
     GyroTracker gyroTracker = null;
 
     /*
@@ -100,6 +103,7 @@ public class GyroTrackerOpMode extends OpMode {
     public void start() {
         // compute baseline brightness
         gyroTracker.start(0);
+        state = 0;
     }
 
     /*
@@ -125,7 +129,7 @@ public class GyroTrackerOpMode extends OpMode {
                 break;
             case 3:
                 // turn -45 degree
-                state = turn(wall2TurnDegree,0.1,0.0,1,2);
+                state = turn(wall2TurnDegree,0.1,0.0,3,4);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 4:
