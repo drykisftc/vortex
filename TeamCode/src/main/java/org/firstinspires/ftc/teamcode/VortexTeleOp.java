@@ -86,11 +86,15 @@ public class VortexTeleOp extends OpMode{
     // hand parameters
     protected int leftHandHomePosition = 0;
     protected int leftHandFirePositionOffset = 560;
+    protected int leftHandFireOvershotOffset = 350;
     protected double leftHandHoldPower = 0.05;
     protected double leftHandFirePower = 1.0;
     protected int fireCount =0;
     protected long lastFireTimeStamp = 0;
-    protected long minFireInterval = 1000;
+    protected long minFireInterval = 1500;
+    protected long minReloadInterval = 1000;
+    protected boolean leftHandReloaded = true;
+    protected int leftHandFirePositionTolerance = 10;
 
     enum LeftArmState {
         HOME,
@@ -101,7 +105,7 @@ public class VortexTeleOp extends OpMode{
 
     protected LeftArmState leftArmState = LeftArmState.HOME;
 
-    boolean ArmTargetPositionSet = false;
+    boolean isArmHoldingPositionSet = false;
     int armTargetPosition = 0;
 
     double [] wheelPowerLUT = {0.0f, 0.05f, 0.15f, 0.18f, 0.20f,
@@ -188,7 +192,7 @@ public class VortexTeleOp extends OpMode{
         robot.motorLeftHand.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.motorLeftHand.setTargetPosition(leftHandHomePosition);
         robot.motorLeftHand.setPower(leftHandHoldPower);
-        fireCount =0;
+        fireCount = 0;
 
         telemetry.update();
     }
@@ -239,22 +243,29 @@ public class VortexTeleOp extends OpMode{
 
         telemetry.addData("left arm",  "%.2f", throttle);
         if (Math.abs(throttle) >= leftArmJoystickDeadZone) {
-            ArmTargetPositionSet = false;
+            // set to manual mode
             leftArmState = LeftArmState.MANUAL;
+            isArmHoldingPositionSet = false;
+
+            // get joystick position
             double power = Range.clip(VortexUtils.lookUpTableFunc(throttle, armPowerLUT), -1, 1);
             telemetry.addData("arm power",  "%.2f", power);
+
+            // move arms
             if (boolLeftArmEnable) {
                 robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 int currentPos = robot.motorLeftArm.getCurrentPosition();
                 telemetry.addData("left arm pos",  "%6d vs %6d", currentPos, leftArmMaxRange);
-                // button A allow moving to home, just in case the robot starts with a bad arm position
-                if ( (!gamepad1.a)
+                // button x allow arm moving to home, just in case the arm loses encoder home position
+                // giving a chance to reset home position
+                if ( (!gamepad1.x)
                         && currentPos < leftArmHomeParkingOffset
                         && power <=0) {
                     telemetry.addData("left arm min exceed", "STOP!!!!!!!!!!!!!!!");
                     robot.motorLeftArm.setPower(0.0);
                     robot.motorRightArm.setPower(0.0);
-                } else if (currentPos > leftArmMaxRange && power >=0) {
+                } else if (currentPos > leftArmMaxRange
+                        && power >=0) {
                     telemetry.addData("left arm max exceeded", "STOP!!!!!!!!!!!!!!");
                     robot.motorLeftArm.setPower(0.0);
                     robot.motorRightArm.setPower(0.0);
@@ -271,6 +282,7 @@ public class VortexTeleOp extends OpMode{
         else {
             switch (leftArmState) {
                 case HOME:
+                    // go to home position
                     if (robot.motorLeftArm.getCurrentPosition() <= leftArmHomeParkingPostion) {
                         robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         robot.motorLeftArm.setPower(0.0);
@@ -290,26 +302,28 @@ public class VortexTeleOp extends OpMode{
                     }
                     break;
                 case FIRE:
+                    // move to fire position
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmFirePosition, leftArmAutoMovePower);
                     break;
                 case MANUAL:
                 default:
                     telemetry.addData("left arm", "default  ");
                     // hold current position
-                    if (ArmTargetPositionSet) {
+                    if (isArmHoldingPositionSet) {
                         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, armTargetPosition, leftArmHoldPower);
                     } else {
-                        // set the target position whithin limits.
+                        // set the target position to limits.
                         int curPos = robot.motorLeftArm.getCurrentPosition();
                         if ( curPos >= leftArmHomeParkingPostion) {
                             armTargetPosition = Math.max(leftArmHomeParkingPostion, curPos);
                             armTargetPosition = Math.min(leftArmMaxRange, armTargetPosition);
-                            ArmTargetPositionSet = true;
+                            isArmHoldingPositionSet = true;
                         }
+                        // stop motor to prevent it overshoot the limits. Power will enable in next loop call.
+                        robot.motorLeftArm.setPower(0.0);
                     }
             }
         }
-
     }
 
     public void buttonControl () {
@@ -322,9 +336,9 @@ public class VortexTeleOp extends OpMode{
         } else if (gamepad1.y) {
             // go to shoot position
             leftArmState = LeftArmState.FIRE;
-        } else if ( gamepad1.x && gamepad1.y && gamepad1.b)
+        } else if ( gamepad1.x && gamepad1.y )
         {
-            // reset left arm home position
+            // reset left arm home position when both x and y button is pressed
             robot.motorLeftArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
     }
@@ -332,15 +346,34 @@ public class VortexTeleOp extends OpMode{
     public void triggerControl () {
 
         // firing trigger
-        long currentT = System.currentTimeMillis();
-        if (gamepad1.right_trigger > 0.5
-                && currentT - lastFireTimeStamp  > minFireInterval
-                && robot.motorLeftArm.getCurrentPosition() > leftArmFiringSafeZone) {
-            // fire
-            fireCount ++;
-            lastFireTimeStamp = currentT;
+        if (gamepad1.right_trigger > 0.5 ) {
+            long currentT = System.currentTimeMillis();
+            long timeSinceLastFiring = System.currentTimeMillis() - lastFireTimeStamp;
+            int currentP = robot.motorLeftArm.getCurrentPosition();
+            int fireP = leftHandHomePosition + fireCount * leftHandFirePositionOffset;
+            if (leftHandReloaded
+                    && timeSinceLastFiring > minFireInterval) {
+                if ( currentP > leftArmFiringSafeZone) {
+                    // fire
+                    fireCount++;
+                    lastFireTimeStamp = currentT;
+                    VortexUtils.moveMotorByEncoder(robot.motorLeftHand,
+                            fireP + leftHandFireOvershotOffset + leftHandFirePositionOffset,
+                            leftHandFirePower);
+                }
+            } else if ( timeSinceLastFiring > minReloadInterval) {
+                // reload
+                VortexUtils.moveMotorByEncoder(robot.motorLeftHand,
+                        fireP, leftHandFirePower*0.5);
+            } else if ( Math.abs(currentP - fireP) < leftHandFirePositionTolerance) {
+                // assume that reload is done
+                leftHandReloaded = true;
+            }
+        } else {
             VortexUtils.moveMotorByEncoder(robot.motorLeftHand,
-                    leftHandHomePosition + fireCount*leftHandFirePositionOffset, leftHandFirePower);
+                    leftHandHomePosition + fireCount * leftHandFirePositionOffset,
+                    leftHandHoldPower);
+            leftHandReloaded = true;
         }
     }
 
