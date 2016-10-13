@@ -59,6 +59,8 @@ public class VortexTeleOp extends OpMode{
     protected HardwareVortex robot       = new HardwareVortex(); // use the class created to define a Pushbot's hardware
                                                          // could also use HardwareVortexMatrix class.
 
+    HardwareWallTracker wallTracker = new HardwareWallTracker();
+
     protected boolean boolLeftArmEnable = true;
     protected boolean boolRightArmEnable = false;
 
@@ -66,7 +68,7 @@ public class VortexTeleOp extends OpMode{
     protected int rightArmHomePosition = 0;
 
     protected final int leftArmHomeParkingOffset = 150;
-    protected final int leftArmLoadPositionOffset = 850;
+    protected final int leftArmLoadPositionOffset = 950;
     protected final int leftArmSnapPositionOffset = 50;
     protected final int leftArmFirePositionOffset = 4000;
     protected final int leftArmMaxOffset = 5500;
@@ -151,9 +153,8 @@ public class VortexTeleOp extends OpMode{
          * The init() method of the hardware class does all the work here
          */
         robot.init(hardwareMap);
-
-        robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        wallTracker.init(hardwareMap);
+        wallTracker.park();
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("TeleOp", "Hello Vortex");    //
@@ -172,12 +173,22 @@ public class VortexTeleOp extends OpMode{
      */
     @Override
     public void start() {
+
+        // wheels
+        robot.motorLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.motorRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.motorRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.motorLeftWheel.setPower(0.0);
+        robot.motorRightWheel.setPower(0.0);
+
+        // arms
         robot.motorLeftArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.motorRightArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.motorLeftHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
         robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.motorLeftArm.setPower(0.0);
+        robot.motorRightArm.setPower(0.0);
         leftArmHomePosition = robot.motorLeftArm.getCurrentPosition();
         telemetry.addData("left arm home",  "%2d", leftArmHomePosition);
         rightArmHomePosition = robot.motorRightArm.getCurrentPosition();
@@ -191,6 +202,8 @@ public class VortexTeleOp extends OpMode{
         leftArmPeakPosition = leftArmHomePosition + leftArmMaxOffset/2;
         leftArmMaxRange = leftArmHomePosition + leftArmMaxOffset;
 
+        // hands
+        robot.motorLeftHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.motorLeftHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftHandHomePosition = robot.motorLeftHand.getCurrentPosition();
         robot.motorLeftHand.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -334,6 +347,17 @@ public class VortexTeleOp extends OpMode{
                     }
             }
         }
+
+        if (gamepad1.dpad_left) {
+            wallTracker.moveSonicArmToLeft();
+        }
+
+        if (gamepad1.dpad_right) {
+            int currentP = robot.motorLeftArm.getCurrentPosition();
+            if (currentP > leftArmLoadPosition) {
+                wallTracker.moveSonicArmToRight();
+            }
+        }
     }
 
     public void buttonControl () {
@@ -402,7 +426,7 @@ public class VortexTeleOp extends OpMode{
      */
     @Override
     public void stop() {
-        robot.close();
+        robot.stop();
     }
 
 }

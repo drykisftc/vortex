@@ -63,7 +63,7 @@ public class WallTrackerOpMode extends OpMode {
          */
         robot.init(hardwareMap);
 
-        wallTracker = new WallTracker(robot.leftRange,
+        wallTracker = new WallTracker(robot.sonicRange,
                 robot.motorLeftWheel,
                 robot.motorRightWheel,
                 bufferSize);

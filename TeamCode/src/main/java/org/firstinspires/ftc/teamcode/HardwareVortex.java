@@ -87,7 +87,7 @@ public class HardwareVortex
 
     }
 
-    public void close () {
+    public void stop() {
         motorLeftWheel.setPower(0.0);
         motorRightWheel.setPower(0.0);
         motorLeftArm.setPower(0.0);

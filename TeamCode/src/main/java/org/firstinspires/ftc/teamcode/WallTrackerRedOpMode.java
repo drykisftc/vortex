@@ -31,7 +31,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 /**
  *
@@ -47,7 +46,7 @@ public class WallTrackerRedOpMode extends WallTrackerOpMode {
          */
         robot.init(hardwareMap);
 
-        wallTracker = new WallTracker(robot.leftRange,
+        wallTracker = new WallTracker(robot.sonicRange,
                 robot.motorLeftWheel,
                 robot.motorRightWheel,
                 bufferSize);

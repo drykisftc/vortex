@@ -47,7 +47,7 @@ public class WallTrackerBlueOpMode extends WallTrackerOpMode {
          */
         robot.init(hardwareMap);
 
-        wallTracker = new WallTracker(robot.rightRange,
+        wallTracker = new WallTracker(robot.sonicRange,
                 robot.motorLeftWheel,
                 robot.motorRightWheel,
                 bufferSize);

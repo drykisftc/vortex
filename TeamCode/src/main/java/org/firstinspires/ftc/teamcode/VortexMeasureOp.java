@@ -57,7 +57,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class VortexMeasureOp extends VortexTeleOp {
 
     HardwareLineTracker lineTracker = new HardwareLineTracker();
-    HardwareWallTracker wallTracker = new HardwareWallTracker();
     HardwareGyroTracker gyroTracker = new HardwareGyroTracker();
 
     int xVal, yVal, zVal = 0;     // Gyro rate Values
@@ -77,7 +76,6 @@ public class VortexMeasureOp extends VortexTeleOp {
         super.init();
         gyroTracker.init(robot.hwMap);
         lineTracker.init(robot.hwMap,4);
-        wallTracker.init(robot.hwMap);
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("MeasureOp", "Hello Vortex");    //
@@ -106,12 +104,17 @@ public class VortexMeasureOp extends VortexTeleOp {
 
         gyroTracker.gyro.resetZAxisIntegrator();
 
+        robot.motorLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.motorRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.motorRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         robot.motorLeftArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.motorRightArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.motorLeftHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
         robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        robot.motorLeftHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.motorLeftHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
@@ -123,32 +126,29 @@ public class VortexMeasureOp extends VortexTeleOp {
     public void loop() {
 
         // get wheel info
-        telemetry.addData("Left wheel pos", robot.motorLeftWheel.getCurrentPosition());
-        telemetry.addData("right wheel pos", robot.motorRightWheel.getCurrentPosition());
+        telemetry.addData("Left wheel pos ", "%6d", robot.motorLeftWheel.getCurrentPosition());
+        telemetry.addData("right wheel pos", "%6d", robot.motorRightWheel.getCurrentPosition());
 
         // get arm info
-        telemetry.addData("left arm pos", robot.motorLeftArm.getCurrentPosition());
-        telemetry.addData("right arm pos", robot.motorRightArm.getCurrentPosition());
+        telemetry.addData("left arm pos  ", "%6d", robot.motorLeftArm.getCurrentPosition());
+        telemetry.addData("right arm pos ", "%6d", robot.motorRightArm.getCurrentPosition());
 
         // get hand info
-        telemetry.addData("left hand pos",robot.motorLeftHand.getCurrentPosition());
-        telemetry.addData("right hand pos", robot.motorRightHand.getCurrentPosition());
+        telemetry.addData("left hand pos ", "%6d", robot.motorLeftHand.getCurrentPosition());
+        telemetry.addData("right hand pos", "%6d", robot.motorRightHand.getCurrentPosition());
 
         // get ods info
         for (int i =0; i< lineTracker.arraySize; i++) {
-            telemetry.addData("ODS Raw" + Integer.toString(i), lineTracker.sensorArray[i].getRawLightDetected());
-            telemetry.addData("ODS Normal"+ Integer.toString(i), lineTracker.sensorArray[i].getLightDetected());
+            telemetry.addData("ODS Raw   " + Integer.toString(i), lineTracker.sensorArray[i].getRawLightDetected());
+            telemetry.addData("ODS Normal" + Integer.toString(i), lineTracker.sensorArray[i].getLightDetected());
         }
 
         // get range info
-        telemetry.addData("Range left raw ultrasonic", wallTracker.leftRange.rawUltrasonic());
-        telemetry.addData("Range left raw optical", wallTracker.leftRange.rawOptical());
-        telemetry.addData("Range left cm optical", "%.2f cm", wallTracker.leftRange.cmOptical());
-        telemetry.addData("Range left cm", "%.2f cm", wallTracker.leftRange.getDistance(DistanceUnit.CM));
-        telemetry.addData("Range right raw ultrasonic", wallTracker.leftRange.rawUltrasonic());
-        telemetry.addData("Range rightraw optical", wallTracker.leftRange.rawOptical());
-        telemetry.addData("Range rightcm optical", "%.2f cm", wallTracker.leftRange.cmOptical());
-        telemetry.addData("Range rightcm", "%.2f cm", wallTracker.leftRange.getDistance(DistanceUnit.CM));
+        telemetry.addData("Range arm position   ", "%.2f", wallTracker.sonicArm.getPosition());
+        telemetry.addData("Range raw optical    ", "%3d", wallTracker.sonicRange.rawOptical());
+        telemetry.addData("Range cm optical     ", "%.2f cm", wallTracker.sonicRange.cmOptical());
+        telemetry.addData("Range raw ultrasonic ", "%3d",  wallTracker.sonicRange.rawUltrasonic());
+        telemetry.addData("Range cm ultrasonic  ", "%.2f cm", wallTracker.sonicRange.getDistance(DistanceUnit.CM));
 
         // get gyro info
         curResetState = (gamepad1.a && gamepad1.b);
@@ -206,5 +206,6 @@ public class VortexMeasureOp extends VortexTeleOp {
     public void stop() {
         super.stop();
     }
+
 
 }
