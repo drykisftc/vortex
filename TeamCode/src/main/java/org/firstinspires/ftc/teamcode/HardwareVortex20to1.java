@@ -1,11 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 /**
  * This is NOT an OpMode
@@ -29,7 +25,7 @@ import com.qualcomm.robotcore.hardware.Servo;
  *
  * In addition, the Matrix Controller has been assigned the name:  "matrix controller"
  */
-public class HardwareVortex
+public class HardwareVortex20to1
 {
 
     HardwareMap hwMap           =  null;
@@ -49,7 +45,7 @@ public class HardwareVortex
     // Camera
 
     /* Constructor */
-    public HardwareVortex(){
+    public HardwareVortex20to1(){
 
     }
 
@@ -60,8 +56,8 @@ public class HardwareVortex
 
         motorLeftWheel   = hwMap.dcMotor.get("leftWheel");
         motorRightWheel  = hwMap.dcMotor.get("rightWheel");
-        motorLeftWheel.setDirection(DcMotor.Direction.FORWARD);  // 40 to 1 andymark motor
-        motorRightWheel.setDirection(DcMotor.Direction.REVERSE); // 40 to 1 andymark motor
+        motorLeftWheel.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
+        motorRightWheel.setDirection(DcMotor.Direction.FORWARD);// Set to FORWARD if using AndyMark motors
         motorLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
