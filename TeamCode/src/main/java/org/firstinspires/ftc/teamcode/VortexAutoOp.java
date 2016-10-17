@@ -75,7 +75,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     public void init() {
         super.init();
         beaconToucher = new BeaconToucher();
-        particleShooter = new ParticleShooter();
+        particleShooter = new ParticleShooter(robot.motorLeftArm, robot.motorLeftHand);
     }
 
     /*
