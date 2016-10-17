@@ -166,8 +166,8 @@ public class LineTracker {
             rightWheel.setPower(0.0d);
             return 1;
         } else {
-            leftWheel.setPower(power);
-            rightWheel.setPower(power);
+            leftWheel.setPower(Range.clip(power,-1,1));
+            rightWheel.setPower(Range.clip(power,-1,1));
             return 0;
         }
 

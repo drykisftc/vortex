@@ -101,6 +101,47 @@ public class GyroTracker {
         return doNothing;
     }
 
+    public boolean turn (int target, double minPower) {
+        targetHeading = target;
+
+        boolean doNothing = true;
+
+        // compute power delta
+        int heading = gyro.getHeading();
+        double delta = VortexUtils.getAngleError(target, heading);
+        double deltaPower = 0.0;
+        if (Math.abs(delta) > skewAngelTolerance) {
+            deltaPower = skewAngelPowerGain * delta;
+            doNothing = false;
+        }
+
+        // move motor
+        if (deltaPower !=0) {
+            leftWheel.setPower(Range.clip(Math.min(minPower * (-deltaPower) / Math.abs(deltaPower), -deltaPower), -1, 1));
+            rightWheel.setPower(Range.clip(Math.max(minPower * deltaPower / Math.abs(deltaPower), deltaPower), -1, 1));
+        } else {
+            leftWheel.setPower(0.0);
+            rightWheel.setPower(0.0);
+        }
+
+        // save history
+        skewAngleBuffer[bufferIndex] = delta;
+        powerBuffer[bufferIndex] = deltaPower;
+        bufferIndex++;
+        if (bufferIndex >= bufferSize) {
+            bufferIndex = 0;
+        }
+
+        if (reporter != null) {
+            reporter.addData("Heading angle       =", "%3d", heading);
+            reporter.addData("Heading angle skew  =", "%.2f vs %.2f", delta, skewAngelTolerance);
+            reporter.addData("Heading power       =", "%.2f", minPower);
+            reporter.addData("Heading delta power =", "%.2f", deltaPower);
+        }
+
+        return doNothing;
+    }
+
     /*
      * Code to run ONCE after the driver hits STOP
      */
