@@ -145,12 +145,12 @@ public class GyroTrackerOpMode extends OpMode {
                 break;
             case 3:
                 // turn -45 degree back
-                state = turn(landMarkAngle,inplaceTurnSensitivity,turningPower,3,4);
+                state = turn(landMarkAngle+fire2TurnDegree+wall2TurnDegree,inplaceTurnSensitivity,turningPower,3,4);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 4:
                 // go straight
-                state = goStraight (landMarkAngle, cruisingTurnSensitivity, cruisingPower, landMarkPosition, wall2BeaconDistance, 4,5);
+                state = goStraight (landMarkAngle+fire2TurnDegree+wall2TurnDegree, cruisingTurnSensitivity, cruisingPower, landMarkPosition, wall2BeaconDistance, 4,5);
                 telemetry.addData("State:", "%02d", state);
                 break;
             default:

@@ -8,15 +8,12 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.text.DecimalFormat;
 
-public class GyroTracker {
+public class GyroTracker extends Excecutor {
 
     ModernRoboticsI2cGyro gyro = null;
 
     DcMotor leftWheel = null;
     DcMotor rightWheel = null;
-
-    // state machine
-    public int state = 0;
 
     private int bufferSize = 10;
     private double[] skewAngleBuffer = null;
@@ -31,9 +28,6 @@ public class GyroTracker {
     double skewAngelPowerGain = 1.0/90.0;
     double skewAngelTolerance = 0;
 
-    Telemetry reporter = null;
-
-    private static DecimalFormat df3 = new DecimalFormat(".###");
 
     public GyroTracker(ModernRoboticsI2cGyro leftO,
                        DcMotor leftW,
@@ -54,15 +48,6 @@ public class GyroTracker {
         powerBuffer = new double[bufferSize];
 
         state =0;
-    }
-
-    /**
-     *
-     * @param startState, The initial state of wall follower
-     */
-    public void start(int startState) {
-
-        state = startState;
     }
 
     public boolean goStraight (int target, double power) {
@@ -141,19 +126,5 @@ public class GyroTracker {
 
         return doNothing;
     }
-
-    /*
-     * Code to run ONCE after the driver hits STOP
-     */
-
-    public void stop() {
-        leftWheel.setPower(0.0);
-        rightWheel.setPower(0.0);
-    }
-
-    public void setReporter (Telemetry t){
-        reporter = t;
-    }
-
 
 }

@@ -59,25 +59,23 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 @Autonomous(name="Auto: base", group="Auto")
 @Disabled
-public class VortexAutoOp extends OpMode{
+public class VortexAutoOp extends GyroTrackerOpMode{
 
-    /* Declare OpMode members. */
-    HardwareVortex robot       = new HardwareVortex(); // use the class created to define a Pushbot's hardware
-                                                         // could also use HardwareVortexMatrix class.
+    BeaconToucher beaconToucher = null;
+    ParticleShooter particleShooter = null;
+
+    int beacon2ParkTurnDegree = -135;
+
+    // to do: add wall tracker
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        /* Initialize the hardware variables.
-         * The init() method of the hardware class does all the work here
-         */
-        robot.init(hardwareMap);
-
-        // Send telemetry message to signify robot waiting;
-        telemetry.addData("Say", "Hello Driver");    //
-        updateTelemetry(telemetry);
+        super.init();
+        beaconToucher = new BeaconToucher();
+        particleShooter = new ParticleShooter();
     }
 
     /*
@@ -85,6 +83,7 @@ public class VortexAutoOp extends OpMode{
      */
     @Override
     public void init_loop() {
+        super.init_loop();
     }
 
     /*
@@ -92,6 +91,9 @@ public class VortexAutoOp extends OpMode{
      */
     @Override
     public void start() {
+        super.start();
+        particleShooter.start(0);
+        beaconToucher.start(0);
     }
 
     /*
@@ -99,7 +101,76 @@ public class VortexAutoOp extends OpMode{
      */
     @Override
     public void loop() {
-
+        switch (state) {
+            case 0:
+                // go straight
+                state = goStraight (landMarkAngle, cruisingTurnSensitivity, cruisingPower,
+                        landMarkPosition, start2FireDistance, state,state+1);
+                telemetry.addData("State:", "%02d", state);
+                if (state == 1) {
+                    particleShooter.start(0);
+                }
+                break;
+            case 1:
+                // shoot particles
+                state = particleShooter.loop(state, state+1);
+                break;
+            case 2:
+                // turn 45 degree
+                state = turn(landMarkAngle+fire2TurnDegree, inplaceTurnSensitivity,
+                        turningPower,state,state+1);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 3:
+                // go straight until hit wall
+                state = goStraight (landMarkAngle+fire2TurnDegree, cruisingTurnSensitivity,
+                        cruisingPower, landMarkPosition, fire2WallDistance, state,state+1);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 4:
+                // turn -45 degree back
+                state = turn(landMarkAngle+fire2TurnDegree+wall2TurnDegree,
+                        inplaceTurnSensitivity,turningPower,state,state+1);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 5:
+                // go straight until hit first white line
+                state = goStraight (landMarkAngle+fire2TurnDegree+wall2TurnDegree,
+                        cruisingTurnSensitivity, cruisingPower, landMarkPosition, wall2BeaconDistance, state,state+1);
+                telemetry.addData("State:", "%02d", state);
+                if (state == 6) {
+                    beaconToucher.start(0);
+                }
+                break;
+            case 6:
+                // touch beacon
+                state = beaconToucher.loop(state, state+1);
+                break;
+            case 7:
+                // go straight until hit the second white line
+                if ( state == 8 ) {
+                    beaconToucher.start(0);
+                }
+                break;
+            case 8:
+                // touch beacon
+                state = beaconToucher.loop(state, state+1);
+                break;
+            case 9:
+                // turn 135 degree
+                state = goStraight (landMarkAngle+fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
+                        cruisingTurnSensitivity, cruisingPower, landMarkPosition, wall2BeaconDistance, state,state+1);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 10:
+                // go straight to central parking
+                break;
+            default:
+                // stop
+                telemetry.addData("State:", "End");
+                stop();
+        }
+        telemetry.update();
     }
 
     /*
@@ -107,6 +178,8 @@ public class VortexAutoOp extends OpMode{
      */
     @Override
     public void stop() {
+        homeArm();
+        super.stop();
     }
 
 }

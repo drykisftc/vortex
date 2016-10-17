@@ -8,7 +8,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.text.DecimalFormat;
 
-public class LineTracker {
+public class LineTracker extends Excecutor {
 
     OpticalDistanceSensor leftODS = null;
     OpticalDistanceSensor rightODS = null;
@@ -34,10 +34,6 @@ public class LineTracker {
             0.38f, 0.42f, 0.46f, 0.50f, 0.54f, 0.58f, 0.62f, 0.66f,
             0.70f, 0.74f, 0.78f, 0.82f, 0.86f, 0.90f, 0.94f, 0.98f, 1.00f};
 
-    Telemetry reporter = null;
-
-    private static DecimalFormat df3 = new DecimalFormat(".###");
-
 
     public LineTracker(OpticalDistanceSensor leftO,
                        OpticalDistanceSensor rightO,
@@ -56,6 +52,7 @@ public class LineTracker {
     /*
      * Code to run ONCE when the driver hits INIT
      */
+    @Override
     public void init() {
 
         leftBuffer = new double[bufferSize];
@@ -75,10 +72,11 @@ public class LineTracker {
     /*
      * Code to run ONCE when the driver hits PLAY
      */
-    public void start() {
+    @Override
+    public void start(int stateState) {
         // compute baseline brightness
         baselineODS = Math.min(0.5, getBaselineODS() * baselineSensitivity);
-        state =0;
+        state =stateState;
     }
 
     public void loop (double power) {
@@ -256,9 +254,4 @@ public class LineTracker {
 
         return newState;
     }
-
-    public void setReporter (Telemetry t){
-        reporter = t;
-    }
-
 }

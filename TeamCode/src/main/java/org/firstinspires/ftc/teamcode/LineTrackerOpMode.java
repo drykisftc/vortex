@@ -104,7 +104,7 @@ public class LineTrackerOpMode extends OpMode {
     @Override
     public void start() {
         // compute baseline brightness
-        lineTracker.start();
+        lineTracker.start(0);
     }
 
     /*
