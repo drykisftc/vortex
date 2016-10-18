@@ -101,7 +101,7 @@ public class GyroTracker extends Excecutor {
         }
 
         // move motor
-        if (deltaPower !=0) {
+        if (deltaPower !=0) { // prevent the devided by zero error
             leftWheel.setPower(Range.clip(Math.min(minPower * (-deltaPower) / Math.abs(deltaPower), -deltaPower), -1, 1));
             rightWheel.setPower(Range.clip(Math.max(minPower * deltaPower / Math.abs(deltaPower), deltaPower), -1, 1));
         } else {

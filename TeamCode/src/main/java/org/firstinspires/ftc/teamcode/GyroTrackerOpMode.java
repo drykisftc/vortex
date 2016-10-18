@@ -66,7 +66,7 @@ public class GyroTrackerOpMode extends OpMode {
     // navigation contol info
     double cruisingPower = 1.0;
     double searchingPower = 0.3;
-    double cruisingTurnSensitivity = 0.1;
+    double cruisingTurnSensitivity = 0.2;
     double inplaceTurnSensitivity = 0.02;
     double turningPower = 0.4;
 

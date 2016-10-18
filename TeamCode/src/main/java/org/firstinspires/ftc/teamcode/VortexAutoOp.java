@@ -75,7 +75,9 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     public void init() {
         super.init();
         beaconToucher = new BeaconToucher();
+        beaconToucher.setReporter(telemetry);
         particleShooter = new ParticleShooter(robot.motorLeftArm, robot.motorLeftHand);
+        particleShooter.setReporter(telemetry);
     }
 
     /*
@@ -108,7 +110,10 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                         landMarkPosition, start2FireDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 if (state == 1) {
+                    // prepare to shoot
                     particleShooter.start(0);
+                    robot.motorLeftWheel.setPower(0.0);
+                    robot.motorRightWheel.setPower(0.0);
                 }
                 break;
             case 1:
