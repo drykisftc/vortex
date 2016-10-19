@@ -4,10 +4,6 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-import java.text.DecimalFormat;
-
 public class GyroTracker extends Excecutor {
 
     ModernRoboticsI2cGyro gyro = null;
@@ -20,14 +16,21 @@ public class GyroTracker extends Excecutor {
     private double[] powerBuffer = null;
     private int bufferIndex = 0;
 
-    private int targetHeading =0;
+    private double targetHeading =0;
 
     /*
     adjust to the correct sensitivity for each robot
      */
+    double minTurnPower = 0.1;  // change this value for different robot to compensate the friction
     double skewAngelPowerGain = 1.0/90.0;
     double skewAngelTolerance = 0;
+    private double minTurnSpeed = 1.0;
+    private double maxTurnSpeed = 10;
+    private double minAnglePowerStepSize = 0.02;
 
+
+    private long lastLogTimeStamp = 0;
+    final private int sameplingInteval = 100;
 
     public GyroTracker(ModernRoboticsI2cGyro leftO,
                        DcMotor leftW,
@@ -46,85 +49,105 @@ public class GyroTracker extends Excecutor {
 
         skewAngleBuffer = new double [bufferSize];
         powerBuffer = new double[bufferSize];
-
         state =0;
     }
 
-    public boolean goStraight (int target, double power) {
-        targetHeading = target;
+    /**
+     *
+     * @param target
+     * @param power
+     * @return true if no heading correction
+     */
+    public boolean maintainHeading(double target, double power) {
 
-        boolean doNothing = true;
+        targetHeading = VortexUtils.normalizeHeading(target);
+
+        boolean boolNoTurning = false;
+        int heading = gyro.getHeading();
+        double delta = VortexUtils.getAngleError(targetHeading, heading);
 
         // compute power delta
-        int heading = gyro.getHeading();
-        double delta = VortexUtils.getAngleError(target, heading);
-        double deltaPower = 0.0;
-        if (Math.abs(delta) > skewAngelTolerance) {
-            deltaPower = skewAngelPowerGain * delta;
-            doNothing = false;
-        }
+        double deltaPower = computeTurnPower(delta);
 
         // move motor
-        leftWheel.setPower(Range.clip(power - deltaPower, -1, 1));
-        rightWheel.setPower(Range.clip(power + deltaPower, -1, 1));
+        if ( deltaPower  !=  0.0) {
+            leftWheel.setPower(Range.clip(power - deltaPower, -1, 1));
+            rightWheel.setPower(Range.clip(power + deltaPower, -1, 1));
+        } else {
+            leftWheel.setPower(Range.clip(power, -1, 1));
+            rightWheel.setPower(Range.clip(power, -1, 1));
+            boolNoTurning = true;
+        }
 
         // save history
-        skewAngleBuffer[bufferIndex] = delta;
-        powerBuffer[bufferIndex] = deltaPower;
-        bufferIndex++;
-        if (bufferIndex >= bufferSize) {
-            bufferIndex = 0;
-        }
+        saveHistory(delta, deltaPower);
 
         if (reporter != null) {
             reporter.addData("Heading angle       =", "%3d", heading);
+            reporter.addData("Heading target      =", "%.3f", targetHeading);
             reporter.addData("Heading angle skew  =", "%.2f vs %.2f", delta, skewAngelTolerance);
             reporter.addData("Heading power       =", "%.2f", power);
             reporter.addData("Heading delta power =", "%.2f", deltaPower);
+            reporter.addData("Heading turn gain   =", "%.2f", skewAngelPowerGain);
+            reporter.addData("Minimum turn power  =", "%.2f", minTurnPower);
         }
 
-        return doNothing;
+        return boolNoTurning;
     }
 
-    public boolean turn (int target, double minPower) {
-        targetHeading = target;
+    protected void adjustMinTurnPower(double currentDelta) {
+        if (currentDelta > skewAngelTolerance ) {
+            double minV = 1000;
+            double maxV = -1000;
+            double lastV = 0;
+            int flipCount =0;
+            for (int i = 0; i < bufferIndex; i++) {
+                double v = skewAngleBuffer[i];
+                minV = Math.min(minV, v);
+                maxV = Math.max(maxV, v);
+                if (lastV * v < 0) {
+                    flipCount ++;
+                }
+            }
 
-        boolean doNothing = true;
+            // adjust minimum turn force
+            double deltaChange = maxV - minV;
+            if (deltaChange < minTurnSpeed) {
+                // robot could not turn, boost min turn power
+                minTurnPower += minAnglePowerStepSize;
+            } else if (flipCount >=1 ) {
+                // robot always over-compensated, tune down the min turn power
+                minTurnPower -= minAnglePowerStepSize*0.618;;
+            }
+        }
+    }
 
-        // compute power delta
-        int heading = gyro.getHeading();
-        double delta = VortexUtils.getAngleError(target, heading);
+    protected  void saveHistory (double delta, double deltaPower){
+        long ts = System.currentTimeMillis();
+        if ( ts - lastLogTimeStamp > sameplingInteval) {
+            skewAngleBuffer[bufferIndex] = delta;
+            powerBuffer[bufferIndex] = deltaPower;
+            bufferIndex++;
+            if (bufferIndex >= bufferSize) {
+                bufferIndex = 0;
+            }
+            lastLogTimeStamp= ts;
+            adjustMinTurnPower(delta);
+        }
+    }
+
+    protected  double computeTurnPower (double deltaHeading) {
         double deltaPower = 0.0;
-        if (Math.abs(delta) > skewAngelTolerance) {
-            deltaPower = skewAngelPowerGain * delta;
-            doNothing = false;
+        if (Math.abs(deltaHeading) > skewAngelTolerance) {
+            deltaPower = skewAngelPowerGain * deltaHeading;
+            // always apply minimum force to compensate the friction
+            if (deltaPower > 0) {
+                deltaPower += minTurnPower;
+            } else if (deltaPower < 0  ) {
+                deltaPower -= minTurnPower;
+            }
         }
-
-        // move motor
-        if (deltaPower !=0) { // prevent the devided by zero error
-            leftWheel.setPower(Range.clip(Math.min(minPower * (-deltaPower) / Math.abs(deltaPower), -deltaPower), -1, 1));
-            rightWheel.setPower(Range.clip(Math.max(minPower * deltaPower / Math.abs(deltaPower), deltaPower), -1, 1));
-        } else {
-            leftWheel.setPower(0.0);
-            rightWheel.setPower(0.0);
-        }
-
-        // save history
-        skewAngleBuffer[bufferIndex] = delta;
-        powerBuffer[bufferIndex] = deltaPower;
-        bufferIndex++;
-        if (bufferIndex >= bufferSize) {
-            bufferIndex = 0;
-        }
-
-        if (reporter != null) {
-            reporter.addData("Heading angle       =", "%3d", heading);
-            reporter.addData("Heading angle skew  =", "%.2f vs %.2f", delta, skewAngelTolerance);
-            reporter.addData("Heading power       =", "%.2f", minPower);
-            reporter.addData("Heading delta power =", "%.2f", deltaPower);
-        }
-
-        return doNothing;
+        return deltaPower;
     }
 
 }

@@ -21,4 +21,33 @@ public class HardwareLineTracker extends HardwareVortex {
             sensorArray[i] = hwMap.opticalDistanceSensor.get("ods"+Integer.toString(i));
         }
     }
+
+    public boolean onWhiteLine (  double baseLineBrightness, int sensorYesCountThrehold ){
+
+        int count =0;
+        for ( int i = 0; i< arraySize; i++) {
+            if (sensorArray[i].getLightDetected() > baseLineBrightness) {
+                count ++;
+            }
+        }
+        if (count>= Math.min(arraySize, sensorYesCountThrehold)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public double getBaseLineBrightness (){
+
+        if ( arraySize ==0) {
+            return 0.0;
+        }
+
+        double sum =0.0;
+
+        for ( int i = 0; i< arraySize; i++) {
+            sum += sensorArray[i].getLightDetected();
+        }
+        return sum / arraySize;
+    }
 }

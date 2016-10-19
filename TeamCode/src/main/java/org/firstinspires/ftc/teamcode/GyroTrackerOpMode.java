@@ -58,18 +58,20 @@ public class GyroTrackerOpMode extends OpMode {
 
     // navigation path info
     int start2FireDistance = 2500;
-    int fire2TurnDegree = 45;
-    int fire2WallDistance = 6000;
-    int wall2TurnDegree = -45;
+    int fire2TurnDegree = 75;
+    int fire2WallDistance = 7500;
+    int wall2TurnDegree = -75;
     int wall2BeaconDistance = 7500;
 
     // navigation contol info
     double cruisingPower = 1.0;
     double searchingPower = 0.3;
-    double cruisingTurnSensitivity = 0.2;
-    double inplaceTurnSensitivity = 0.02;
-    double turningPower = 0.4;
+    double cruisingTurnGain = 0.05;
+    double inPlaceTurnGain = 0.01;
+    double turningPower = 0.0; // set to 0.0 to turn in-place
 
+    // arm. Warning, arm power > 0.6 will damage the gear boxes
+    double armPower = 0.4;
 
     GyroTracker gyroTracker = null;
 
@@ -130,27 +132,27 @@ public class GyroTrackerOpMode extends OpMode {
         switch (state) {
             case 0:
                 // go straight
-                state = goStraight (landMarkAngle, cruisingTurnSensitivity, cruisingPower, landMarkPosition, start2FireDistance, 0,1);
+                state = goStraight (landMarkAngle, cruisingTurnGain, cruisingPower, landMarkPosition, start2FireDistance, 0,1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 1:
                 // turn 45 degree
-                state = turn(landMarkAngle+fire2TurnDegree, inplaceTurnSensitivity,turningPower,1,2);
+                state = turn(landMarkAngle+fire2TurnDegree, inPlaceTurnGain,turningPower,1,2);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 2:
                 // go straight
-                state = goStraight (landMarkAngle+fire2TurnDegree, cruisingTurnSensitivity, cruisingPower, landMarkPosition, fire2WallDistance, 2,3);
+                state = goStraight (landMarkAngle+fire2TurnDegree, cruisingTurnGain, cruisingPower, landMarkPosition, fire2WallDistance, 2,3);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 3:
                 // turn -45 degree back
-                state = turn(landMarkAngle+fire2TurnDegree+wall2TurnDegree,inplaceTurnSensitivity,turningPower,3,4);
+                state = turn(landMarkAngle+fire2TurnDegree+wall2TurnDegree, inPlaceTurnGain,turningPower,3,4);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 4:
                 // go straight
-                state = goStraight (landMarkAngle+fire2TurnDegree+wall2TurnDegree, cruisingTurnSensitivity, cruisingPower, landMarkPosition, wall2BeaconDistance, 4,5);
+                state = goStraight (landMarkAngle+fire2TurnDegree+wall2TurnDegree, cruisingTurnGain, cruisingPower, landMarkPosition, wall2BeaconDistance, 4,5);
                 telemetry.addData("State:", "%02d", state);
                 break;
             default:
@@ -162,7 +164,7 @@ public class GyroTrackerOpMode extends OpMode {
         telemetry.update();
     }
 
-    public int goStraight ( int heading, double sensitivity, double power,
+    public int goStraight ( double heading, double gain, double power,
                             int startDistance, int deltaDistance,
                             int startState, int endState) {
         // get motor distance
@@ -171,8 +173,8 @@ public class GyroTrackerOpMode extends OpMode {
         int d = Math.min(lD, rD);
 
         if ( d - startDistance < deltaDistance) {
-            gyroTracker.skewAngelPowerGain = sensitivity;
-            gyroTracker.goStraight(heading, power);
+            gyroTracker.skewAngelPowerGain = gain;
+            gyroTracker.maintainHeading(heading, power);
             return startState;
         }
         // go to next state
@@ -182,13 +184,13 @@ public class GyroTrackerOpMode extends OpMode {
         return endState;
     }
 
-    public int turn ( int heading, double sensitivity, double power,
+    public int turn ( double heading, double sensitivity, double power,
                       int startState, int endState) {
         gyroTracker.skewAngelPowerGain = sensitivity;
-        if (gyroTracker.turn(heading, power) != true) {
+        if (gyroTracker.maintainHeading(heading, power) != true) {
             return startState;
         }
-        // got to next state
+        /* got to next state */
         robot.motorLeftWheel.setPower(0.0);
         robot.motorRightWheel.setPower(0.0);
         int lD = robot.motorLeftWheel.getCurrentPosition();
@@ -198,7 +200,7 @@ public class GyroTrackerOpMode extends OpMode {
     }
 
     public void raiseArm () {
-        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmRaisedPositionOffset, 1.0);
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmRaisedPositionOffset, armPower);
 
     }
 
@@ -206,6 +208,7 @@ public class GyroTrackerOpMode extends OpMode {
         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomePositionOffset, 0.1);
 
     }
+
     /*
      * Code to run ONCE after the driver hits STOP
      */

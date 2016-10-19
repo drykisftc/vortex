@@ -59,8 +59,8 @@ public class VortexAutoRedOp extends VortexAutoOp{
     @Override
     public void start() {
         super.start();
-        fire2TurnDegree = 45;
-        wall2TurnDegree = -45;
+        fire2TurnDegree = 70;
+        wall2TurnDegree = -70;
         beacon2ParkTurnDegree = -135;
     }
 

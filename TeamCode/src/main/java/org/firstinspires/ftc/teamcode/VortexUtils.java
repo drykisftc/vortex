@@ -137,4 +137,21 @@ public class VortexUtils {
         while (robotError <= -180) robotError += 360;
         return robotError;
     }
+
+    /**
+     *
+     * @param value
+     * @return heading in [0,360]
+     */
+    static double normalizeHeading (double value) {
+        // set it to [-360, 360]
+        double v = value/360.0;
+        double v2 = (v-(int)v) * 360.0;
+
+        // set it in [0,360]
+        while (v2 < 0)  v2 += 360;
+        return v2;
+
+    }
+
 }
