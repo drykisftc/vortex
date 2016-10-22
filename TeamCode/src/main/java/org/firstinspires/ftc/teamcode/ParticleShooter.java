@@ -29,6 +29,8 @@ public class ParticleShooter extends Excecutor {
     protected DcMotor motorArm;
     protected DcMotor motorHand;
 
+    long      latTimeStamp = 0;
+
     public ParticleShooter(DcMotor arm,
                            DcMotor hand){
         motorArm = arm;
@@ -40,13 +42,19 @@ public class ParticleShooter extends Excecutor {
         state = s;
         // get current arm position
         armStartPosition = motorArm.getCurrentPosition();
+        latTimeStamp = System.currentTimeMillis();
     }
 
     public int loop (int startState, int endState) {
         switch (state) {
             case 0:
                 // move arm to firing position
-                VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition1, armPower);
+                if (System.currentTimeMillis() - latTimeStamp < 500 ) {
+                    // slow move first
+                    VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition1, armPower*0.5);
+                } else {
+                    VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition1, armPower);
+                }
                 if (hasReachedPosition(armFiringPosition1)) {
                     fireState = 0;
                     state = 1;

@@ -60,6 +60,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     HardwareLineTracker hardwareLineTracker = null;
 
     double groundBrightness = 0.0;
+    double minLineBrightness = 0.02;
 
     int beacon2ParkTurnDegree = -135;
     int beacon2BeaconDistance = 8000;
@@ -80,7 +81,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
         hardwareLineTracker = new HardwareLineTracker();
         hardwareLineTracker.init(hardwareMap, 4);
-        groundBrightness = Math.min(1.0,hardwareLineTracker.getBaseLineBrightness()*2.5);
+        groundBrightness = Math.max(minLineBrightness,hardwareLineTracker.getBaseLineBrightness()*2.5);
 
     }
 

@@ -57,7 +57,7 @@ public class GyroTrackerOpMode extends OpMode {
     int landMarkAngle = 0;
 
     // navigation path info
-    int start2FireDistance = 2500;
+    int start2FireDistance = 2500; //2500
     int fire2TurnDegree = 75;
     int fire2WallDistance = 7500;
     int wall2TurnDegree = -75;
@@ -104,10 +104,16 @@ public class GyroTrackerOpMode extends OpMode {
     public void init_loop() {
         // make sure the gyro is calibrated.
         if (gyroTracker.gyro.isCalibrating())  {
-            telemetry.addData(">", "Gyro is calibrating.  DO NOT start.");
+            telemetry.addData(">", "Gyro is calibrating.  DO NOT start!!!!");
+            telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
+            telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
+            telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
+            telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
+            telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
+            telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
         }
         else {
-            telemetry.addData(">", "Gyro calibrated.  Press Start.");
+            telemetry.addData(">", "Press Start.");
         }
     }
 

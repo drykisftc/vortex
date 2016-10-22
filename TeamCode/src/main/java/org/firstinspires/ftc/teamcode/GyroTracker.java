@@ -21,7 +21,7 @@ public class GyroTracker extends Excecutor {
     /*
     adjust to the correct sensitivity for each robot
      */
-    double minTurnPower = 0.1;  // change this value for different robot to compensate the friction
+    double minTurnPower = 0.3;  // change this value for different robot to compensate the friction
     double skewAngelPowerGain = 1.0/90.0;
     double skewAngelTolerance = 0;
     private double minTurnSpeed = 1.0;
@@ -68,14 +68,11 @@ public class GyroTracker extends Excecutor {
 
         // compute power delta
         double deltaPower = computeTurnPower(delta);
+        leftWheel.setPower(Range.clip(power - deltaPower, -1, 1));
+        rightWheel.setPower(Range.clip(power + deltaPower, -1, 1));
 
         // move motor
-        if ( deltaPower  !=  0.0) {
-            leftWheel.setPower(Range.clip(power - deltaPower, -1, 1));
-            rightWheel.setPower(Range.clip(power + deltaPower, -1, 1));
-        } else {
-            leftWheel.setPower(Range.clip(power, -1, 1));
-            rightWheel.setPower(Range.clip(power, -1, 1));
+        if ( deltaPower  ==  0.0) {
             boolNoTurning = true;
         }
 
@@ -85,7 +82,8 @@ public class GyroTracker extends Excecutor {
         if (reporter != null) {
             reporter.addData("Heading angle       =", "%3d", heading);
             reporter.addData("Heading target      =", "%.3f", targetHeading);
-            reporter.addData("Heading angle skew  =", "%.2f vs %.2f", delta, skewAngelTolerance);
+            reporter.addData("Heading angle skew  =", "%.2f", delta);
+            reporter.addData("Heading tolerance   =", "%.2f", skewAngelTolerance);
             reporter.addData("Heading power       =", "%.2f", power);
             reporter.addData("Heading delta power =", "%.2f", deltaPower);
             reporter.addData("Heading turn gain   =", "%.2f", skewAngelPowerGain);

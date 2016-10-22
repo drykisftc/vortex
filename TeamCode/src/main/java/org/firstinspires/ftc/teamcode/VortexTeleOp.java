@@ -96,7 +96,7 @@ public class VortexTeleOp extends OpMode{
     protected int fireCount =0;
     protected long lastFireTimeStamp = 0;
     protected long minFireInterval = 1500;
-    protected long minReloadInterval = 1000;
+    protected long minReloadInterval = 1200;
     protected boolean leftHandReloaded = true;
     protected int leftHandFirePositionTolerance = 10;
 
@@ -382,28 +382,29 @@ public class VortexTeleOp extends OpMode{
     }
 
     public void triggerControl () {
-
+        long currentT = System.currentTimeMillis();
+        long timeSinceLastFiring = currentT - lastFireTimeStamp;
         // firing trigger
-        if (gamepad1.right_trigger > 0.5 ) {
-            long currentT = System.currentTimeMillis();
-            long timeSinceLastFiring = System.currentTimeMillis() - lastFireTimeStamp;
+        if (gamepad1.right_trigger > 0.3) {
             int currentP = robot.motorLeftArm.getCurrentPosition();
             int fireP = leftHandHomePosition + fireCount * leftHandFirePositionOffset;
             if (leftHandReloaded
                     && timeSinceLastFiring > minFireInterval) {
-                if ( currentP > leftArmFiringSafeZone) {
+                if (currentP > leftArmFiringSafeZone) {
                     // fire
                     fireCount++;
                     lastFireTimeStamp = currentT;
                     VortexUtils.moveMotorByEncoder(robot.motorLeftHand,
                             fireP + leftHandFireOvershotOffset + leftHandFirePositionOffset,
                             leftHandFirePower);
+                    // encoder mode is slow. just use full power.
+                    //robot.motorLeftHand.setPower(1.0);
                 }
-            } else if ( timeSinceLastFiring > minReloadInterval) {
+            } else if (timeSinceLastFiring > minReloadInterval) {
                 // reload
                 VortexUtils.moveMotorByEncoder(robot.motorLeftHand,
-                        fireP, leftHandFirePower*0.5);
-            } else if ( Math.abs(currentP - fireP) < leftHandFirePositionTolerance) {
+                        fireP, leftHandFirePower * 0.5);
+            } else if (Math.abs(currentP - fireP) < leftHandFirePositionTolerance) {
                 // assume that reload is done
                 leftHandReloaded = true;
             }
