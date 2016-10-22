@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 /**
  * This is NOT an OpMode
@@ -41,6 +42,7 @@ public class HardwareVortex
     public DcMotor motorRightWheel =null;
     public DcMotor motorLeftHand = null;
     public DcMotor motorRightHand = null;
+    public TouchSensor armStop = null;
 
     // Servos
 
@@ -84,6 +86,8 @@ public class HardwareVortex
         motorRightHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        armStop = hwMap.touchSensor.get("armStop");
 
     }
 

@@ -86,6 +86,9 @@ public class VortexTeleOp extends OpMode{
     protected double leftArmHoldPower = 0.3;
     protected double leftArmAutoMovePower = 0.5;
     protected double leftArmAutoSlowMovePower = 0.2;
+    protected double leftArmHomingMovePower = -0.3;
+    protected long leftArmHomingTimestamp =0;
+    protected long leftArmHomingTime =5000;
 
     // hand parameters
     protected int leftHandHomePosition = 0;
@@ -153,7 +156,23 @@ public class VortexTeleOp extends OpMode{
          */
         robot.init(hardwareMap);
         wallTracker.init(hardwareMap);
-        wallTracker.park();
+        robot.motorLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.motorRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.motorRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.motorLeftWheel.setPower(0.0);
+        robot.motorRightWheel.setPower(0.0);
+
+        // arms
+        robot.motorLeftArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.motorRightArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.motorLeftArm.setPower(0.0);
+        robot.motorRightArm.setPower(0.0);
+
+        // set time stamp
+        leftArmHomingTimestamp = System.currentTimeMillis();
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("TeleOp", "Hello Vortex");    //
@@ -165,11 +184,29 @@ public class VortexTeleOp extends OpMode{
      */
     @Override
     public void init_loop() {
+        // safety features
+        // move wall tracker arm, don't crash into left arm!
+        if (wallTracker.sonicArm.getPosition() > 0.56) {
+            // safe zone already, park
+            wallTracker.park();
 
-        // todo: move arm back to home position
-
-
-        // todo: move hand back to home position
+            // if touch sensor is on, turn off arm power
+            if (robot.armStop.isPressed()) {
+                robot.motorLeftArm.setPower(0.0);
+            } else if (System.currentTimeMillis() - leftArmHomingTimestamp < leftArmHomingTime) {
+                // move arm back to home position
+                robot.motorLeftArm.setPower(leftArmHomingMovePower * 0.5);
+            } else {
+                robot.motorLeftArm.setPower(0.0);
+            }
+        } else if (System.currentTimeMillis() - leftArmHomingTimestamp < leftArmHomingTime *0.3) {
+            // danger zone, lift arm
+            robot.motorLeftArm.setPower(-1.0*leftArmHomingMovePower);
+        } else if (System.currentTimeMillis() - leftArmHomingTimestamp < leftArmHomingTime *0.6) {
+            // park sonic arm
+            wallTracker.park();
+            robot.motorLeftArm.setPower(0.0);
+        }
     }
 
     /*
