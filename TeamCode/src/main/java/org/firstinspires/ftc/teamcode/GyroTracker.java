@@ -82,11 +82,11 @@ public class GyroTracker extends Excecutor {
         if (reporter != null) {
             reporter.addData("Heading angle       =", "%3d", heading);
             reporter.addData("Heading target      =", "%.3f", targetHeading);
-            reporter.addData("Heading angle skew  =", "%.2f", delta);
+            reporter.addData("Heading delta       =", "%.2f", delta);
             reporter.addData("Heading tolerance   =", "%.2f", skewAngelTolerance);
             reporter.addData("Heading power       =", "%.2f", power);
             reporter.addData("Heading delta power =", "%.2f", deltaPower);
-            reporter.addData("Heading turn gain   =", "%.2f", skewAngelPowerGain);
+            reporter.addData("Heading gain        =", "%.2f", skewAngelPowerGain);
             reporter.addData("Minimum turn power  =", "%.2f", minTurnPower);
         }
 
@@ -111,7 +111,7 @@ public class GyroTracker extends Excecutor {
             // adjust minimum turn force
             double deltaChange = maxV - minV;
             if (deltaChange < minTurnSpeed) {
-                // robot could not turn, boost min turn power
+                // robot could not turn, boost min turn power to over come the friction
                 minTurnPower += minAnglePowerStepSize;
             } else if (flipCount >=1 ) {
                 // robot always over-compensated, tune down the min turn power
@@ -134,14 +134,19 @@ public class GyroTracker extends Excecutor {
         }
     }
 
+    /**
+     *
+     * @param deltaHeading
+     * @return delta power = (+/-)minTurnPower + gain * skew
+     */
     protected  double computeTurnPower (double deltaHeading) {
         double deltaPower = 0.0;
         if (Math.abs(deltaHeading) > skewAngelTolerance) {
             deltaPower = skewAngelPowerGain * deltaHeading;
             // always apply minimum force to compensate the friction
-            if (deltaPower > 0) {
+            if (deltaPower > 0.0) {
                 deltaPower += minTurnPower;
-            } else if (deltaPower < 0  ) {
+            } else if (deltaPower < 0.0  ) {
                 deltaPower -= minTurnPower;
             }
         }

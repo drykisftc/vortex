@@ -57,13 +57,12 @@ public class GyroTrackerOpMode extends OpMode {
     int landMarkAngle = 0;
 
     // navigation path info
-    int start2FireDistance = 2500; //2500
-    int fire2TurnDegree = 75;
-    int fire2WallDistance = 7500;
-    int wall2TurnDegree = -75;
-    int wall2BeaconDistance = 7500;
+    int testDistance1 = 7500; //2500
+    int testDistance2 = 7500;
+    int testTurnAngle1 = 75;
+    int testTurnAngle2 = -135;
 
-    // navigation contol info
+    // navigation control info
     double cruisingPower = 1.0;
     double searchingPower = 0.3;
     double cruisingTurnGain = 0.05;
@@ -105,12 +104,12 @@ public class GyroTrackerOpMode extends OpMode {
         // make sure the gyro is calibrated.
         if (gyroTracker.gyro.isCalibrating())  {
             telemetry.addData(">", "Gyro is calibrating.  DO NOT start!!!!");
-            telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
-            telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
-            telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
-            telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
-            telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
-            telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
+            telemetry.addData(">", "Wait! Wait! Wait! ");
+            telemetry.addData(">", "Wait! Wait! Wait! Wait!");
+            telemetry.addData(">", "Wait! Wait! Wait! Wait! Wait!");
+            telemetry.addData(">", "Wait! Wait! Wait! Wait!Wait!");
+            telemetry.addData(">", "Wait! Wait! Wait! Wait!");
+            telemetry.addData(">", "Wait! Wait! Wait! ");
         }
         else {
             telemetry.addData(">", "Press Start.");
@@ -138,27 +137,22 @@ public class GyroTrackerOpMode extends OpMode {
         switch (state) {
             case 0:
                 // go straight
-                state = goStraight (landMarkAngle, cruisingTurnGain, cruisingPower, landMarkPosition, start2FireDistance, 0,1);
+                state = goStraight (landMarkAngle, cruisingTurnGain, cruisingPower, landMarkPosition, testDistance1, 0,1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 1:
                 // turn 45 degree
-                state = turn(landMarkAngle+fire2TurnDegree, inPlaceTurnGain,turningPower,1,2);
+                state = turn(landMarkAngle+testTurnAngle1, inPlaceTurnGain,turningPower,1,2);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 2:
                 // go straight
-                state = goStraight (landMarkAngle+fire2TurnDegree, cruisingTurnGain, cruisingPower, landMarkPosition, fire2WallDistance, 2,3);
+                state = goStraight (landMarkAngle+testTurnAngle2, cruisingTurnGain, cruisingPower, landMarkPosition, testDistance2, 2,3);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 3:
-                // turn -45 degree back
-                state = turn(landMarkAngle+fire2TurnDegree+wall2TurnDegree, inPlaceTurnGain,turningPower,3,4);
-                telemetry.addData("State:", "%02d", state);
-                break;
-            case 4:
-                // go straight
-                state = goStraight (landMarkAngle+fire2TurnDegree+wall2TurnDegree, cruisingTurnGain, cruisingPower, landMarkPosition, wall2BeaconDistance, 4,5);
+                // turn 45 degree
+                state = turn(landMarkAngle+testTurnAngle2, inPlaceTurnGain,turningPower,1,2);
                 telemetry.addData("State:", "%02d", state);
                 break;
             default:

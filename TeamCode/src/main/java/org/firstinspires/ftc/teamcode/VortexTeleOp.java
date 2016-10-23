@@ -205,7 +205,6 @@ public class VortexTeleOp extends OpMode{
         } else if (System.currentTimeMillis() - leftArmHomingTimestamp < leftArmHomingTime *0.6) {
             // park sonic arm
             wallTracker.park();
-            robot.motorLeftArm.setPower(0.0);
         }
     }
 

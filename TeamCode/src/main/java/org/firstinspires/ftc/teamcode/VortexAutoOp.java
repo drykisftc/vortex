@@ -62,6 +62,12 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     double groundBrightness = 0.0;
     double minLineBrightness = 0.02;
 
+    // navigation settings
+    int start2FireDistance = 2500; //2500
+    int fire2TurnDegree = 70;
+    int fire2WallDistance = 7500;
+    int wall2TurnDegree = -70;
+    int wall2BeaconDistance = 7500;
     int beacon2ParkTurnDegree = -135;
     int beacon2BeaconDistance = 8000;
     int beacon2ParkingDistance =8000;
