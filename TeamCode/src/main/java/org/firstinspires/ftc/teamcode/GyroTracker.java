@@ -11,12 +11,12 @@ public class GyroTracker extends Excecutor {
     DcMotor leftWheel = null;
     DcMotor rightWheel = null;
 
-    private int bufferSize = 10;
-    private double[] skewAngleBuffer = null;
-    private double[] powerBuffer = null;
-    private int bufferIndex = 0;
+    protected int bufferSize = 10;
+    protected double[] skewAngleBuffer = null;
+    protected double[] powerBuffer = null;
+    protected int bufferIndex = 0;
 
-    private double targetHeading =0;
+    protected double targetHeading =0;
 
     /*
     adjust to the correct sensitivity for each robot
@@ -24,13 +24,14 @@ public class GyroTracker extends Excecutor {
     double minTurnPower = 0.05;  // change this value for different robot to compensate the friction
     double skewAngelPowerGain = 1.0/180.0;
     double skewAngelTolerance = 0;
-    private double minTurnSpeed = 1.0;
-    private double maxTurnSpeed = 10;
-    private double minAnglePowerStepSize = 0.02;
-
-
-    private long lastLogTimeStamp = 0;
-    final private int sameplingInteval = 100;
+    protected double minTurnSpeed = 1.0;
+    protected double maxTurnSpeed = 10;
+    protected double minAnglePowerStepSize = 0.02;
+    protected int flipCountLimit = 1;
+    
+    protected long lastLogTimeStamp = 0;
+    final protected int sameplingInteval = 100;
+    
 
     public GyroTracker(ModernRoboticsI2cGyro leftO,
                        DcMotor leftW,
@@ -106,6 +107,7 @@ public class GyroTracker extends Excecutor {
                 if (lastV * v < 0) {
                     flipCount ++;
                 }
+                lastV = v;
             }
 
             // adjust minimum turn force
@@ -113,7 +115,7 @@ public class GyroTracker extends Excecutor {
             if (deltaChange < minTurnSpeed) {
                 // robot could not turn, boost min turn power to over come the friction
                 minTurnPower += minAnglePowerStepSize;
-            } else if (flipCount >=1 ) {
+            } else if (flipCount >= flipCountLimit ) {
                 // robot always over-compensated, tune down the min turn power
                 minTurnPower -= minAnglePowerStepSize*0.618;;
             }
