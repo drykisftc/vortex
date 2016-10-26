@@ -11,7 +11,7 @@ public class GyroTracker extends Excecutor {
     DcMotor leftWheel = null;
     DcMotor rightWheel = null;
 
-    protected int bufferSize = 10;
+    protected int bufferSize = 20;
     protected double[] skewAngleBuffer = null;
     protected double[] powerBuffer = null;
     protected int bufferIndex = 0;
