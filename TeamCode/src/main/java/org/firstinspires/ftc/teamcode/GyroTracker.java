@@ -21,8 +21,8 @@ public class GyroTracker extends Excecutor {
     /*
     adjust to the correct sensitivity for each robot
      */
-    double minTurnPower = 0.3;  // change this value for different robot to compensate the friction
-    double skewAngelPowerGain = 1.0/90.0;
+    double minTurnPower = 0.05;  // change this value for different robot to compensate the friction
+    double skewAngelPowerGain = 1.0/180.0;
     double skewAngelTolerance = 0;
     private double minTurnSpeed = 1.0;
     private double maxTurnSpeed = 10;
