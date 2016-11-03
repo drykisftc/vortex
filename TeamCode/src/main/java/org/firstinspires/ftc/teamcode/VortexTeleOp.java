@@ -92,8 +92,8 @@ public class VortexTeleOp extends OpMode{
 
     // hand parameters
     protected int leftHandHomePosition = 0;
-    protected int leftHandFirePositionOffset = 560;
-    protected int leftHandFireOvershotOffset = 350;
+    protected int leftHandFirePositionOffset = 450; // 20: 1 motor is 560. 16:1 is 450
+    protected int leftHandFireOvershotOffset = 282; // 20:1 motor is 350. 16:1 is 282
     protected double leftHandHoldPower = 0.05;
     protected double leftHandFirePower = 1.0;
     protected int fireCount =0;

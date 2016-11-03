@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-public class ParticleShooter extends Excecutor {
+public class ParticleShooter extends RobotExecutor {
 
     // arm
     protected int armStartPosition =0;
