@@ -331,12 +331,12 @@ public class VortexTeleOp extends OpMode{
             // giving a chance to reset home position
             if ((!gamepad1.x)
                     && currentPos < leftArmHomeParkingOffset
-                    && power <= 0) {
+                    && power < 0) {
                 telemetry.addData("left arm min exceed", "STOP!!!!!!!!!!!!!!!");
                 robot.motorLeftArm.setPower(0.0);
                 robot.motorRightArm.setPower(0.0);
             } else if (currentPos > leftArmMaxRange
-                    && power >= 0) {
+                    && power > 0) {
                 telemetry.addData("left arm max exceeded", "STOP!!!!!!!!!!!!!!");
                 robot.motorLeftArm.setPower(0.0);
                 robot.motorRightArm.setPower(0.0);
