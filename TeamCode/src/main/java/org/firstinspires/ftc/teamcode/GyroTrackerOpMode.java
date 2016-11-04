@@ -57,10 +57,14 @@ public class GyroTrackerOpMode extends OpMode {
     int landMarkAngle = 0;
 
     // navigation path info
-    int testDistance1 = 7500; //2500
+    int testDistance1 = 7500;
     int testDistance2 = 7500;
-    int testTurnAngle1 = 75;
-    int testTurnAngle2 = -135;
+    int TestDistance3 = 7500;
+    int TestDistance4 = 7500;
+    int testTurnAngle1 = 90;
+    int testTurnAngle2 = 90;
+    int testTurnAngle3 = 90;
+    int testTurnAngle4 = 90;
 
     // navigation control info
     double cruisingPower = 1.0;
@@ -142,17 +146,37 @@ public class GyroTrackerOpMode extends OpMode {
                 break;
             case 1:
                 // turn 45 degree
-                state = turn(landMarkAngle+testTurnAngle1, inPlaceTurnGain,turningPower,1,2);
+                state = turn(landMarkAngle + testTurnAngle1, inPlaceTurnGain,turningPower,1,2);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 2:
                 // go straight
-                state = goStraight (landMarkAngle+testTurnAngle2, cruisingTurnGain, cruisingPower, landMarkPosition, testDistance2, 2,3);
+                state = goStraight (landMarkAngle + testTurnAngle1, cruisingTurnGain, cruisingPower, landMarkPosition, testDistance2, 2,3);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 3:
                 // turn 45 degree
-                state = turn(landMarkAngle+testTurnAngle2, inPlaceTurnGain,turningPower,1,2);
+                state = turn(landMarkAngle + testTurnAngle1 + testTurnAngle2, inPlaceTurnGain,turningPower,3,4);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 4:
+                // go straight
+                state = goStraight (landMarkAngle + testTurnAngle1 + testTurnAngle2, cruisingTurnGain, cruisingPower, landMarkPosition, testDistance1, 4,5);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 5:
+                // turn 45 degree
+                state = turn(landMarkAngle + testTurnAngle1 + testTurnAngle2 + testTurnAngle3, inPlaceTurnGain,turningPower, 5, 6);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 6:
+                // go straight
+                state = goStraight (landMarkAngle + testTurnAngle1 + testTurnAngle2 + testTurnAngle3, cruisingTurnGain, cruisingPower, landMarkPosition, testDistance2, 6,7);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 7:
+                // turn 45 degree
+                state = turn(landMarkAngle, inPlaceTurnGain,turningPower,7,0);
                 telemetry.addData("State:", "%02d", state);
                 break;
             default:
