@@ -11,7 +11,7 @@ public class HardwareWallTracker extends HardwareVortex {
     Servo sonicArm = null;
     ModernRoboticsI2cRangeSensor sonicRange = null;
 
-    double parkingPosition = 1.0;
+    double parkingPosition = 0.0;
     double movingStep = 0.01;
 
     public void init(HardwareMap ahwMap) {
@@ -29,11 +29,11 @@ public class HardwareWallTracker extends HardwareVortex {
     }
 
     public void moveSonicArmToLeft() {
-        sonicArm.setPosition(Range.clip(sonicArm.getPosition() - movingStep, 0.0, 1.0));
+        sonicArm.setPosition(Range.clip(sonicArm.getPosition() + movingStep, 0.0, 1.0));
     }
 
     public void moveSonicArmToRight() {
-        sonicArm.setPosition(Range.clip(sonicArm.getPosition() + movingStep, 0.0, 1.0));
+        sonicArm.setPosition(Range.clip(sonicArm.getPosition() - movingStep, 0.0, 1.0));
     }
 
     public double getDistance (double position) {

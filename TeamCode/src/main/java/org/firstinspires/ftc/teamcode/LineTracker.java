@@ -4,11 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-import java.text.DecimalFormat;
-
-public class LineTracker extends Excecutor {
+public class LineTracker extends RobotExecutor {
 
     OpticalDistanceSensor leftODS = null;
     OpticalDistanceSensor rightODS = null;

@@ -2,11 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-import java.text.DecimalFormat;
-
-public class BeaconPresser extends Excecutor {
+public class BeaconPresser extends RobotExecutor {
 
 
     long lastTimeStamp = 0;

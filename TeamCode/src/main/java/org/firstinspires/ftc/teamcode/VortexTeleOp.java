@@ -92,13 +92,13 @@ public class VortexTeleOp extends OpMode{
 
     // hand parameters
     protected int leftHandHomePosition = 0;
-    protected int leftHandFirePositionOffset = 560;
-    protected int leftHandFireOvershotOffset = 350;
-    protected double leftHandHoldPower = 0.05;
+    protected int leftHandFirePositionOffset = 450; // 20: 1 motor is 560. 16:1 is 450
+    protected int leftHandFireOvershotOffset = 230; // 20:1 motor is 350. 16:1 is 230
+    protected double leftHandHoldPower = 0.1;
     protected double leftHandFirePower = 1.0;
     protected int fireCount =0;
     protected long lastFireTimeStamp = 0;
-    protected long minFireInterval = 1500;
+    protected long minFireInterval = 1800;
     protected long minReloadInterval = 1200;
     protected boolean leftHandReloaded = true;
     protected int leftHandFirePositionTolerance = 10;
@@ -184,6 +184,21 @@ public class VortexTeleOp extends OpMode{
      */
     @Override
     public void init_loop() {
+        // safety features
+        // move wall tracker arm, don't crash into left arm!
+        // safe zone already, park
+        wallTracker.park();
+
+        // homing the left arm. If the touch sensor is on, turn off arm power
+        if (!robot.armStop.isPressed()
+                && System.currentTimeMillis() - leftArmHomingTimestamp < leftArmHomingTime) {
+            robot.motorLeftArm.setPower(leftArmHomingMovePower);
+        } else {
+            robot.motorLeftArm.setPower(0.0);
+        }
+    }
+
+    public void init_loop2() {
         // safety features
         // move wall tracker arm, don't crash into left arm!
         if (wallTracker.sonicArm.getPosition() > 0.56) {
@@ -306,31 +321,30 @@ public class VortexTeleOp extends OpMode{
 
             // get joystick position
             double power = Range.clip(VortexUtils.lookUpTableFunc(throttle, armPowerLUT), -1, 1);
-            telemetry.addData("arm power",  "%.2f", power);
+            telemetry.addData("arm power", "%.2f", power);
 
             // move arms
-            if (boolLeftArmEnable) {
-                robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                int currentPos = robot.motorLeftArm.getCurrentPosition();
-                telemetry.addData("left arm pos",  "%6d vs %6d", currentPos, leftArmMaxRange);
-                // button x allow arm moving to home, just in case the arm loses encoder home position
-                // giving a chance to reset home position
-                if ( (!gamepad1.x)
-                        && currentPos < leftArmHomeParkingOffset
-                        && power <=0) {
-                    telemetry.addData("left arm min exceed", "STOP!!!!!!!!!!!!!!!");
-                    robot.motorLeftArm.setPower(0.0);
-                    robot.motorRightArm.setPower(0.0);
-                } else if (currentPos > leftArmMaxRange
-                        && power >=0) {
-                    telemetry.addData("left arm max exceeded", "STOP!!!!!!!!!!!!!!");
-                    robot.motorLeftArm.setPower(0.0);
-                    robot.motorRightArm.setPower(0.0);
-                } else {
-                    robot.motorLeftArm.setPower(power);
-                    robot.motorRightArm.setPower(0.0);
-                }
+            robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            int currentPos = robot.motorLeftArm.getCurrentPosition();
+            telemetry.addData("left arm pos", "%6d vs %6d", currentPos, leftArmMaxRange);
+            // button x allow arm moving to home, just in case the arm loses encoder home position
+            // giving a chance to reset home position
+            if ((!gamepad1.x)
+                    && currentPos < leftArmHomeParkingOffset
+                    && power <= 0) {
+                telemetry.addData("left arm min exceed", "STOP!!!!!!!!!!!!!!!");
+                robot.motorLeftArm.setPower(0.0);
+                robot.motorRightArm.setPower(0.0);
+            } else if (currentPos > leftArmMaxRange
+                    && power >= 0) {
+                telemetry.addData("left arm max exceeded", "STOP!!!!!!!!!!!!!!");
+                robot.motorLeftArm.setPower(0.0);
+                robot.motorRightArm.setPower(0.0);
+            } else {
+                robot.motorLeftArm.setPower(power);
+                robot.motorRightArm.setPower(0.0);
             }
+
 
             if (boolRightArmEnable) {
                 // do something here

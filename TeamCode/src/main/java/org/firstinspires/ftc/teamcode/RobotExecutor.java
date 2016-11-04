@@ -4,14 +4,14 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.text.DecimalFormat;
 
-public class Excecutor {
+public class RobotExecutor {
 
     Telemetry reporter = null;
     int state = 0;
 
     protected static DecimalFormat df3 = new DecimalFormat(".###");
 
-    public Excecutor(){
+    public RobotExecutor(){
 
     }
 
@@ -48,6 +48,5 @@ public class Excecutor {
     public void setReporter (Telemetry t){
         reporter = t;
     }
-
 
 }

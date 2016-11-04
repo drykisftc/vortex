@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-public class ParticleShooter extends Excecutor {
+public class ParticleShooter extends RobotExecutor {
 
     // arm
     protected int armStartPosition =0;
@@ -15,8 +15,8 @@ public class ParticleShooter extends Excecutor {
     // hand
     int fireState =0;
     protected int handHomePosition =0;
-    protected int handFirePositionOffset = 560;
-    protected int leftHandFireOvershotOffset = 350;
+    protected int handFirePositionOffset = 450; // 20: 1 motor is 560. 16:1 is 450
+    protected int leftHandFireOvershotOffset = 230; // 20:1 motor is 350. 16:1 is 230
     protected double leftHandHoldPower = 0.05;
     protected double leftHandFirePower = 1.0;
     protected int fireCount =0;

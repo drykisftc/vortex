@@ -197,7 +197,7 @@ public class GyroTrackerOpMode extends OpMode {
         int d = Math.min(lD, rD);
 
         if ( d - startDistance < deltaDistance) {
-            gyroTracker.skewAngelPowerGain = gain;
+            gyroTracker.skewPowerGain = gain;
             gyroTracker.maintainHeading(heading, power);
             return startState;
         }
@@ -210,7 +210,7 @@ public class GyroTrackerOpMode extends OpMode {
 
     public int turn ( double heading, double sensitivity, double power,
                       int startState, int endState) {
-        gyroTracker.skewAngelPowerGain = sensitivity;
+        gyroTracker.skewPowerGain = sensitivity;
         if (gyroTracker.maintainHeading(heading, power) != true) {
             return startState;
         }

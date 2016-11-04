@@ -80,7 +80,7 @@ public class HardwareVortex
 
         motorLeftHand   = hwMap.dcMotor.get("leftHand");
         motorRightHand  = hwMap.dcMotor.get("rightHand");
-        motorLeftHand.setDirection(DcMotor.Direction.REVERSE);
+        motorLeftHand.setDirection(DcMotor.Direction.FORWARD);
         motorRightHand.setDirection(DcMotor.Direction.FORWARD);
         motorLeftHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorRightHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

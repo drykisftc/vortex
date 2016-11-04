@@ -4,7 +4,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
-public class GyroTracker extends Excecutor {
+public class GyroTracker extends Tracker {
 
     ModernRoboticsI2cGyro gyro = null;
 
@@ -21,9 +21,6 @@ public class GyroTracker extends Excecutor {
     /*
     adjust to the correct sensitivity for each robot
      */
-    double minTurnPower = 0.05;  // change this value for different robot to compensate the friction
-    double skewAngelPowerGain = 1.0/180.0;
-    double skewAngelTolerance = 0;
     protected double minTurnSpeed = 1.0;
     protected double maxTurnSpeed = 10;
     protected double minAnglePowerStepSize = 0.02;
@@ -84,10 +81,10 @@ public class GyroTracker extends Excecutor {
             reporter.addData("Heading angle       =", "%3d", heading);
             reporter.addData("Heading target      =", "%.3f", targetHeading);
             reporter.addData("Heading delta       =", "%.2f", delta);
-            reporter.addData("Heading tolerance   =", "%.2f", skewAngelTolerance);
+            reporter.addData("Heading tolerance   =", "%.2f", skewTolerance);
             reporter.addData("Heading power       =", "%.2f", power);
             reporter.addData("Heading delta power =", "%.2f", deltaPower);
-            reporter.addData("Heading gain        =", "%.2f", skewAngelPowerGain);
+            reporter.addData("Heading gain        =", "%.2f", skewPowerGain);
             reporter.addData("Minimum turn power  =", "%.2f", minTurnPower);
         }
 
@@ -95,7 +92,7 @@ public class GyroTracker extends Excecutor {
     }
 
     protected void adjustMinTurnPower(double currentDelta) {
-        if (currentDelta > skewAngelTolerance ) {
+        if (currentDelta > skewTolerance) {
             double minV = 1000;
             double maxV = -1000;
             double lastV = 0;
@@ -136,23 +133,6 @@ public class GyroTracker extends Excecutor {
         }
     }
 
-    /**
-     *
-     * @param deltaHeading
-     * @return delta power = (+/-)minTurnPower + gain * skew
-     */
-    protected  double computeTurnPower (double deltaHeading) {
-        double deltaPower = 0.0;
-        if (Math.abs(deltaHeading) > skewAngelTolerance) {
-            deltaPower = skewAngelPowerGain * deltaHeading;
-            // always apply minimum force to compensate the friction
-            if (deltaPower > 0.0) {
-                deltaPower += minTurnPower;
-            } else if (deltaPower < 0.0  ) {
-                deltaPower -= minTurnPower;
-            }
-        }
-        return deltaPower;
-    }
+
 
 }
