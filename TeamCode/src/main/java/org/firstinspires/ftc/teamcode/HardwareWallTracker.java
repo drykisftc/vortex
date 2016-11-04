@@ -11,7 +11,7 @@ public class HardwareWallTracker extends HardwareVortex {
     Servo sonicArm = null;
     ModernRoboticsI2cRangeSensor sonicRange = null;
 
-    double parkingPosition = 0.0;
+    double parkingPosition = 1.0;
     double movingStep = 0.01;
 
     public void init(HardwareMap ahwMap) {
