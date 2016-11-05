@@ -70,7 +70,7 @@ public class GyroTrackerOpMode extends OpMode {
     double cruisingPower = 1.0;
     double searchingPower = 0.3;
     double cruisingTurnGain = 0.05;
-    double inPlaceTurnGain = 0.01;
+    double inPlaceTurnGain = 0.1;
     double turningPower = 0.0; // set to 0.0 to turn in-place
 
     // arm. Warning, arm power > 0.6 will damage the gear boxes
