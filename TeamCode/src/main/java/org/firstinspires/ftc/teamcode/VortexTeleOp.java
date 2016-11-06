@@ -70,7 +70,7 @@ public class VortexTeleOp extends OpMode{
     protected final int leftArmHomeParkingOffset = 150;
     protected final int leftArmLoadPositionOffset = 950;
     protected final int leftArmSnapPositionOffset = 50;
-    protected final int leftArmFirePositionOffset = 4000;
+    protected final int leftArmFirePositionOffset = 4900;
     protected final int leftArmMaxOffset = 5500;
     protected int leftArmFiringSafeZoneOffset = 2000;
 
@@ -88,7 +88,7 @@ public class VortexTeleOp extends OpMode{
     protected double leftArmAutoSlowMovePower = 0.2;
     protected double leftArmHomingMovePower = -0.3;
     protected long leftArmHomingTimestamp =0;
-    protected long leftArmHomingTime =5000;
+    protected long leftArmHomingTime =2000;
 
     // hand parameters
     protected int leftHandHomePosition = 0;
@@ -331,12 +331,12 @@ public class VortexTeleOp extends OpMode{
             // giving a chance to reset home position
             if ((!gamepad1.x)
                     && currentPos < leftArmHomeParkingOffset
-                    && power < 0) {
+                    && power < 0.0) {
                 telemetry.addData("left arm min exceed", "STOP!!!!!!!!!!!!!!!");
                 robot.motorLeftArm.setPower(0.0);
                 robot.motorRightArm.setPower(0.0);
             } else if (currentPos > leftArmMaxRange
-                    && power > 0) {
+                    && power > 0.0) {
                 telemetry.addData("left arm max exceeded", "STOP!!!!!!!!!!!!!!");
                 robot.motorLeftArm.setPower(0.0);
                 robot.motorRightArm.setPower(0.0);
