@@ -59,8 +59,8 @@ public class GyroTrackerOpMode extends OpMode {
     // navigation path info
     int testDistance1 = 7500;
     int testDistance2 = 7500;
-    int TestDistance3 = 7500;
-    int TestDistance4 = 7500;
+    int testDistance3 = 7500;
+    int testDistance4 = 7500;
     int testTurnAngle1 = 90;
     int testTurnAngle2 = 90;
     int testTurnAngle3 = 90;
@@ -161,7 +161,7 @@ public class GyroTrackerOpMode extends OpMode {
                 break;
             case 4:
                 // go straight
-                state = goStraight (landMarkAngle + testTurnAngle1 + testTurnAngle2, cruisingTurnGain, cruisingPower, landMarkPosition, testDistance1, 4,5);
+                state = goStraight (landMarkAngle + testTurnAngle1 + testTurnAngle2, cruisingTurnGain, cruisingPower, landMarkPosition, testDistance3, 4,5);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 5:
@@ -171,7 +171,7 @@ public class GyroTrackerOpMode extends OpMode {
                 break;
             case 6:
                 // go straight
-                state = goStraight (landMarkAngle + testTurnAngle1 + testTurnAngle2 + testTurnAngle3, cruisingTurnGain, cruisingPower, landMarkPosition, testDistance2, 6,7);
+                state = goStraight (landMarkAngle + testTurnAngle1 + testTurnAngle2 + testTurnAngle3, cruisingTurnGain, cruisingPower, landMarkPosition, testDistance4, 6,7);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 7:
