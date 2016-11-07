@@ -48,7 +48,7 @@ public class ParticleShooter extends RobotExecutor {
         motorHand.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorHand.setTargetPosition(handHomePosition);
         motorHand.setPower(handHoldPower);
-        fireCount = 0;
+        fireCount = 1; // must preload it to be 1
         armStartPosition = motorArm.getCurrentPosition();
         latTimeStamp = System.currentTimeMillis();
     }
