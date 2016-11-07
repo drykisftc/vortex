@@ -15,16 +15,17 @@ public class ParticleShooter extends RobotExecutor {
     // hand
     int fireState =0;
     protected int handHomePosition =0;
-    protected int handFirePositionOffset = 450; // 20: 1 motor is 560. 16:1 is 450
-    protected int leftHandFireOvershotOffset = 230; // 20:1 motor is 350. 16:1 is 230
-    protected double leftHandHoldPower = 0.05;
-    protected double leftHandFirePower = 1.0;
+    protected int handFirePositionOffset = 445; // 20: 1 motor is 560. 16:1 is 445
+    protected int handFireOvershotOffset = 230; // 20:1 motor is 350. 16:1 is 230
+    protected double handHoldPower = 0.05;
+    protected double handFirePower = 1.0;
     protected int fireCount =0;
     protected long lastFireTimeStamp = 0;
-    protected long minFireInterval = 1500;
-    protected long minReloadInterval = 1000;
-    protected boolean leftHandReloaded = true;
-    protected int leftHandFirePositionTolerance = 10;
+    protected long minFireInterval = 1800;
+    protected long minReloadInterval = 1200;
+    protected boolean handReloaded = true;
+    
+    protected int leftHandFirePositionTolerance = 0;
     
     protected DcMotor motorArm;
     protected DcMotor motorHand;
@@ -41,6 +42,13 @@ public class ParticleShooter extends RobotExecutor {
     public void start(int s) {
         state = s;
         // get current arm position
+        motorHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        handHomePosition = motorHand.getCurrentPosition();
+        motorHand.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorHand.setTargetPosition(handHomePosition);
+        motorHand.setPower(handHoldPower);
+        fireCount = 0;
         armStartPosition = motorArm.getCurrentPosition();
         latTimeStamp = System.currentTimeMillis();
     }
@@ -119,15 +127,15 @@ public class ParticleShooter extends RobotExecutor {
         switch (fireState) {
             case 0:
                 // fire
-                if (leftHandReloaded
+                if (handReloaded
                         && timeSinceLastFiring > minFireInterval) {
                     if (currentP > leftArmFiringSafeZone) {
                         // fire
                         fireCount++;
                         lastFireTimeStamp = currentT;
                         VortexUtils.moveMotorByEncoder(motorHand,
-                                fireP + leftHandFireOvershotOffset + handFirePositionOffset,
-                                leftHandFirePower);
+                                fireP + handFireOvershotOffset + handFirePositionOffset,
+                                handFirePower);
                         fireState = 1; // go to reload state
                     }
                 }
@@ -137,13 +145,13 @@ public class ParticleShooter extends RobotExecutor {
                 if (timeSinceLastFiring > minReloadInterval) {
                     // reload
                     VortexUtils.moveMotorByEncoder(motorHand,
-                            fireP, leftHandFirePower * 0.5);
+                            fireP, handFirePower * 0.5);
                     fireState = 2;
                 }
             case 2:
-                if (Math.abs(currentP - fireP) < leftHandFirePositionTolerance) {
+                if (Math.abs(currentP - fireP) <= leftHandFirePositionTolerance) {
                     // assume that reload is done
-                    leftHandReloaded = true;
+                    handReloaded = true;
                     fireState = 3;
                 }
                 break;
@@ -152,8 +160,8 @@ public class ParticleShooter extends RobotExecutor {
                 // settle to ready position
                 VortexUtils.moveMotorByEncoder(motorHand,
                         handHomePosition + fireCount * handFirePositionOffset,
-                        leftHandHoldPower);
-                leftHandReloaded = true;
+                        handHoldPower);
+                handReloaded = true;
                 break;
         }
     }
@@ -163,5 +171,45 @@ public class ParticleShooter extends RobotExecutor {
             return true;
         }
         return false;
+    }
+    
+    public void shoot (boolean triggerOn) {
+        if (triggerOn) {
+            // fire only when the arm is in fire-safe zone
+            int currentArmP = motorArm.getCurrentPosition();
+            if (currentArmP > leftArmFiringSafeZone) {
+                long currentT = System.currentTimeMillis();
+                int fireP = getNextFirePosition();
+                if (handReloaded && currentT - lastFireTimeStamp < minFireInterval) {
+                    // fire
+                    fireCount++;
+                    lastFireTimeStamp = currentT;
+
+                    // encoder mode is slow. just use full power.
+                    motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    motorHand.setPower(handFirePower);
+                    handReloaded = false;
+
+                } else if (motorHand.getCurrentPosition() > fireP) {
+                    // reload
+                    VortexUtils.moveMotorByEncoder(motorHand,
+                            fireP, handFirePower * 0.5);
+                } else {
+                    // reload is done
+                    handReloaded = true;
+                }
+            }
+        } else {
+            VortexUtils.moveMotorByEncoder(motorHand,
+                    getNextFirePosition(),
+                    handHoldPower);
+            handReloaded = true;
+        }
+    }
+
+    protected int getNextFirePosition () {
+        int nexPos = handHomePosition + fireCount * handFirePositionOffset;
+        reporter.addData("Particle shooter", "%2d", nexPos);
+        return nexPos;
     }
 }
