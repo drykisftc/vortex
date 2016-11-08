@@ -400,6 +400,7 @@ public class VortexTeleOp extends OpMode{
     }
 
     public void triggerControl () {
+        telemetry.addData("Tigger", "Fire!!!");
         particleShooter.shoot(gamepad1.right_trigger > 0.3);
     }
 
