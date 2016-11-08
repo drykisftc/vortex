@@ -123,7 +123,7 @@ public class ParticleShooter extends RobotExecutor {
         long timeSinceLastFiring = System.currentTimeMillis() - lastFireTimeStamp;
         int fireP = getNextFirePosition();
 
-        if (triggerOn) {
+        if (!triggerOn) {
             fireState = 2;
             // settle to ready position
             VortexUtils.moveMotorByEncoder(motorHand,
