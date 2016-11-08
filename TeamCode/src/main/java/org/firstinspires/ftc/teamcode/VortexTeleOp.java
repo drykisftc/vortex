@@ -72,8 +72,8 @@ public class VortexTeleOp extends OpMode{
     protected final int leftArmHomeParkingOffset = 150;
     protected final int leftArmLoadPositionOffset = 950;
     protected final int leftArmSnapPositionOffset = 50;
-    protected final int leftArmFirePositionOffset = 4450;
-    protected final int leftArmMaxOffset = 4500;
+    protected final int leftArmFirePositionOffset = 4500;
+    protected final int leftArmMaxOffset = 4520;
     protected int leftArmFiringSafeZoneOffset = 2000;
 
     protected int leftArmHomeParkingPostion = leftArmHomeParkingOffset;
@@ -164,6 +164,7 @@ public class VortexTeleOp extends OpMode{
 
         // hands
         particleShooter = new ParticleShooter(robot.motorLeftArm, robot.motorLeftHand);
+        particleShooter.init();
         particleShooter.setReporter(telemetry);
 
         // wall tracker
@@ -188,11 +189,14 @@ public class VortexTeleOp extends OpMode{
         wallTracker.park();
 
         // homing the left arm. If the touch sensor is on, turn off arm power
-        if (!robot.armStop.isPressed()
+        if ( (!robot.armStop.isPressed())
                 && System.currentTimeMillis() - leftArmHomingTimestamp < leftArmHomingTime) {
+            robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.motorLeftArm.setPower(leftArmHomingMovePower);
+            telemetry.addData("TeleOp", "Calibrating Arm....");
         } else {
             robot.motorLeftArm.setPower(0.0);
+            telemetry.addData("TeleOp", "Ready to start");
         }
     }
 
@@ -281,7 +285,6 @@ public class VortexTeleOp extends OpMode{
         // move arms by power
         float throttle = gamepad1.right_stick_y;
 
-        telemetry.addData("left arm",  "%.2f", throttle);
         if (Math.abs(throttle) >= leftArmJoystickDeadZone) {
             // set to manual mode
             leftArmState = LeftArmState.MANUAL;
@@ -400,7 +403,6 @@ public class VortexTeleOp extends OpMode{
     }
 
     public void triggerControl () {
-        telemetry.addData("Tigger", "Fire!!!");
         particleShooter.shoot(gamepad1.right_trigger > 0.3);
     }
 
