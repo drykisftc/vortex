@@ -16,8 +16,9 @@ public class ParticleShooter extends RobotExecutor {
     int fireState =0;
     protected int handHomePosition =0;
     protected int handFirePositionOffset = 445; // 20: 1 motor is 560. 16:1 is 445
-    protected int handFireOvershotOffset = 230; // 20:1 motor is 350. 16:1 is 230
+    protected int handFireOvershotOffset = 20; // 20:1 motor is 350. 16:1 is 230
     protected double handHoldPower = 0.02;
+    protected double handBeakPower = 0.01;
     protected double handFirePower = 1.0;
     protected int fireCount =0;
     protected long lastFireTimeStamp = 0;
@@ -163,9 +164,9 @@ public class ParticleShooter extends RobotExecutor {
                     }
                     break;
                 case 1:
-                    if (currentHandP > fireP) {
+                    if (currentHandP > fireP + handFireOvershotOffset) {
                         VortexUtils.moveMotorByEncoder(motorHand,
-                                fireP, handHoldPower);
+                                fireP, handBeakPower);
                         fireState = 2; // go to reload state
                     }
                     break;
@@ -217,10 +218,10 @@ public class ParticleShooter extends RobotExecutor {
                     handReloaded = false;
                     reporter.addData("Particle shooter", "Fox %d", fireCount);
 
-                } else if ( current > fireP) {
+                } else if ( current > fireP + handFireOvershotOffset) {
                     // reload
                     VortexUtils.moveMotorByEncoder(motorHand,
-                            fireP, handHoldPower);
+                            fireP, handBeakPower);
                     reporter.addData("Particle shooter", "Reload" );
                 } else if (Math.abs(current - fireP) < leftHandFirePositionTolerance){
                     // reload is done

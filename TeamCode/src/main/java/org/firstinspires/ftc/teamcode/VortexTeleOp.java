@@ -92,6 +92,8 @@ public class VortexTeleOp extends OpMode{
     protected long leftArmHomingTimestamp =0;
     protected long leftArmHomingTime =8000;
 
+    protected int leftArmLimitSwitchOnCount =0;
+
     // hand parameters
     protected int leftHandHomePosition = 0;
 
@@ -162,6 +164,8 @@ public class VortexTeleOp extends OpMode{
         robot.motorLeftArm.setPower(0.0);
         robot.motorRightArm.setPower(0.0);
 
+        leftArmLimitSwitchOnCount =0;
+
         // hands
         particleShooter = new ParticleShooter(robot.motorLeftArm, robot.motorLeftHand);
         particleShooter.init();
@@ -189,7 +193,7 @@ public class VortexTeleOp extends OpMode{
         wallTracker.park();
 
         // homing the left arm. If the touch sensor is on, turn off arm power
-        if ( (!robot.armStop.isPressed())
+        if ( leftArmLimitSwitchOnCount < 10
                 && System.currentTimeMillis() - leftArmHomingTimestamp < leftArmHomingTime) {
             robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.motorLeftArm.setPower(leftArmHomingMovePower);
@@ -197,6 +201,10 @@ public class VortexTeleOp extends OpMode{
         } else {
             robot.motorLeftArm.setPower(0.0);
             telemetry.addData("TeleOp", "Ready to start");
+        }
+
+        if (robot.armStop.isPressed()) {
+            leftArmLimitSwitchOnCount ++;
         }
     }
 
