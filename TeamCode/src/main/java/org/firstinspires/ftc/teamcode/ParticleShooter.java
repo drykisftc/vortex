@@ -15,6 +15,7 @@ public class ParticleShooter extends RobotExecutor {
     // hand
     int fireState =0;
     protected int handHomePosition =0;
+    protected int handFirePosition =0;
     protected int handFirePositionOffset = 445; // 20: 1 motor is 560. 16:1 is 445
     protected int handFireOvershotOffset = 20; // 20:1 motor is 350. 16:1 is 230
     protected double handHoldPower = 0.02;
@@ -202,28 +203,25 @@ public class ParticleShooter extends RobotExecutor {
             // fire only when the arm is in fire-safe zone
             int currentArmP = motorArm.getCurrentPosition();
             if (currentArmP > leftArmFiringSafeZone) {
-                int fireP = getNextFirePosition();
-                int current = motorHand.getCurrentPosition();
+                int currentHand = motorHand.getCurrentPosition();
                 if (handReloaded && currentT - lastFireTimeStamp > minFireInterval) {
-                    // fire
+                    // bookkeeping
                     fireCount++;
                     lastFireTimeStamp = currentT;
 
-                    // encoder mode is slow. just use power mode.
-//                    VortexUtils.moveMotorByEncoder(motorHand,
-//                                fireP + handFireOvershotOffset + handFirePositionOffset,
-//                                handFirePower);
+                    // fire
                     motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     motorHand.setPower(handFirePower);
+                    handFirePosition = currentHand + handFirePositionOffset;
                     handReloaded = false;
                     reporter.addData("Particle shooter", "Fox %d", fireCount);
 
-                } else if ( current > fireP + handFireOvershotOffset) {
+                } else if ( currentHand > handFirePosition + handFireOvershotOffset) {
                     // reload
                     VortexUtils.moveMotorByEncoder(motorHand,
-                            fireP, handBeakPower);
+                            handFirePosition, handBeakPower);
                     reporter.addData("Particle shooter", "Reload" );
-                } else if (Math.abs(current - fireP) < leftHandFirePositionTolerance){
+                } else if (Math.abs(currentHand - handFirePosition) < leftHandFirePositionTolerance){
                     // reload is done
                     handReloaded = true;
                     reporter.addData("Particle shooter", "Ready");
@@ -231,7 +229,7 @@ public class ParticleShooter extends RobotExecutor {
             }
         } else if (currentT - lastFireTimeStamp > minFireInterval){
             VortexUtils.moveMotorByEncoder(motorHand,
-                    getNextFirePosition(),
+                    handFirePosition,
                     handHoldPower);
             handReloaded = true;
         }
