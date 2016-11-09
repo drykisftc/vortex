@@ -61,6 +61,8 @@ public class VortexTeleOp extends OpMode{
 
     HardwareWallTracker wallTracker = new HardwareWallTracker();
 
+    ParticleShooter particleShooter = null;
+
     protected boolean boolLeftArmEnable = true;
     protected boolean boolRightArmEnable = false;
 
@@ -71,7 +73,7 @@ public class VortexTeleOp extends OpMode{
     protected final int leftArmLoadPositionOffset = 950;
     protected final int leftArmSnapPositionOffset = 50;
     protected final int leftArmFirePositionOffset = 4500;
-    protected final int leftArmMaxOffset = 4550;
+    protected final int leftArmMaxOffset = 4520;
     protected int leftArmFiringSafeZoneOffset = 2000;
 
     protected int leftArmHomeParkingPostion = leftArmHomeParkingOffset;
@@ -83,25 +85,17 @@ public class VortexTeleOp extends OpMode{
     protected int leftArmMaxRange = leftArmMaxOffset;
 
     protected double leftArmJoystickDeadZone = 0.05;
-    protected double leftArmHoldPower = 0.3;
+    protected double leftArmHoldPower = 0.4;
     protected double leftArmAutoMovePower = 0.5;
     protected double leftArmAutoSlowMovePower = 0.2;
     protected double leftArmHomingMovePower = -0.3;
     protected long leftArmHomingTimestamp =0;
     protected long leftArmHomingTime =8000;
 
+    protected int leftArmLimitSwitchOnCount =0;
+
     // hand parameters
     protected int leftHandHomePosition = 0;
-    protected int leftHandFirePositionOffset = 450; // 20: 1 motor is 560. 16:1 is 450
-    protected int leftHandFireOvershotOffset = 230; // 20:1 motor is 350. 16:1 is 230
-    protected double leftHandHoldPower = 0.1;
-    protected double leftHandFirePower = 1.0;
-    protected int fireCount =0;
-    protected long lastFireTimeStamp = 0;
-    protected long minFireInterval = 1800;
-    protected long minReloadInterval = 1200;
-    protected boolean leftHandReloaded = true;
-    protected int leftHandFirePositionTolerance = 10;
 
     enum LeftArmState {
         HOME,
@@ -155,7 +149,6 @@ public class VortexTeleOp extends OpMode{
          * The init() method of the hardware class does all the work here
          */
         robot.init(hardwareMap);
-        wallTracker.init(hardwareMap);
         robot.motorLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.motorRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -170,6 +163,16 @@ public class VortexTeleOp extends OpMode{
         robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.motorLeftArm.setPower(0.0);
         robot.motorRightArm.setPower(0.0);
+
+        leftArmLimitSwitchOnCount =0;
+
+        // hands
+        particleShooter = new ParticleShooter(robot.motorLeftArm, robot.motorLeftHand);
+        particleShooter.init();
+        particleShooter.setReporter(telemetry);
+
+        // wall tracker
+        wallTracker.init(hardwareMap);
 
         // set time stamp
         leftArmHomingTimestamp = System.currentTimeMillis();
@@ -190,38 +193,21 @@ public class VortexTeleOp extends OpMode{
         wallTracker.park();
 
         // homing the left arm. If the touch sensor is on, turn off arm power
-        if (!robot.armStop.isPressed()
+        if ( leftArmLimitSwitchOnCount < 10
                 && System.currentTimeMillis() - leftArmHomingTimestamp < leftArmHomingTime) {
+            robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.motorLeftArm.setPower(leftArmHomingMovePower);
+            telemetry.addData("TeleOp", "Calibrating Arm....");
         } else {
             robot.motorLeftArm.setPower(0.0);
+            telemetry.addData("TeleOp", "Ready to start");
+        }
+
+        if (robot.armStop.isPressed()) {
+            leftArmLimitSwitchOnCount ++;
         }
     }
 
-    public void init_loop2() {
-        // safety features
-        // move wall tracker arm, don't crash into left arm!
-        if (wallTracker.sonicArm.getPosition() > 0.56) {
-            // safe zone already, park
-            wallTracker.park();
-
-            // if touch sensor is on, turn off arm power
-            if (robot.armStop.isPressed()) {
-                robot.motorLeftArm.setPower(0.0);
-            } else if (System.currentTimeMillis() - leftArmHomingTimestamp < leftArmHomingTime) {
-                // move arm back to home position
-                robot.motorLeftArm.setPower(leftArmHomingMovePower * 0.5);
-            } else {
-                robot.motorLeftArm.setPower(0.0);
-            }
-        } else if (System.currentTimeMillis() - leftArmHomingTimestamp < leftArmHomingTime *0.3) {
-            // danger zone, lift arm
-            robot.motorLeftArm.setPower(-1.0*leftArmHomingMovePower);
-        } else if (System.currentTimeMillis() - leftArmHomingTimestamp < leftArmHomingTime *0.6) {
-            // park sonic arm
-            wallTracker.park();
-        }
-    }
 
     /*
      * Code to run ONCE when the driver hits PLAY
@@ -258,13 +244,7 @@ public class VortexTeleOp extends OpMode{
         leftArmMaxRange = leftArmHomePosition + leftArmMaxOffset;
 
         // hands
-        robot.motorLeftHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.motorLeftHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftHandHomePosition = robot.motorLeftHand.getCurrentPosition();
-        robot.motorLeftHand.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.motorLeftHand.setTargetPosition(leftHandHomePosition);
-        robot.motorLeftHand.setPower(leftHandHoldPower);
-        fireCount = 0;
+        particleShooter.start(0);
 
         telemetry.update();
     }
@@ -313,7 +293,6 @@ public class VortexTeleOp extends OpMode{
         // move arms by power
         float throttle = gamepad1.right_stick_y;
 
-        telemetry.addData("left arm",  "%.2f", throttle);
         if (Math.abs(throttle) >= leftArmJoystickDeadZone) {
             // set to manual mode
             leftArmState = LeftArmState.MANUAL;
@@ -371,7 +350,7 @@ public class VortexTeleOp extends OpMode{
                     if (snapTrigger > leftArmJoystickDeadZone) {
                         int target = leftArmLoadPosition
                                 - (int) ((leftArmLoadPosition - leftArmHomePosition) * snapTrigger);
-                        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, target, 1.0);
+                        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, target, leftArmAutoMovePower);
                     } else {
                         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmLoadPosition, leftArmAutoMovePower);
                     }
@@ -432,38 +411,7 @@ public class VortexTeleOp extends OpMode{
     }
 
     public void triggerControl () {
-        long currentT = System.currentTimeMillis();
-        long timeSinceLastFiring = currentT - lastFireTimeStamp;
-        // firing trigger
-        if (gamepad1.right_trigger > 0.3) {
-            int currentP = robot.motorLeftArm.getCurrentPosition();
-            int fireP = leftHandHomePosition + fireCount * leftHandFirePositionOffset;
-            if (leftHandReloaded
-                    && timeSinceLastFiring > minFireInterval) {
-                if (currentP > leftArmFiringSafeZone) {
-                    // fire
-                    fireCount++;
-                    lastFireTimeStamp = currentT;
-                    VortexUtils.moveMotorByEncoder(robot.motorLeftHand,
-                            fireP + leftHandFireOvershotOffset + leftHandFirePositionOffset,
-                            leftHandFirePower);
-                    // encoder mode is slow. just use full power.
-                    //robot.motorLeftHand.setPower(1.0);
-                }
-            } else if (timeSinceLastFiring > minReloadInterval) {
-                // reload
-                VortexUtils.moveMotorByEncoder(robot.motorLeftHand,
-                        fireP, leftHandFirePower * 0.5);
-            } else if (Math.abs(currentP - fireP) < leftHandFirePositionTolerance) {
-                // assume that reload is done
-                leftHandReloaded = true;
-            }
-        } else {
-            VortexUtils.moveMotorByEncoder(robot.motorLeftHand,
-                    leftHandHomePosition + fireCount * leftHandFirePositionOffset,
-                    leftHandHoldPower);
-            leftHandReloaded = true;
-        }
+        particleShooter.shoot(gamepad1.right_trigger > 0.3);
     }
 
     public void enableLeftArm (){

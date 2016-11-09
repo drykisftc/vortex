@@ -105,6 +105,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     @Override
     public void start() {
         super.start();
+        particleShooter.init();
         particleShooter.start(0);
         beaconPresser.start(0);
     }
