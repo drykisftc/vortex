@@ -187,10 +187,6 @@ public class VortexTeleOp extends OpMode{
      */
     @Override
     public void init_loop() {
-        // safety features
-        // move wall tracker arm, don't crash into left arm!
-        // safe zone already, park
-        wallTracker.park();
 
         // homing the left arm. If the touch sensor is on, turn off arm power
         if ( leftArmLimitSwitchOnCount < 10
@@ -245,6 +241,7 @@ public class VortexTeleOp extends OpMode{
 
         // hands
         particleShooter.start(0);
+        wallTracker.park();
 
         telemetry.update();
     }
@@ -259,6 +256,7 @@ public class VortexTeleOp extends OpMode{
         joystickArmControl();
         buttonControl();
         triggerControl();
+        elevatorControl();
         telemetry.update();
     }
 
@@ -281,14 +279,6 @@ public class VortexTeleOp extends OpMode{
     }
 
     public void joystickArmControl() {
-
-        // enable arm controls
-        if (gamepad1.left_bumper) {
-            enableLeftArm();
-        }
-        if (gamepad1.right_bumper) {
-            enableRightArm();
-        }
 
         // move arms by power
         float throttle = gamepad1.right_stick_y;
@@ -411,7 +401,37 @@ public class VortexTeleOp extends OpMode{
     }
 
     public void triggerControl () {
-        particleShooter.shoot(gamepad1.right_trigger > 0.3);
+
+        if (gamepad1.right_bumper) {
+            // move hand backward to compress the ball solid into fire position and calibrate the hand position
+            particleShooter.calibrateHandByBall();
+        } else {
+            particleShooter.shoot(gamepad1.right_trigger > 0.3);
+        }
+    }
+
+    public void elevatorControl () {
+        if (gamepad1.dpad_up) {
+            robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.motorRightArm.setPower(0.5);
+        }  else if (gamepad1.dpad_down) {
+            robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.motorRightArm.setPower(-0.5);
+        } else {
+            float throttle = gamepad2.right_stick_y;
+            robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.motorRightArm.setPower(Range.clip(throttle, -0.5, 0.5));
+        }
+    }
+
+    public void rightHandControl () {
+
+        // extend or retract hand
+        float throttle = gamepad2.left_stick_y;
+
+
+        // tighten the hand by servo
+
     }
 
     public void enableLeftArm (){

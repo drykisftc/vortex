@@ -14,4 +14,8 @@ public class RGB {
     int getIntensity(){
         return r+g+b;
     }
+
+    double getDistance (RGB rgb) {
+        return Math.sqrt((rgb.r-r)*(rgb.r-r)+(rgb.g-g)*(rgb.g-g)+(rgb.b-b)*(rgb.b-b));
+    }
 }
