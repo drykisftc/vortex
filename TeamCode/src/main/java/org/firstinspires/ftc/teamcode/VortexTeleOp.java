@@ -87,7 +87,7 @@ public class VortexTeleOp extends OpMode{
     protected double leftArmJoystickDeadZone = 0.05;
     protected double leftArmHoldPower = 0.4;
     protected double leftArmAutoMovePower = 0.5;
-    protected double leftArmAutoSlowMovePower = 0.2;
+    protected double leftArmAutoSlowMovePower = 0.1;
     protected double leftArmHomingMovePower = -0.3;
     protected long leftArmHomingTimestamp =0;
     protected long leftArmHomingTime =8000;
@@ -189,7 +189,7 @@ public class VortexTeleOp extends OpMode{
     public void init_loop() {
 
         // homing the left arm. If the touch sensor is on, turn off arm power
-        if ( leftArmLimitSwitchOnCount < 10
+        if ( leftArmLimitSwitchOnCount < 6
                 && System.currentTimeMillis() - leftArmHomingTimestamp < leftArmHomingTime) {
             robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.motorLeftArm.setPower(leftArmHomingMovePower);
@@ -201,6 +201,8 @@ public class VortexTeleOp extends OpMode{
 
         if (robot.armStop.isPressed()) {
             leftArmLimitSwitchOnCount ++;
+        } else {
+            leftArmLimitSwitchOnCount =0;
         }
     }
 

@@ -89,7 +89,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
         gyroTracker.setReporter(telemetry);
 
         // Send telemetry message to signify robot waiting;
-        telemetry.addData("Say", "Hello LineTracker");    //
+        telemetry.addData("Say", "Hello GyroTracker");    //
         updateTelemetry(telemetry);
     }
 

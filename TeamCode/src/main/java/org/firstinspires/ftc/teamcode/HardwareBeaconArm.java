@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.Range;
 
 public class HardwareBeaconArm extends HardwareBase {
 
@@ -11,11 +12,13 @@ public class HardwareBeaconArm extends HardwareBase {
     String upperArmName = "upperArm";
     double upperArmHomePosition = 0.0;
     double upperArmStepSize = 0.01;
+    double upperArmCurrentPosition = 0.0;
 
     Servo lowerArm = null;
     String lowerArmName = "lowerArm";
     double lowerArmHomePosition = 1.0;
     double lowerArmStepSize = 0.01;
+    double lowerArmCurrentPosistion = 0;
 
     ColorSensor colorSensor = null;
     String colorSensorName = "beaconArmColor";
@@ -24,6 +27,9 @@ public class HardwareBeaconArm extends HardwareBase {
     String touchSensorName = "beaconArmTouch";
     int touchCounts = 0;
     int touchCountLimit = 10;
+
+    int nearCounts = 0;
+    int nearCountsLimit = 3;
 
     HardwareBeaconArm ( String upArmName, String lowArmName,
                         String colorName, String touchName) {
@@ -41,6 +47,8 @@ public class HardwareBeaconArm extends HardwareBase {
         lowerArm = hwMap.servo.get(lowerArmName);
         colorSensor = hwMap.colorSensor.get(colorSensorName);
         touchSensor = hwMap.touchSensor.get(touchSensorName);
+
+        colorSensor.enableLed(true);
     }
 
     public void start (double upperHome, double lowerHome,
@@ -49,20 +57,36 @@ public class HardwareBeaconArm extends HardwareBase {
         lowerArmHomePosition = lowerHome;
         upperArmStepSize = upStepSize;
         lowerArmStepSize = lowStepSize;
+        colorSensor.enableLed(true);
+
+        updatePosition();
+
     }
 
     public void reset () {
         retract();
-        touchCounts = 0;
+        resetCounters();
+        colorSensor.enableLed(false);
     }
 
+    public void resetCounters() {
+        touchCounts =0;
+        nearCounts =0;
+    }
     /**
      *
-     * @param intensityTheshold
+     * @param intensityThreshold
      * @return false if not near yet
      */
-    public boolean extendUntilNearLoop ( int intensityTheshold) {
-        if (getColorIntensity() < intensityTheshold) {
+    public boolean extendUntilNearLoop ( int intensityThreshold) {
+
+        if (getColorIntensity() > intensityThreshold) {
+            nearCounts++;
+        } else {
+            nearCounts = 0;
+        }
+
+        if (nearCounts < nearCountsLimit) {
             extend();
             return false;
         }
@@ -78,6 +102,8 @@ public class HardwareBeaconArm extends HardwareBase {
 
         if (touchSensor.isPressed()) {
             touchCounts ++ ;
+        } else {
+            touchCounts =0;
         }
 
         if (touchCounts >= touchCountLimit) {
@@ -93,15 +119,14 @@ public class HardwareBeaconArm extends HardwareBase {
     }
 
     public void extend ( ) {
-        upperArm.setPosition(upperArm.getPosition()+upperArmStepSize);
-        lowerArm.setPosition(lowerArm.getPosition()+lowerArmStepSize);
+        upperArm.setPosition(Range.clip(upperArm.getPosition()+upperArmStepSize, 0.01, 0.99));
+        lowerArm.setPosition(Range.clip(lowerArm.getPosition()+lowerArmStepSize, 0.01, 0.99));
     }
 
     public void retract () {
         upperArm.setPosition(upperArmHomePosition);
         lowerArm.setPosition(lowerArmHomePosition);
     }
-
 
     public char getColor () {
         int r = colorSensor.red();
@@ -124,6 +149,11 @@ public class HardwareBeaconArm extends HardwareBase {
 
     public int getColorIntensity() {
         return colorSensor.red() + colorSensor.green() + colorSensor.blue();
+    }
+
+    public void updatePosition () {
+        upperArmCurrentPosition  = upperArm.getPosition();
+        lowerArmCurrentPosistion = lowerArm.getPosition();
     }
 
 }

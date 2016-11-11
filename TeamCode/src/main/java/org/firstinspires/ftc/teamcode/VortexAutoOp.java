@@ -95,13 +95,12 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     public void initBeaconArm() {
         beaconArm = new HardwareBeaconArm("rightBeaconUpperArm", "rightBeaconLowerArm",
                 "rightBeaconColor", "rightBeaconTouch");
+        beaconArm.init(hardwareMap);
+        beaconArm.start(0.0,1.0,0.01,0.01);
+        beaconArm.retract();
+
         beaconPresser = new BeaconPresser(gyroTracker, beaconArm);
         beaconPresser.setReporter(telemetry);
-        beaconPresser.teamColor = 'b';
-        beaconArm.upperArmHomePosition = 0.0;
-        beaconArm.upperArmStepSize = 0.01;
-        beaconArm.lowerArmHomePosition = 1.0;
-        beaconArm.lowerArmStepSize = 0.01;
         beaconArm.retract();
 
     }
