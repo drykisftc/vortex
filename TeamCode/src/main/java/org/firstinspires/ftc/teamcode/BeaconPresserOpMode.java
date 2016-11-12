@@ -45,7 +45,12 @@ public class BeaconPresserOpMode extends OpMode {
     /* Declare OpMode members. */
     HardwareBeaconArm beaconArm  = null;   // Use a Pushbot's hardware
 
-    int state = 0;
+    // arm control information
+    boolean loopTrue = false;
+    double upHomePosition = 0.93;
+    double upStepSize = -0.026;
+    double lowHomePosition = 0.86;
+    double lowStepSize = -0.04;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -57,14 +62,13 @@ public class BeaconPresserOpMode extends OpMode {
          */
 
         // Send telemetry message to signify robot waiting;
-        telemetry.addData("Say", "Hello BeaconArm");    //
+        telemetry.addData("Say", "Hello BeaconPresserOpMode");    //
         updateTelemetry(telemetry);
 
         beaconArm = new HardwareBeaconArm("leftBeaconUpperArm", "leftBeaconLowerArm",
                 "leftBeaconColor", "leftBeaconTouch");
-
         beaconArm.init(hardwareMap);
-        beaconArm.start(0.93,0.90,-0.02,-0.02);
+        beaconArm.start(upHomePosition,lowHomePosition,upStepSize,lowStepSize);
         beaconArm.retract();
     }
 
@@ -83,8 +87,7 @@ public class BeaconPresserOpMode extends OpMode {
     @Override
     public void start() {
         // compute baseline brightness
-        state = 2;
-
+        beaconArm.state = 0;
     }
 
     /*
@@ -94,18 +97,26 @@ public class BeaconPresserOpMode extends OpMode {
     public void loop() {
 
         if (gamepad1.a) {
-            state = 2;
+            beaconArm.state = 0;
         }
 
         if (gamepad1.b) {
-           state = 0;
+            beaconArm.state = 1;
         }
 
         if (gamepad1.y) {
-            state = 1;
+            beaconArm.state = 2;
         }
 
-        loop2();
+        if (gamepad1.x) {
+            if (loopTrue) {
+                loopTrue = false;
+            } else {
+                loopTrue = true;
+            }
+        }
+
+        beaconArm.pressButton_loop (loopTrue);
 
         telemetry.addData("Upper Arm Pos   ", beaconArm.upperArm.getPosition());
         telemetry.addData("Lower Arm Pos   ", beaconArm.lowerArm.getPosition());
@@ -114,25 +125,9 @@ public class BeaconPresserOpMode extends OpMode {
         telemetry.addData("Near counts     ", beaconArm.nearCounts);
         telemetry.addData("Touch sensor on ", "%b", beaconArm.touchSensor.isPressed());
         telemetry.addData("Touch counts    ", beaconArm.touchCounts);
-        telemetry.addData("State:", "%02d", state);
+        telemetry.addData("State:", "%02d", beaconArm.state);
     }
-    public void loop2() {
 
-        switch (state) {
-            case 0:
-                if (beaconArm.extendUntilNearLoop(40)) {
-                    state = 1;
-                }
-                break;
-            case 1:
-                if ( beaconArm.extendUntilTouch()) {
-                    state = 2;
-                }
-            default:
-                beaconArm.retract();
-        }
-        telemetry.update();
-    }
 
     /*
      * Code to run ONCE after the driver hits STOP

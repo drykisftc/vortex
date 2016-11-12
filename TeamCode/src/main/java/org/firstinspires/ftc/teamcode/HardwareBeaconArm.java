@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
+import java.util.Random;
+
 public class HardwareBeaconArm extends HardwareBase {
 
     Servo upperArm = null;
@@ -22,14 +24,21 @@ public class HardwareBeaconArm extends HardwareBase {
 
     ColorSensor colorSensor = null;
     String colorSensorName = "beaconArmColor";
+    int colorSensorAmbient = 0;
 
     TouchSensor touchSensor = null;
     String touchSensorName = "beaconArmTouch";
     int touchCounts = 0;
-    int touchCountLimit = 10;
+    int touchCountLimit = 4;
 
     int nearCounts = 0;
     int nearCountsLimit = 3;
+
+    int numbOfSteps =0;
+
+    int state = 0;
+
+    Random random = new Random(System.currentTimeMillis());
 
     HardwareBeaconArm ( String upArmName, String lowArmName,
                         String colorName, String touchName) {
@@ -49,6 +58,7 @@ public class HardwareBeaconArm extends HardwareBase {
         touchSensor = hwMap.touchSensor.get(touchSensorName);
 
         colorSensor.enableLed(true);
+        calibrate();
     }
 
     public void start (double upperHome, double lowerHome,
@@ -113,17 +123,28 @@ public class HardwareBeaconArm extends HardwareBase {
 
         if (!bT) {
             extend();
+        } else {
+            // shake it
+            //shake();
         }
 
         return bT;
     }
 
     public void extend ( ) {
-        upperArm.setPosition(Range.clip(upperArm.getPosition()+upperArmStepSize, 0.01, 0.99));
-        lowerArm.setPosition(Range.clip(lowerArm.getPosition()+lowerArmStepSize, 0.01, 0.99));
+        numbOfSteps ++;
+        upperArm.setPosition(Range.clip(upperArmHomePosition+numbOfSteps*upperArmStepSize, 0.45, 0.99));
+        lowerArm.setPosition(Range.clip(lowerArmHomePosition+numbOfSteps*lowerArmStepSize, 0.01, 0.99));
+    }
+
+    public void shake ( ) {
+        numbOfSteps = numbOfSteps + random.nextInt(9) - 4;
+        upperArm.setPosition(Range.clip(upperArmHomePosition+numbOfSteps*upperArmStepSize, 0.45, 0.99));
+        lowerArm.setPosition(Range.clip(lowerArmHomePosition+numbOfSteps*lowerArmStepSize, 0.01, 0.99));
     }
 
     public void retract () {
+        numbOfSteps =0;
         upperArm.setPosition(upperArmHomePosition);
         lowerArm.setPosition(lowerArmHomePosition);
     }
@@ -155,5 +176,32 @@ public class HardwareBeaconArm extends HardwareBase {
         upperArmCurrentPosition  = upperArm.getPosition();
         lowerArmCurrentPosistion = lowerArm.getPosition();
     }
+
+    public void calibrate () {
+        colorSensorAmbient = 60;
+    }
+
+    public void pressButton_loop(boolean bGoNext) {
+
+        switch (state) {
+            case 1:
+                if (extendUntilNearLoop(colorSensorAmbient)
+                        && bGoNext) {
+                    state = 2; // go to touch
+                }
+                break;
+            case 2:
+                if ( extendUntilTouch()
+                        && bGoNext) {
+                    state = 0; // retract
+                }
+                break;
+            default:
+                resetCounters();
+                retract();
+                break;
+        }
+    }
+
 
 }

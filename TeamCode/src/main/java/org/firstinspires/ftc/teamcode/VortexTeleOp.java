@@ -140,6 +140,17 @@ public class VortexTeleOp extends OpMode{
             0.41f, 0.42f, 0.43f, 0.44f, 0.45f, 0.46f, 0.47f, 0.48f,
             0.49f, 0.50f, 0.51f, 0.52f, 0.53f, 0.54f, 0.55f, 0.56f,
             0.60f, 0.65f, 0.70f, 0.75f, 0.80f, 0.85f, 0.90f, 0.95f, 1.0f };
+
+    HardwareBeaconArm beaconArm  = null;   // Use a Pushbot's hardware
+
+    // left arm control information
+    int state = 0;
+    boolean loopTrue = false;
+    double upHomePosition = 0.93;
+    double upStepSize = -0.026;
+    double lowHomePosition = 0.87;
+    double lowStepSize = -0.04;
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -173,6 +184,13 @@ public class VortexTeleOp extends OpMode{
 
         // wall tracker
         wallTracker.init(hardwareMap);
+
+        // left beacon arm
+        beaconArm = new HardwareBeaconArm("leftBeaconUpperArm", "leftBeaconLowerArm",
+                "leftBeaconColor", "leftBeaconTouch");
+        beaconArm.init(hardwareMap);
+        beaconArm.start(upHomePosition,lowHomePosition,upStepSize,lowStepSize);
+        beaconArm.retract();
 
         // set time stamp
         leftArmHomingTimestamp = System.currentTimeMillis();
@@ -259,6 +277,7 @@ public class VortexTeleOp extends OpMode{
         buttonControl();
         triggerControl();
         elevatorControl();
+        leftBeaconArmControl();
         telemetry.update();
     }
 
@@ -434,6 +453,39 @@ public class VortexTeleOp extends OpMode{
 
         // tighten the hand by servo
 
+    }
+
+    public void leftBeaconArmControl () {
+        if (gamepad2.a) {
+            beaconArm.state = 0;
+        }
+
+        if (gamepad2.b) {
+            beaconArm.state = 1;
+        }
+
+        if (gamepad2.y) {
+            beaconArm.state = 2;
+        }
+
+        if (gamepad2.x) {
+            if (loopTrue) {
+                loopTrue = false;
+            } else {
+                loopTrue = true;
+            }
+        }
+
+        beaconArm.pressButton_loop (loopTrue);
+
+        telemetry.addData("Upper Arm Pos   ", beaconArm.upperArm.getPosition());
+        telemetry.addData("Lower Arm Pos   ", beaconArm.lowerArm.getPosition());
+        telemetry.addData("Color sensor rgb", "%d,%d,%d", beaconArm.colorSensor.red(),
+                beaconArm.colorSensor.green(), beaconArm.colorSensor.blue());
+        telemetry.addData("Near counts     ", beaconArm.nearCounts);
+        telemetry.addData("Touch sensor on ", "%b", beaconArm.touchSensor.isPressed());
+        telemetry.addData("Touch counts    ", beaconArm.touchCounts);
+        telemetry.addData("State:", "%02d", beaconArm.state);
     }
 
     public void enableLeftArm (){
