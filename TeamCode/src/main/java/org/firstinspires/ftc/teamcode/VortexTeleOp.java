@@ -86,7 +86,7 @@ public class VortexTeleOp extends OpMode{
 
     protected double leftArmJoystickDeadZone = 0.05;
     protected double leftArmHoldPower = 0.4;
-    protected double leftArmAutoMovePower = 0.5;
+    protected double leftArmAutoMovePower = 0.3;
     protected double leftArmAutoSlowMovePower = 0.2;
     protected double leftArmHomingMovePower = -0.3;
     protected long leftArmHomingTimestamp =0;
