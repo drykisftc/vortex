@@ -64,4 +64,13 @@ public class VortexAutoBlueOp extends VortexAutoOp{
         beacon2ParkTurnDegree = 135;
     }
 
+    @Override
+    public void initStates() {
+
+        wallTracker.wallTrackerHW.parkingPosition = 1.0;
+        wallTracker.wallTrackerHW.park();
+
+        beaconArm.start(0.0,1.0,0.01,0.01);
+        beaconArm.retract();
+    }
 }

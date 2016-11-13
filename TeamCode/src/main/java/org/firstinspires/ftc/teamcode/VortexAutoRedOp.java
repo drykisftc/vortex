@@ -64,24 +64,4 @@ public class VortexAutoRedOp extends VortexAutoOp{
         beacon2ParkTurnDegree = -135;
     }
 
-    @Override
-    public void initBeaconPresser() {
-        beaconArm = new HardwareBeaconArm("leftBeaconUpperArm", "leftBeaconLowerArm",
-                "leftBeaconColor", "leftBeaconTouch");
-        beaconArm.init(hardwareMap);
-        beaconArm.start(0.0,1.0,0.01,0.01);
-        beaconArm.retract();
-
-        beaconPresser = new BeaconPresser(gyroTracker, beaconArm);
-        beaconPresser.setReporter(telemetry);
-
-    }
-
-    @Override
-    public void initWallTracker() {
-        wallTracker.wallTrackerHW.parkingPosition = 1.0;
-        wallTracker.wallTrackerHW.park();
-    }
-
-
 }

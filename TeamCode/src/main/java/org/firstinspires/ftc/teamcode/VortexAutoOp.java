@@ -80,11 +80,15 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     public void init() {
         super.init();
 
+        // line tracker
         hardwareLineTracker = new HardwareLineTracker();
         hardwareLineTracker.init(hardwareMap, 4);
         groundBrightness = Math.max(minLineBrightness,hardwareLineTracker.getBaseLineBrightness()*2.5);
 
+        // beacon presser
         initBeaconPresser();
+
+        // wall tracker
         initWallTracker();
 
     }
@@ -93,7 +97,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
         beaconPresser = new BeaconPresser(gyroTracker, beaconArm);
         beaconPresser.setReporter(telemetry);
-        beaconArm.retract();
 
     }
 
@@ -101,8 +104,15 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         wallTracker = new WallTracker(wallTrackerHW,
                 robot.motorLeftWheel,
                 robot.motorRightWheel, 10);
+    }
+
+    public void initStates () {
+        // wall tracker
         wallTracker.wallTrackerHW.parkingPosition = 1.0;
         wallTracker.wallTrackerHW.park();
+
+        // beacon arm
+        beaconArm.retract();
     }
 
     /*
