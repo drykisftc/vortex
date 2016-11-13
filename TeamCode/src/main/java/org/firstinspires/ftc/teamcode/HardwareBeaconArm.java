@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
+//import org.apache.commons.collections.buffer.CircularFifoBuffer;
 
 import java.util.Random;
 
@@ -39,6 +40,8 @@ public class HardwareBeaconArm extends HardwareBase {
     int state = 0;
 
     Random random = new Random(System.currentTimeMillis());
+
+    RGB ambientRGB = new RGB(0,0,0);
 
     HardwareBeaconArm ( String upArmName, String lowArmName,
                         String colorName, String touchName) {
@@ -150,9 +153,9 @@ public class HardwareBeaconArm extends HardwareBase {
     }
 
     public char getColor () {
-        int r = colorSensor.red();
-        int g = colorSensor.green();
-        int b = colorSensor.blue();
+        int r = colorSensor.red() - ambientRGB.r;
+        int g = colorSensor.green()- ambientRGB.g;
+        int b = colorSensor.blue() - ambientRGB.b;
 
         int m = Math.max(Math.max(r,g),b);
         if ( m == r ) {
@@ -178,7 +181,11 @@ public class HardwareBeaconArm extends HardwareBase {
     }
 
     public void calibrate () {
+        // compute ambient rgb
+
+        // compute ambient intensity
         colorSensorAmbient = 60;
+
     }
 
     public void pressButton_loop(boolean bGoNext) {

@@ -56,10 +56,8 @@ import com.qualcomm.robotcore.util.Range;
 public class VortexTeleOp extends OpMode{
 
     /* Declare OpMode members. */
-    protected HardwareVortex robot       = new HardwareVortex(); // use the class created to define a Pushbot's hardware
-                                                         // could also use HardwareVortexMatrix class.
-
-    HardwareWallTracker wallTracker = new HardwareWallTracker();
+    protected HardwareVortex robot       = new HardwareVortex();
+    HardwareWallTracker wallTrackerHW = new HardwareWallTracker();
 
     ParticleShooter particleShooter = null;
 
@@ -183,14 +181,10 @@ public class VortexTeleOp extends OpMode{
         particleShooter.setReporter(telemetry);
 
         // wall tracker
-        wallTracker.init(hardwareMap);
+        wallTrackerHW.init(hardwareMap);
 
-        // left beacon arm
-        beaconArm = new HardwareBeaconArm("leftBeaconUpperArm", "leftBeaconLowerArm",
-                "leftBeaconColor", "leftBeaconTouch");
-        beaconArm.init(hardwareMap);
-        beaconArm.start(upHomePosition,lowHomePosition,upStepSize,lowStepSize);
-        beaconArm.retract();
+        // beacon arm
+        initBeaconArms();
 
         // set time stamp
         leftArmHomingTimestamp = System.currentTimeMillis();
@@ -261,7 +255,7 @@ public class VortexTeleOp extends OpMode{
 
         // hands
         particleShooter.start(0);
-        wallTracker.park();
+        wallTrackerHW.park();
 
         telemetry.update();
     }
@@ -393,13 +387,13 @@ public class VortexTeleOp extends OpMode{
         }
 
         if (gamepad1.dpad_left) {
-            wallTracker.moveSonicArmToLeft();
+            wallTrackerHW.moveSonicArmToLeft();
         }
 
         if (gamepad1.dpad_right) {
             int currentP = robot.motorLeftArm.getCurrentPosition();
             if (currentP > leftArmLoadPosition) {
-                wallTracker.moveSonicArmToRight();
+                wallTrackerHW.moveSonicArmToRight();
             }
         }
     }
@@ -496,6 +490,14 @@ public class VortexTeleOp extends OpMode{
     public void enableRightArm() {
         boolLeftArmEnable = false;
         boolRightArmEnable = true;
+    }
+
+    protected void initBeaconArms () {
+        beaconArm = new HardwareBeaconArm("leftBeaconUpperArm", "leftBeaconLowerArm",
+                "leftBeaconColor", "leftBeaconTouch");
+        beaconArm.init(hardwareMap);
+        beaconArm.start(upHomePosition,lowHomePosition,upStepSize,lowStepSize);
+        beaconArm.retract();
     }
 
     /*

@@ -65,7 +65,7 @@ public class VortexAutoRedOp extends VortexAutoOp{
     }
 
     @Override
-    public void initBeaconArm() {
+    public void initBeaconPresser() {
         beaconArm = new HardwareBeaconArm("leftBeaconUpperArm", "leftBeaconLowerArm",
                 "leftBeaconColor", "leftBeaconTouch");
         beaconArm.init(hardwareMap);
@@ -79,8 +79,8 @@ public class VortexAutoRedOp extends VortexAutoOp{
 
     @Override
     public void initWallTracker() {
-        wallTracker.parkingPosition = 1.0;
-        wallTracker.park();
+        wallTracker.wallTrackerHW.parkingPosition = 1.0;
+        wallTracker.wallTrackerHW.park();
     }
 
 

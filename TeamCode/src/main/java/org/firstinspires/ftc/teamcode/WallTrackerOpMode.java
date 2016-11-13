@@ -39,10 +39,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
  */
 @Autonomous(name="Auto: right wall tracker", group="Testing")
 @Disabled
-public class WallTrackerOpMode extends OpMode {
+public class WallTrackerOpMode extends VortexTeleOp {
 
     /* Declare OpMode members. */
-    HardwareWallTracker      robot   = new HardwareWallTracker();   // Use a Pushbot's hardware
+    HardwareWallTracker      walTrackerHW   = new HardwareWallTracker();   // Use a Pushbot's hardware
 
     // state machine
     int state = 0;
@@ -61,9 +61,9 @@ public class WallTrackerOpMode extends OpMode {
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */
-        robot.init(hardwareMap);
+        walTrackerHW.init(hardwareMap);
 
-        wallTracker = new WallTracker(robot.sonicRange,
+        wallTracker = new WallTracker(walTrackerHW,
                 robot.motorLeftWheel,
                 robot.motorRightWheel,
                 bufferSize);

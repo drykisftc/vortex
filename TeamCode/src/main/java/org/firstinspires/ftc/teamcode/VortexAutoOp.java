@@ -34,7 +34,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.util.Range;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -56,10 +55,8 @@ import com.qualcomm.robotcore.util.Range;
 public class VortexAutoOp extends GyroTrackerOpMode{
 
     BeaconPresser beaconPresser = null;
-    ParticleShooter particleShooter = null;
     HardwareLineTracker hardwareLineTracker = null;
-    HardwareBeaconArm beaconArm = null;
-    HardwareWallTracker wallTracker = null;
+    WallTracker wallTracker = null;
 
     double groundBrightness = 0.0;
     double minLineBrightness = 0.02;
@@ -87,17 +84,12 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         hardwareLineTracker.init(hardwareMap, 4);
         groundBrightness = Math.max(minLineBrightness,hardwareLineTracker.getBaseLineBrightness()*2.5);
 
-        initBeaconArm();
+        initBeaconPresser();
         initWallTracker();
 
     }
 
-    public void initBeaconArm() {
-        beaconArm = new HardwareBeaconArm("rightBeaconUpperArm", "rightBeaconLowerArm",
-                "rightBeaconColor", "rightBeaconTouch");
-        beaconArm.init(hardwareMap);
-        beaconArm.start(0.0,1.0,0.01,0.01);
-        beaconArm.retract();
+    public void initBeaconPresser() {
 
         beaconPresser = new BeaconPresser(gyroTracker, beaconArm);
         beaconPresser.setReporter(telemetry);
@@ -106,8 +98,11 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     }
 
     public void initWallTracker() {
-        wallTracker.parkingPosition = 0.0;
-        wallTracker.park();
+        wallTracker = new WallTracker(wallTrackerHW,
+                robot.motorLeftWheel,
+                robot.motorRightWheel, 10);
+        wallTracker.wallTrackerHW.parkingPosition = 1.0;
+        wallTracker.wallTrackerHW.park();
     }
 
     /*

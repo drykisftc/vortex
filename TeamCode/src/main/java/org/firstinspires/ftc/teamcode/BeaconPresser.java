@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 public class BeaconPresser extends RobotExecutor {
 
 
-    long lastTimeStamp = 0;
+    protected long lastTimeStamp = 0;
 
     // navigation info
     protected int lineToBeaconDistance = 500;
@@ -24,6 +24,8 @@ public class BeaconPresser extends RobotExecutor {
     // bookkeeping
     int landMarkAngle = 0;
     boolean bBeaconPressed = false;
+
+    protected long timeLimit = 3000; // 3 seconds
 
     public BeaconPresser(GyroTracker g,
                          HardwareBeaconArm arm){
@@ -61,13 +63,15 @@ public class BeaconPresser extends RobotExecutor {
                 // detect beacon color
                 if (beaconArm.getColor() == teamColor) {
                     state = 3;
+                    lastTimeStamp = System.currentTimeMillis();
                 } else {
                     state = 4;
                 }
                 break;
             case 3:
                 // touch beacon button
-                if (beaconArm.extendUntilTouch()){
+                if (beaconArm.extendUntilTouch()
+                        || System.currentTimeMillis() - lastTimeStamp > timeLimit ){
                     state = 4;
                     bBeaconPressed = true;
                     beaconArm.retract();
@@ -82,7 +86,8 @@ public class BeaconPresser extends RobotExecutor {
             case 5:
                 if (bBeaconPressed) {
                     state = 6;
-                }  else if (beaconArm.extendUntilTouch()) {
+                }  else if (beaconArm.extendUntilTouch()
+                        || System.currentTimeMillis() - lastTimeStamp > timeLimit) {
                     // touch button
                     state = 6;
                     bBeaconPressed = true;
