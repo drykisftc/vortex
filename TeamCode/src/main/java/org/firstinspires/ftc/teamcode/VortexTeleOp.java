@@ -139,15 +139,23 @@ public class VortexTeleOp extends OpMode{
             0.49f, 0.50f, 0.51f, 0.52f, 0.53f, 0.54f, 0.55f, 0.56f,
             0.60f, 0.65f, 0.70f, 0.75f, 0.80f, 0.85f, 0.90f, 0.95f, 1.0f };
 
-    HardwareBeaconArm beaconArm  = null;   // Use a Pushbot's hardware
+
 
     // left arm control information
-    int state = 0;
-    boolean loopTrue = false;
-    double upHomePosition = 0.93;
-    double upStepSize = -0.026;
-    double lowHomePosition = 0.87;
-    double lowStepSize = -0.04;
+    HardwareBeaconArm leftBeaconArm = null;
+    boolean leftLoopTrue = false;
+    double leftUpHomePosition = 0.93;
+    double leftUpStepSize = -0.026;
+    double leftLowHomePosition = 0.87;
+    double leftLowStepSize = -0.04;
+
+    // right arm control information
+    HardwareBeaconArm rightBeaconArm = null;
+    boolean rightLoopTrue = false;
+    double rightUpHomePosition = 0.93;
+    double rightUpStepSize = -0.026;
+    double rightLowHomePosition = 0.87;
+    double rightLowStepSize = -0.04;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -451,35 +459,35 @@ public class VortexTeleOp extends OpMode{
 
     public void leftBeaconArmControl () {
         if (gamepad2.a) {
-            beaconArm.state = 0;
+            leftBeaconArm.state = 0;
         }
 
         if (gamepad2.b) {
-            beaconArm.state = 1;
+            leftBeaconArm.state = 1;
         }
 
         if (gamepad2.y) {
-            beaconArm.state = 2;
+            leftBeaconArm.state = 2;
         }
 
         if (gamepad2.x) {
-            if (loopTrue) {
-                loopTrue = false;
+            if (leftLoopTrue) {
+                leftLoopTrue = false;
             } else {
-                loopTrue = true;
+                leftLoopTrue = true;
             }
         }
 
-        beaconArm.pressButton_loop (loopTrue);
+        leftBeaconArm.pressButton_loop (leftLoopTrue);
 
-        telemetry.addData("Upper Arm Pos   ", beaconArm.upperArm.getPosition());
-        telemetry.addData("Lower Arm Pos   ", beaconArm.lowerArm.getPosition());
-        telemetry.addData("Color sensor rgb", "%d,%d,%d", beaconArm.colorSensor.red(),
-                beaconArm.colorSensor.green(), beaconArm.colorSensor.blue());
-        telemetry.addData("Near counts     ", beaconArm.nearCounts);
-        telemetry.addData("Touch sensor on ", "%b", beaconArm.touchSensor.isPressed());
-        telemetry.addData("Touch counts    ", beaconArm.touchCounts);
-        telemetry.addData("State:", "%02d", beaconArm.state);
+        telemetry.addData("Upper Arm Pos   ", leftBeaconArm.upperArm.getPosition());
+        telemetry.addData("Lower Arm Pos   ", leftBeaconArm.lowerArm.getPosition());
+        telemetry.addData("Color sensor rgb", "%d,%d,%d", leftBeaconArm.colorSensor.red(),
+                leftBeaconArm.colorSensor.green(), leftBeaconArm.colorSensor.blue());
+        telemetry.addData("Near counts     ", leftBeaconArm.nearCounts);
+        telemetry.addData("Touch sensor on ", "%b", leftBeaconArm.touchSensor.isPressed());
+        telemetry.addData("Touch counts    ", leftBeaconArm.touchCounts);
+        telemetry.addData("State:", "%02d", leftBeaconArm.state);
     }
 
     public void enableLeftArm (){
@@ -493,11 +501,17 @@ public class VortexTeleOp extends OpMode{
     }
 
     protected void initBeaconArms () {
-        beaconArm = new HardwareBeaconArm("leftBeaconUpperArm", "leftBeaconLowerArm",
+        leftBeaconArm = new HardwareBeaconArm("leftBeaconUpperArm", "leftBeaconLowerArm",
                 "leftBeaconColor", "leftBeaconTouch");
-        beaconArm.init(hardwareMap);
-        beaconArm.start(upHomePosition,lowHomePosition,upStepSize,lowStepSize);
-        beaconArm.retract();
+        leftBeaconArm.init(hardwareMap);
+        leftBeaconArm.start(leftUpHomePosition,leftLowHomePosition,leftUpStepSize,leftLowStepSize);
+        leftBeaconArm.retract();
+
+        rightBeaconArm = new HardwareBeaconArm("rightBeaconUpperArm", "rightBeaconLowerArm",
+                "rightBeaconColor", "rightBeaconTouch");
+        rightBeaconArm.init(hardwareMap);
+        rightBeaconArm.start(rightUpHomePosition,rightLowHomePosition,rightUpStepSize,rightLowStepSize);
+        rightBeaconArm.retract();
     }
 
     /*

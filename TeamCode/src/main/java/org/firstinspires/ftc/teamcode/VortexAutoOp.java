@@ -95,7 +95,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
     public void initBeaconPresser() {
 
-        beaconPresser = new BeaconPresser(gyroTracker, beaconArm);
+        beaconPresser = new BeaconPresser(gyroTracker, leftBeaconArm);
         beaconPresser.setReporter(telemetry);
 
     }
@@ -112,7 +112,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         wallTracker.wallTrackerHW.park();
 
         // beacon arm
-        beaconArm.retract();
+        leftBeaconArm.retract();
     }
 
     /*
