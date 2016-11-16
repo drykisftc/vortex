@@ -39,11 +39,12 @@ public class HardwareVortex extends HardwareBase
     public DcMotor motorRightWheel =null;
     public DcMotor motorLeftHand = null;
     public DcMotor motorRightHand = null;
-    public TouchSensor armStop = null;
 
     // Servos
+    public Servo servoCock = null;
 
     // Sensors
+    public TouchSensor armStop = null;
 
     // Camera
 
@@ -83,6 +84,8 @@ public class HardwareVortex extends HardwareBase
         motorRightHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        servoCock = hwMap.servo.get("cock");
 
         armStop = hwMap.touchSensor.get("armStop");
 

@@ -1,16 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class ParticleShooter extends RobotExecutor {
 
     // arm
     protected int armStartPosition =0;
-    protected int armFiringPosition1 = 4500;
-    protected int armFiringPosition2 = 4500;
+    protected int armFiringPosition1 = 4485;
+    protected int armFiringPosition2 = 4485;
     protected double armPower = 0.45;
-    protected int leftArmFiringSafeZone = 3500;
-    protected int leftArmPositionTolerance = 5;
+    protected int armFiringSafeZone = 3500;
+    protected int leftArmPositionTolerance = 1;
 
     // hand
     int fireState =0;
@@ -18,27 +19,35 @@ public class ParticleShooter extends RobotExecutor {
     protected int handFirePosition =0;
     protected int handFirePositionOffset = 445; // 20: 1 motor is 560. 16:1 is 445
     protected int handFireOvershotOffset = 20; // 20:1 motor is 350. 16:1 is 230
+    protected int handFireEncoderMissOffset = 40; // to compensate steps missed by encoders
     protected double handHoldPower = 0.02;
-    protected double handBeakPower = 0.01;
-    protected double handCalibrationPower = -0.01;
+    protected double handBeakPower = 0.1;
+    protected double handCalibrationPower = -0.05;
     protected double handFirePower = 1.0;
     protected int fireCount =0;
     protected long lastFireTimeStamp = 0;
-    protected long minFireInterval = 1800;
-    protected long minReloadInterval = 1200;
+    protected long minFireInterval = 2000;
+    protected long minReloadInterval = 800;
     protected boolean handReloaded = true;
-    
     protected int leftHandFirePositionTolerance = 1;
-    
+
+    // cock servo
+    protected double cockLoadPosition = 0.85;
+    protected double cockFirePosition = 0.3;
+
+    // devices
     protected DcMotor motorArm;
     protected DcMotor motorHand;
+    protected Servo   servoCock;
 
     long lastTimeStamp = 0;
 
     public ParticleShooter(DcMotor arm,
-                           DcMotor hand){
+                           DcMotor hand,
+                           Servo servo){
         motorArm = arm;
         motorHand = hand;
+        servoCock = servo;
     }
 
     @Override
@@ -52,17 +61,20 @@ public class ParticleShooter extends RobotExecutor {
         motorHand.setPower(handHoldPower);
         fireCount = 0; // must preload it to be 0
         armStartPosition = motorArm.getCurrentPosition();
+        servoCock.setPosition(cockLoadPosition);
         lastTimeStamp = System.currentTimeMillis();
     }
     @Override
     public void start(int s) {
         state = s;
         armStartPosition = motorArm.getCurrentPosition();
+        servoCock.setPosition(cockLoadPosition);
         lastTimeStamp = System.currentTimeMillis();
     }
 
     public void reset () {
         handReloaded = true;
+        servoCock.setPosition(cockLoadPosition);
         fireState = 0;
     }
 
@@ -77,7 +89,6 @@ public class ParticleShooter extends RobotExecutor {
                     VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition1, armPower);
                 }
                 if (hasReachedPosition(armFiringPosition1)) {
-                    fireState = 0;
                     state = 1;
                 }
                 if (reporter != null) {
@@ -86,19 +97,20 @@ public class ParticleShooter extends RobotExecutor {
                 break;
             case 1:
                 // shoot the first particle
-                shoot_loop(true);
-                if (fireState >= 3) {
-                    state = 2;
-                }
-                if (reporter != null) {
-                    reporter.addData("Particle shooter ", "Fox 1");
+                if (fireState ==0 ) {
+                    shoot_loop(true); // will set fire state to be not zero
+                    if (fireState == 0) { // if ready again go next state
+                        state = 2;
+                    }
+                    if (reporter != null) {
+                        reporter.addData("Particle shooter ", "Fox 1");
+                    }
                 }
                 break;
             case 2:
                 // adjust arm position
                 VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition2, armPower);
                 if (hasReachedPosition(armFiringPosition2)) {
-                    fireState = 0;
                     state = 3;
                 }
                 if (reporter != null) {
@@ -107,12 +119,14 @@ public class ParticleShooter extends RobotExecutor {
                 break;
             case 3:
                 // shoot the second particle
-                shoot_loop(true);
-                if (fireState >=3 ) {
-                    state = 4;
-                }
-                if (reporter != null) {
-                    reporter.addData("Particle shooter ", "Fox 2");
+                if (fireState ==0 ) {
+                    shoot_loop(true);
+                    if (fireState == 0) {
+                        state = 4;
+                    }
+                    if (reporter != null) {
+                        reporter.addData("Particle shooter ", "Fox 2");
+                    }
                 }
                 break;
             case 4:
@@ -136,7 +150,9 @@ public class ParticleShooter extends RobotExecutor {
         long timeSinceLastFiring = System.currentTimeMillis() - lastFireTimeStamp;
 
         if (!triggerOn) {
-            fireState = 3;
+            fireState = 4;
+        } else {
+            reporter.addData("Particle shooter", "Fire!!");
         }
 
         int currentArmP = motorArm.getCurrentPosition();
@@ -147,38 +163,55 @@ public class ParticleShooter extends RobotExecutor {
                 // fire
                 if (handReloaded
                         && timeSinceLastFiring > minFireInterval) {
-                    if (currentArmP > leftArmFiringSafeZone) {
+                    if (currentArmP > armFiringSafeZone) {
                         // fire
                         fireCount++;
+                        servoCock.setPosition(cockFirePosition);
                         lastFireTimeStamp = currentT;
                         motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         motorHand.setPower(handFirePower);
-                        handFirePosition = currentHandP + handFirePositionOffset;
+                        handFirePosition
+                                = currentHandP + handFirePositionOffset - handFireEncoderMissOffset;
                         handReloaded = false;
                         fireState = 1;
+                        reporter.addData("Particle shooter", "Fox %d", fireCount);
                     } else {
+                        reporter.addData("Particle shooter", "In danger zone, skip" );
                         fireState = 3; // skip to 3
                     }
+                } else {
+                    reporter.addData("Particle shooter", "Fox %d launching!", fireCount);
                 }
                 break;
             case 1:
-                if (currentHandP > handFirePosition + handFireOvershotOffset) {
-                    VortexUtils.moveMotorByEncoder(motorHand,
-                            handFirePosition, handBeakPower);
-                    fireState = 2; // go to reload state
+                if (currentHandP > handFirePosition + handFireOvershotOffset
+                        || timeSinceLastFiring > minReloadInterval) {
+                    motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    motorHand.setPower(0);
+                    reporter.addData("Particle shooter", "Fox %d out!", fireCount);
+                    fireState =2;
                 }
                 break;
             case 2:
+                    VortexUtils.moveMotorByEncoder(motorHand, handFirePosition, handBeakPower);
+                    servoCock.setPosition(cockLoadPosition);
+                    reporter.addData("Particle shooter", "Reload" );
+                    fireState = 3; // go to reload state
+                break;
+            case 3:
                 if (Math.abs(currentHandP - handFirePosition) <= leftHandFirePositionTolerance
                         || timeSinceLastFiring > minFireInterval) {
-                    fireState = 3;
+                    fireState = 4;
                     handReloaded = true;
+                    reporter.addData("Particle shooter", "Ready");
                 }
-            case 3:
+            case 4:
             default:
-                VortexUtils.moveMotorByEncoder(motorHand,
-                        handFirePosition, handHoldPower);
+                VortexUtils.moveMotorByEncoder(motorHand, handFirePosition, handHoldPower);
+                servoCock.setPosition(cockLoadPosition);
                 fireState = 0;
+                handReloaded = true;
+                reporter.addData("Particle shooter", "Idle");
                 break;
         }
     }
@@ -189,52 +222,12 @@ public class ParticleShooter extends RobotExecutor {
         }
         return false;
     }
-    
-    public void shoot (boolean triggerOn) {
-
-        long currentT = System.currentTimeMillis();
-        if (triggerOn) {
-            reporter.addData("Particle shooter", "Fire!");
-            // fire only when the arm is in fire-safe zone
-            int currentArmP = motorArm.getCurrentPosition();
-            if (currentArmP > leftArmFiringSafeZone) {
-                int currentHand = motorHand.getCurrentPosition();
-                if (handReloaded && currentT - lastFireTimeStamp > minFireInterval) {
-                    // bookkeeping
-                    fireCount++;
-                    lastFireTimeStamp = currentT;
-
-                    // fire
-                    motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    motorHand.setPower(handFirePower);
-                    handFirePosition = currentHand + handFirePositionOffset;
-                    handReloaded = false;
-                    reporter.addData("Particle shooter", "Fox %d", fireCount);
-
-                } else if ( currentHand > handFirePosition + handFireOvershotOffset) {
-                    // reload
-                    VortexUtils.moveMotorByEncoder(motorHand,
-                            handFirePosition, handBeakPower);
-                    reporter.addData("Particle shooter", "Reload" );
-                } else if (Math.abs(currentHand - handFirePosition) < leftHandFirePositionTolerance){
-                    // reload is done
-                    handReloaded = true;
-                    reporter.addData("Particle shooter", "Ready");
-                    motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    motorHand.setPower(0);
-                }
-            }
-        } else if (currentT - lastFireTimeStamp > minFireInterval){
-            VortexUtils.moveMotorByEncoder(motorHand,
-                    handFirePosition,
-                    handHoldPower);
-            handReloaded = true;
-        }
-    }
 
     public void calibrateHandByBall() {
         motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorHand.setPower(handCalibrationPower);
+        handFirePosition = motorHand.getCurrentPosition();
+
     }
 
 //    protected int getNextFirePosition () {

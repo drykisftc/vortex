@@ -70,9 +70,9 @@ public class VortexTeleOp extends OpMode{
     protected final int leftArmHomeParkingOffset = 150;
     protected final int leftArmLoadPositionOffset = 950;
     protected final int leftArmSnapPositionOffset = 50;
-    protected final int leftArmFirePositionOffset = 4500;
-    protected final int leftArmMaxOffset = 4520;
-    protected int leftArmFiringSafeZoneOffset = 2000;
+    protected final int leftArmFirePositionOffset = 4480;
+    protected final int leftArmMaxOffset = 4500;
+    protected int leftArmFiringSafeZoneOffset = 3500;
 
     protected int leftArmHomeParkingPostion = leftArmHomeParkingOffset;
     protected int leftArmLoadPosition = leftArmLoadPositionOffset;
@@ -144,7 +144,7 @@ public class VortexTeleOp extends OpMode{
     // left arm control information
     HardwareBeaconArm leftBeaconArm = null;
     boolean leftLoopTrue = false;
-    double leftUpHomePosition = 0.93;
+    double leftUpHomePosition = 0.90;
     double leftUpStepSize = -0.026;
     double leftLowHomePosition = 0.87;
     double leftLowStepSize = -0.04;
@@ -184,9 +184,13 @@ public class VortexTeleOp extends OpMode{
         leftArmLimitSwitchOnCount =0;
 
         // hands
-        particleShooter = new ParticleShooter(robot.motorLeftArm, robot.motorLeftHand);
+        particleShooter = new ParticleShooter(robot.motorLeftArm,
+                robot.motorLeftHand, robot.servoCock);
         particleShooter.init();
         particleShooter.setReporter(telemetry);
+        particleShooter.armFiringPosition1 = leftArmFirePosition;
+        particleShooter.armFiringPosition2 = leftArmFirePosition;
+        particleShooter.armFiringSafeZone = leftArmFiringSafeZone;
 
         // wall tracker
         wallTrackerHW.init(hardwareMap);
@@ -429,7 +433,7 @@ public class VortexTeleOp extends OpMode{
             // move hand backward to compress the ball solid into fire position and calibrate the hand position
             particleShooter.calibrateHandByBall();
         } else {
-            particleShooter.shoot(gamepad1.right_trigger > 0.3);
+            particleShooter.shoot_loop(gamepad1.right_trigger > 0.3);
         }
     }
 
