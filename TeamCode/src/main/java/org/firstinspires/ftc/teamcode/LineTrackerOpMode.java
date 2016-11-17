@@ -53,7 +53,7 @@ import java.nio.Buffer;
 public class LineTrackerOpMode extends OpMode {
 
     /* Declare OpMode members. */
-    HardwareVortex robot = new HardwareVortex();
+    HardwareVortex vortexHW = new HardwareVortex();
     HardwareLineTracker tracker   = new HardwareLineTracker();
 
     // state machine
@@ -72,14 +72,14 @@ public class LineTrackerOpMode extends OpMode {
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */
-        robot.init(hardwareMap);
+        vortexHW.init(hardwareMap);
         tracker.init(hardwareMap,3);
 
         lineTracker = new LineTracker(tracker.sensorArray[0],
                 tracker.sensorArray[1],
                 tracker.sensorArray[2],
-                robot.motorLeftWheel,
-                robot.motorRightWheel,
+                vortexHW.motorLeftWheel,
+                vortexHW.motorRightWheel,
                 bufferSize);
         lineTracker.init();
         lineTracker.setReporter(telemetry);

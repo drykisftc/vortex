@@ -6,41 +6,41 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class ParticleShooter extends RobotExecutor {
 
     // arm
-    protected int armStartPosition =0;
-    protected int armFiringPosition1 = 4495;
-    protected int armFiringPosition2 = 4495;
-    protected double armPower = 0.45;
-    protected int armFiringSafeZone = 3500;
-    protected int leftArmPositionTolerance = 1;
+    private int armStartPosition =0;
+    public int armFiringPosition1 = 4000;
+    public int armFiringPosition2 = 4000;
+    private double armPower = 0.45;
+    public int armFiringSafeZone = 3500;
+    private int leftArmPositionTolerance = 30;
 
     // hand
-    int fireState =0;
-    protected int handHomePosition =0;
-    protected int handFirePosition =0;
-    protected int handFirePositionOffset = 445; // 20: 1 motor is 560. 16:1 is 445
-    protected int handFireOvershotOffset = 20; // 20:1 motor is 350. 16:1 is 230
-    protected int handFireEncoderMissOffset = 0; // to compensate steps missed by encoders
-    protected double handHoldPower = 0.05;
-    protected double handBeakPower = 0.1;
-    protected double handCalibrationPower = -0.05;
-    protected double handFirePower = 1.0;
-    protected int fireCount =0;
-    protected long lastFireTimeStamp = 0;
-    protected long minFireInterval = 2000;
-    protected long minReloadInterval = 1500;
-    protected boolean handReloaded = true;
-    protected int leftHandFirePositionTolerance = 1;
+    private int fireState =0;
+    private int handHomePosition =0;
+    private int handFirePosition =0;
+    private int handFirePositionOffset = 445; // 20: 1 motor is 560. 16:1 is 445
+    private int handFireOvershotOffset = 20; // 20:1 motor is 350. 16:1 is 230
+    private int handFireEncoderMissOffset = 0; // to compensate steps missed by encoders
+    private double handHoldPower = 0.05;
+    private double handBeakPower = 0.1;
+    private double handCalibrationPower = -0.05;
+    private double handFirePower = 1.0;
+    private int fireCount =0;
+    private long lastFireTimeStamp = 0;
+    private long minFireInterval = 2000;
+    private long minReloadInterval = 1500;
+    private boolean handReloaded = true;
+    private int leftHandFirePositionTolerance = 1;
 
     // cock servo
-    protected double cockLoadPosition = 0.85;
-    protected double cockFirePosition = 0.3;
+    private double cockLoadPosition = 0.85;
+    private double cockFirePosition = 0.3;
 
     // devices
-    protected DcMotor motorArm;
-    protected DcMotor motorHand;
-    protected Servo   servoCock;
+    private DcMotor motorArm;
+    private DcMotor motorHand;
+    private Servo   servoCock;
 
-    long lastTimeStamp = 0;
+    private long lastTimeStamp = 0;
 
     public ParticleShooter(DcMotor arm,
                            DcMotor hand,
@@ -67,6 +67,7 @@ public class ParticleShooter extends RobotExecutor {
     @Override
     public void start(int s) {
         state = s;
+        fireState = 0;
         armStartPosition = motorArm.getCurrentPosition();
         servoCock.setPosition(cockLoadPosition);
         lastTimeStamp = System.currentTimeMillis();
@@ -84,9 +85,9 @@ public class ParticleShooter extends RobotExecutor {
         switch (state) {
             case 0:
                 // move arm to firing position
-                if (System.currentTimeMillis() - lastTimeStamp < 500 ) {
+                if (System.currentTimeMillis() - lastTimeStamp < 500) {
                     // slow move first
-                    VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition1, armPower*0.5);
+                    VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition1, armPower * 0.5);
                 } else {
                     VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition1, armPower);
                 }
@@ -99,15 +100,14 @@ public class ParticleShooter extends RobotExecutor {
                 break;
             case 1:
                 // shoot the first particle
-                if (isReady()) {
-                    shoot_loop(true); // will set fire state to be not zero
-                    if (isReady()) { // if ready again go next state
-                        state = 2;
-                    }
-                    if (reporter != null) {
-                        reporter.addData("Particle shooter ", "Fox 1");
-                    }
+                shoot_loop(true); // will set fire state to be not zero
+                if (isReady()) { // if ready again go next state
+                    state = 2;
                 }
+                if (reporter != null) {
+                    reporter.addData("Particle shooter ", "Fox 1");
+                }
+
                 break;
             case 2:
                 // adjust arm position
@@ -121,14 +121,12 @@ public class ParticleShooter extends RobotExecutor {
                 break;
             case 3:
                 // shoot the second particle
+                shoot_loop(true);
                 if (isReady()) {
-                    shoot_loop(true);
-                    if (isReady()) {
-                        state = 4;
-                    }
-                    if (reporter != null) {
-                        reporter.addData("Particle shooter ", "Fox 2");
-                    }
+                    state = 4;
+                }
+                if (reporter != null) {
+                    reporter.addData("Particle shooter ", "Fox 2");
                 }
                 break;
             case 4:
@@ -229,11 +227,11 @@ public class ParticleShooter extends RobotExecutor {
         }
     }
 
-    protected boolean isReady () {
+    private boolean isReady () {
         return fireState == 0;
     }
 
-    protected boolean hasReachedPosition ( int targetPos) {
+    private boolean hasReachedPosition ( int targetPos) {
         if ( Math.abs(motorArm.getCurrentPosition() - targetPos) < leftArmPositionTolerance) {
             return true;
         }
