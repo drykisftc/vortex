@@ -70,7 +70,7 @@ public class HardwareBeaconArm extends HardwareBase {
         lowerArmHomePosition = lowerHome;
         upperArmStepSize = upStepSize;
         lowerArmStepSize = lowStepSize;
-        colorSensor.enableLed(true);
+        colorSensor.enableLed(false);
 
         updatePosition();
 
