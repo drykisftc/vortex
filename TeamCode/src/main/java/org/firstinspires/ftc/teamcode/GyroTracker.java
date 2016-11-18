@@ -40,6 +40,8 @@ public class GyroTracker extends Tracker {
         leftWheel = leftW;
         rightWheel = rightW;
         bufferSize = bufferS;
+        skewAngleBuffer = new double [bufferSize];
+        powerBuffer = new double[bufferSize];
     }
 
     /*
@@ -50,8 +52,6 @@ public class GyroTracker extends Tracker {
             reporter.addData("GyroTracker", "init....");
         }
         gyro.calibrate();
-        skewAngleBuffer = new double [bufferSize];
-        powerBuffer = new double[bufferSize];
         state =0;
     }
 

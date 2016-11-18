@@ -243,6 +243,8 @@ public class ParticleShooter extends RobotExecutor {
         motorHand.setPower(handCalibrationPower);
         handFirePosition = motorHand.getCurrentPosition();
 
+        servoCock.setPosition(cockFirePosition);
+
     }
 
     public void relax () {
