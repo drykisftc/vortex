@@ -107,6 +107,8 @@ public class ParticleShooter extends RobotExecutor {
                 // shake balls in to the slot
                 if ( System.currentTimeMillis() - lastTimeStamp < 500){
                     servoCock.setPosition(cockFirePosition);
+                    pressBall();
+
                 } else {
                     state = 2;
                     lastTimeStamp = System.currentTimeMillis();
@@ -115,6 +117,7 @@ public class ParticleShooter extends RobotExecutor {
             case 2:
                 if ( System.currentTimeMillis() - lastTimeStamp < 500){
                     servoCock.setPosition(cockLoadPosition);
+                    pressBall();
                 } else {
                     state = 3;
                     lastTimeStamp = System.currentTimeMillis();
@@ -123,6 +126,7 @@ public class ParticleShooter extends RobotExecutor {
             case 3:
                 if ( System.currentTimeMillis() - lastTimeStamp < 500){
                     servoCock.setPosition(cockFirePosition);
+                    pressBall();
                 } else {
                     state = 4;
                     lastTimeStamp = System.currentTimeMillis();
@@ -269,12 +273,14 @@ public class ParticleShooter extends RobotExecutor {
     }
 
     public void calibrateHandByBall () {
+        pressBall();
+        servoCock.setPosition(cockFirePosition);
+    }
+
+    public void pressBall () {
         motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorHand.setPower(handCalibrationPower);
         handFirePosition = motorHand.getCurrentPosition();
-
-        servoCock.setPosition(cockFirePosition);
-
     }
 
     public void relax () {
