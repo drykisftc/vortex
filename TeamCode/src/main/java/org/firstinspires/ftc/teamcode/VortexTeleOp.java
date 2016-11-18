@@ -189,8 +189,7 @@ public class VortexTeleOp extends OpMode{
                 robot.motorLeftHand, robot.servoCock);
         particleShooter.init();
         particleShooter.setReporter(telemetry);
-        particleShooter.armFiringPosition1 = leftArmFirePosition;
-        particleShooter.armFiringPosition2 = leftArmFirePosition;
+        particleShooter.armFiringPosition = leftArmFirePosition;
         particleShooter.armFiringSafeZone = leftArmFiringSafeZone;
         particleShooter.relax();
 

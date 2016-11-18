@@ -63,7 +63,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     double searchingPower = 0.3;
     double cruisingTurnGain = 0.05;
     double inPlaceTurnGain = 0.01;
-    double turningPower = 0.0; // set to 0.0 to turn in-place
+    double turningPower = 0.2; // set to 0.0 to turn in-place
 
     // arm. Warning, arm power > 0.6 will damage the gear boxes
     double armPower = 0.4;
@@ -100,7 +100,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     public void init_loop() {
         super.init_loop();
         // make sure the gyro is calibrated.
-        if (gyroTracker.gyro.isCalibrating())  {
+        if (gyroTrackerHW.gyro.isCalibrating())  {
             telemetry.addData(">", "Gyro is calibrating.  DO NOT start!!!!");
             telemetry.addData(">", "Wait! Wait! Wait! ");
             telemetry.addData(">", "Wait! Wait! Wait! Wait!");

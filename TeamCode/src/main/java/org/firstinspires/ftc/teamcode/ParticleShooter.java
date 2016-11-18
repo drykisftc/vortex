@@ -7,8 +7,8 @@ public class ParticleShooter extends RobotExecutor {
 
     // arm
     private int armStartPosition =0;
-    public int armFiringPosition1 = 4000;
-    public int armFiringPosition2 = 4000;
+    public int armFiringPosition = 4000;
+    public int armFiringPositionAdjust = 20;
     private double armPower = 0.45;
     public int armFiringSafeZone = 3500;
     private int leftArmPositionTolerance = 30;
@@ -84,14 +84,19 @@ public class ParticleShooter extends RobotExecutor {
     public int loop (int startState, int endState) {
         switch (state) {
             case 0:
+                servoCock.setPosition(cockLoadPosition);
                 // move arm to firing position
                 if (System.currentTimeMillis() - lastTimeStamp < 500) {
                     // slow move first
-                    VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition1, armPower * 0.5);
+                    VortexUtils.moveMotorByEncoder(motorArm,
+                            armFiringPosition-armFiringPositionAdjust,
+                            armPower * 0.5);
                 } else {
-                    VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition1, armPower);
+                    VortexUtils.moveMotorByEncoder(motorArm,
+                            armFiringPosition-armFiringPositionAdjust,
+                            armPower);
                 }
-                if (hasReachedPosition(armFiringPosition1)) {
+                if (hasReachedPosition(armFiringPosition)) {
                     state = 1;
                 }
                 if (reporter != null) {
@@ -99,44 +104,69 @@ public class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 1:
+                // shake balls in to the slot
+                if ( System.currentTimeMillis() - lastTimeStamp < 500){
+                    servoCock.setPosition(cockFirePosition);
+                } else {
+                    state = 2;
+                    lastTimeStamp = System.currentTimeMillis();
+                }
+                break;
+            case 2:
+                if ( System.currentTimeMillis() - lastTimeStamp < 500){
+                    servoCock.setPosition(cockLoadPosition);
+                } else {
+                    state = 3;
+                    lastTimeStamp = System.currentTimeMillis();
+                }
+                break;
+            case 3:
+                if ( System.currentTimeMillis() - lastTimeStamp < 500){
+                    servoCock.setPosition(cockFirePosition);
+                } else {
+                    state = 4;
+                    lastTimeStamp = System.currentTimeMillis();
+                    servoCock.setPosition(cockLoadPosition);
+                }
+                break;
+            case 4:
                 // shoot the first particle
                 shoot_loop(true); // will set fire state to be not zero
                 if (isReady()) { // if ready again go next state
-                    state = 2;
+                    state = 5;
                 }
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "Fox 1");
                 }
-
                 break;
-            case 2:
+            case 5:
                 // adjust arm position
-                VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition2, armPower);
-                if (hasReachedPosition(armFiringPosition2)) {
-                    state = 3;
+                VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition, armPower);
+                if (hasReachedPosition(armFiringPosition)) {
+                    state = 6;
+
                 }
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "move arm to 2nd firing position");
                 }
                 break;
-            case 3:
+            case 6:
                 // shoot the second particle
                 shoot_loop(true);
                 if (isReady()) {
-                    state = 4;
+                    state = 7;
                 }
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "Fox 2");
                 }
                 break;
-            case 4:
+            case 7:
                 // move arm back 
                 VortexUtils.moveMotorByEncoder(motorArm, armStartPosition, armPower);
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "move arm to back");
                 }
-
-                state = 5;
+                state = 8;
                 break;
             default:
                 return endState;

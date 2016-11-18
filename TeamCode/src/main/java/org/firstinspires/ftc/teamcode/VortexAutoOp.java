@@ -62,9 +62,9 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     double minLineBrightness = 0.02;
 
     // navigation settings
-    protected int start2FireDistance = 2500; //2500
+    protected int start2FireDistance = 2200; //2500
     protected int fire2TurnDegree = 70;
-    protected int fire2WallDistance = 7500;
+    protected int fire2WallDistance = 10000;
     protected int wall2TurnDegree = -70;
     protected int wall2BeaconDistance = 7500;
     protected int beacon2ParkTurnDegree = -135;
@@ -131,6 +131,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         super.start();
         particleShooter.start(0);
         beaconPresser.start(0);
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
         state = 0;
     }
 
@@ -149,6 +150,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     // prepare to shoot
                     robot.motorLeftWheel.setPower(0.0);
                     robot.motorRightWheel.setPower(0.0);
+                    particleShooter.start(0);
                 }
                 break;
             case 1:

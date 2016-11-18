@@ -32,11 +32,11 @@ public class GyroTracker extends Tracker {
     private int landMarkPosition = 0;
     private int landMarkAngle = 0;
 
-    public GyroTracker(ModernRoboticsI2cGyro leftO,
+    public GyroTracker(ModernRoboticsI2cGyro g,
                        DcMotor leftW,
                        DcMotor rightW,
                        int bufferS){
-        gyro = leftO;
+        gyro = g;
         leftWheel = leftW;
         rightWheel = rightW;
         bufferSize = bufferS;
@@ -51,7 +51,6 @@ public class GyroTracker extends Tracker {
         if (reporter != null) {
             reporter.addData("GyroTracker", "init....");
         }
-        gyro.calibrate();
         state =0;
     }
 

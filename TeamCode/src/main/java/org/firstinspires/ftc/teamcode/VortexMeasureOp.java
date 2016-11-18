@@ -57,7 +57,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class VortexMeasureOp extends VortexTeleOp {
 
     HardwareLineTracker lineTracker = new HardwareLineTracker();
-    HardwareGyroTracker gyroTracker = new HardwareGyroTracker();
+    HardwareGyroTracker gyroTrackerHW = new HardwareGyroTracker();
 
     int xVal, yVal, zVal = 0;     // Gyro rate Values
     int heading = 0;              // Gyro integrated heading
@@ -74,7 +74,7 @@ public class VortexMeasureOp extends VortexTeleOp {
          * The init() method of the hardware class does all the work here
          */
         super.init();
-        gyroTracker.init(robot.hwMap);
+        gyroTrackerHW.init(robot.hwMap);
         lineTracker.init(robot.hwMap,4);
 
         // Send telemetry message to signify robot waiting;
@@ -88,7 +88,7 @@ public class VortexMeasureOp extends VortexTeleOp {
     @Override
     public void init_loop() {
         // make sure the gyro is calibrated.
-        if (gyroTracker.gyro.isCalibrating())  {
+        if (gyroTrackerHW.gyro.isCalibrating())  {
             telemetry.addData(">", "Gyro is calibrating.  DO NOT start!!!!");
             telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
             telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
@@ -107,7 +107,7 @@ public class VortexMeasureOp extends VortexTeleOp {
     @Override
     public void start() {
 
-        gyroTracker.gyro.resetZAxisIntegrator();
+        gyroTrackerHW.gyro.resetZAxisIntegrator();
 
         robot.motorLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.motorRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -160,16 +160,16 @@ public class VortexMeasureOp extends VortexTeleOp {
         // get gyro info
         curResetState = (gamepad1.a && gamepad1.b);
         if(curResetState && !lastResetState)  {
-            gyroTracker.gyro.resetZAxisIntegrator();
+            gyroTrackerHW.gyro.resetZAxisIntegrator();
         }
         lastResetState = curResetState;
 
-        xVal = gyroTracker.gyro.rawX();
-        yVal = gyroTracker.gyro.rawY();
-        zVal = gyroTracker.gyro.rawZ();
+        xVal = gyroTrackerHW.gyro.rawX();
+        yVal = gyroTrackerHW.gyro.rawY();
+        zVal = gyroTrackerHW.gyro.rawZ();
 
-        heading = gyroTracker.gyro.getHeading();
-        angleZ  = gyroTracker.gyro.getIntegratedZValue();
+        heading = gyroTrackerHW.gyro.getHeading();
+        angleZ  = gyroTrackerHW.gyro.getIntegratedZValue();
 
         telemetry.addData("Gyro", "Press A & B to reset Heading.");
         telemetry.addData("0", "Heading %03d", heading);

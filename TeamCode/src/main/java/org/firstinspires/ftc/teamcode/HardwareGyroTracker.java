@@ -11,6 +11,7 @@ public class HardwareGyroTracker extends HardwareBase {
 
         // Initialize base Motor and Servo objects
         super.init(ahwMap);
-        gyro =  (ModernRoboticsI2cGyro)hwMap.gyroSensor.get("gyro");
+        gyro = (ModernRoboticsI2cGyro)hwMap.gyroSensor.get("gyro");
+        gyro.calibrate();
     }
 }
