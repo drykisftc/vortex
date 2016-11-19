@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
-public class HardwareLineTracker extends HardwareVortex {
+public class HardwareLineTracker extends HardwareBase {
 
     OpticalDistanceSensor [] sensorArray = null;
 

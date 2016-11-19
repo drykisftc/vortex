@@ -64,6 +64,4 @@ public class VortexAutoRedOp extends VortexAutoOp{
         beacon2ParkTurnDegree = -135;
     }
 
-
-
 }

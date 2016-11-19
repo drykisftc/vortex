@@ -11,7 +11,8 @@ import java.text.DecimalFormat;
 
 public class WallTracker {
 
-    ModernRoboticsI2cRangeSensor leftODS = null;
+    HardwareWallTracker wallTrackerHW = null;
+    ModernRoboticsI2cRangeSensor rangeSensor = null;
 
     DcMotor leftWheel = null;
     DcMotor rightWheel = null;
@@ -37,11 +38,12 @@ public class WallTracker {
 
     private static DecimalFormat df3 = new DecimalFormat(".###");
 
-    public WallTracker(ModernRoboticsI2cRangeSensor leftO,
+    public WallTracker(HardwareWallTracker wallTracker,
                        DcMotor leftW,
                        DcMotor rightW,
                        int bufferS){
-        leftODS = leftO;
+        rangeSensor = wallTracker.sonicRange;
+        wallTrackerHW = wallTracker;
         leftWheel = leftW;
         rightWheel = rightW;
         bufferSize = bufferS;
@@ -59,7 +61,7 @@ public class WallTracker {
         distanceBuffer = new double[bufferSize];
         powerBuffer = new double[bufferSize];
 
-        leftODS.enableLed(true);
+        rangeSensor.enableLed(true);
 
         state =0;
 
@@ -106,12 +108,12 @@ public class WallTracker {
     public void stop() {
         leftWheel.setPower(0.0);
         rightWheel.setPower(0.0);
-        leftODS.enableLed(false);
+        rangeSensor.enableLed(false);
     }
 
     public double readDistance() {
 
-        double d =  leftODS.getDistance(DistanceUnit.CM);
+        double d =  rangeSensor.getDistance(DistanceUnit.CM);
         distanceBuffer[bufferIndex] =d;
         powerBuffer[bufferIndex] = lastDirection;
         bufferIndex++;

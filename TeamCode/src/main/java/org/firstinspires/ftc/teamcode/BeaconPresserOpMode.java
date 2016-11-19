@@ -31,27 +31,26 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 
 /**
  *
  */
-@Autonomous(name="Auto: right wall tracker", group="Testing")
-@Disabled
-public class WallTrackerOpMode extends VortexTeleOp {
+
+@TeleOp(name="TeleOp: beacon presser", group="Testing")
+public class BeaconPresserOpMode extends OpMode {
 
     /* Declare OpMode members. */
-    HardwareWallTracker      walTrackerHW   = new HardwareWallTracker();   // Use a Pushbot's hardware
+    HardwareBeaconArm beaconArm  = null;   // Use a Pushbot's hardware
 
-    // state machine
-    int state = 0;
-
-    int bufferSize= 10;
-
-    double signValue = 1.0;
-
-    WallTracker wallTracker = null;
+    // arm control information
+    boolean loopTrue = false;
+    double upHomePosition = 0.93;
+    double upStepSize = -0.026;
+    double lowHomePosition = 0.86;
+    double lowStepSize = -0.04;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -61,18 +60,16 @@ public class WallTrackerOpMode extends VortexTeleOp {
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */
-        walTrackerHW.init(hardwareMap);
-
-        wallTracker = new WallTracker(walTrackerHW,
-                robot.motorLeftWheel,
-                robot.motorRightWheel,
-                bufferSize);
-        wallTracker.init();
-        wallTracker.setReporter(telemetry);
 
         // Send telemetry message to signify robot waiting;
-        telemetry.addData("Say", "Hello WallTracker");    //
+        telemetry.addData("Say", "Hello BeaconPresserOpMode");    //
         updateTelemetry(telemetry);
+
+        beaconArm = new HardwareBeaconArm("leftBeaconUpperArm", "leftBeaconLowerArm",
+                "leftBeaconColor", "leftBeaconTouch");
+        beaconArm.init(hardwareMap);
+        beaconArm.start(upHomePosition,lowHomePosition,upStepSize,lowStepSize);
+        beaconArm.retract();
     }
 
     /*
@@ -80,8 +77,8 @@ public class WallTrackerOpMode extends VortexTeleOp {
      */
     @Override
     public void init_loop() {
-        // collect baseline brightness
-        wallTracker.calibrate();
+
+
     }
 
     /*
@@ -90,7 +87,7 @@ public class WallTrackerOpMode extends VortexTeleOp {
     @Override
     public void start() {
         // compute baseline brightness
-        wallTracker.start(0);
+        beaconArm.state = 0;
     }
 
     /*
@@ -98,20 +95,45 @@ public class WallTrackerOpMode extends VortexTeleOp {
      */
     @Override
     public void loop() {
-        switch (state) {
-            case 0:
-                wallTracker.loop(0.4, 0.0,signValue);
-                break;
-            default:
+
+        if (gamepad1.a) {
+            beaconArm.state = 0;
         }
-        updateTelemetry(telemetry);
+
+        if (gamepad1.b) {
+            beaconArm.state = 1;
+        }
+
+        if (gamepad1.y) {
+            beaconArm.state = 2;
+        }
+
+        if (gamepad1.x) {
+            if (loopTrue) {
+                loopTrue = false;
+            } else {
+                loopTrue = true;
+            }
+        }
+
+        beaconArm.pressButton_loop (loopTrue);
+
+        telemetry.addData("Upper Arm Pos   ", beaconArm.upperArm.getPosition());
+        telemetry.addData("Lower Arm Pos   ", beaconArm.lowerArm.getPosition());
+        telemetry.addData("Color sensor rgb", "%d,%d,%d", beaconArm.colorSensor.red(),
+                beaconArm.colorSensor.green(), beaconArm.colorSensor.blue());
+        telemetry.addData("Near counts     ", beaconArm.nearCounts);
+        telemetry.addData("Touch sensor on ", "%b", beaconArm.touchSensor.isPressed());
+        telemetry.addData("Touch counts    ", beaconArm.touchCounts);
+        telemetry.addData("State:", "%02d", beaconArm.state);
     }
+
 
     /*
      * Code to run ONCE after the driver hits STOP
      */
     public void stop() {
-        wallTracker.stop();
+
     }
 
 }

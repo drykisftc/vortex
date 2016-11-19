@@ -34,7 +34,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.util.Range;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -56,8 +55,8 @@ import com.qualcomm.robotcore.util.Range;
 public class VortexAutoOp extends GyroTrackerOpMode{
 
     BeaconPresser beaconPresser = null;
-    ParticleShooter particleShooter = null;
     HardwareLineTracker hardwareLineTracker = null;
+    WallTracker wallTracker = null;
 
     double groundBrightness = 0.0;
     double minLineBrightness = 0.02;
@@ -80,15 +79,40 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     @Override
     public void init() {
         super.init();
-        beaconPresser = new BeaconPresser(robot.motorLeftWheel, robot.motorRightWheel);
-        beaconPresser.setReporter(telemetry);
-        particleShooter = new ParticleShooter(robot.motorLeftArm, robot.motorLeftHand);
-        particleShooter.setReporter(telemetry);
 
+        // line tracker
         hardwareLineTracker = new HardwareLineTracker();
         hardwareLineTracker.init(hardwareMap, 4);
         groundBrightness = Math.max(minLineBrightness,hardwareLineTracker.getBaseLineBrightness()*2.5);
 
+        // beacon presser
+        initBeaconPresser();
+
+        // wall tracker
+        initWallTracker();
+
+    }
+
+    public void initBeaconPresser() {
+
+        beaconPresser = new BeaconPresser(gyroTracker, beaconArm);
+        beaconPresser.setReporter(telemetry);
+
+    }
+
+    public void initWallTracker() {
+        wallTracker = new WallTracker(wallTrackerHW,
+                robot.motorLeftWheel,
+                robot.motorRightWheel, 10);
+    }
+
+    public void initStates () {
+        // wall tracker
+        wallTracker.wallTrackerHW.parkingPosition = 1.0;
+        wallTracker.wallTrackerHW.park();
+
+        // beacon arm
+        beaconArm.retract();
     }
 
     /*
@@ -105,9 +129,9 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     @Override
     public void start() {
         super.start();
-        particleShooter.init();
         particleShooter.start(0);
         beaconPresser.start(0);
+        state = 0;
     }
 
     /*
@@ -118,8 +142,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         switch (state) {
             case 0:
                 // go straight
-                state = goStraight (landMarkAngle, cruisingTurnGain, cruisingPower,
-                        landMarkPosition, start2FireDistance, state,state+1);
+                state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
+                        start2FireDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 if (state == 1) {
                     // prepare to shoot
@@ -134,32 +158,32 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 2:
                 // turn 45 degree
-                state = turn(landMarkAngle+fire2TurnDegree, inPlaceTurnGain,
+                state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
                         turningPower,state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 3:
                 // go straight until hit the wall
-                state = goStraight (landMarkAngle+fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, landMarkPosition, fire2WallDistance, state,state+1);
+                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
+                        cruisingPower, fire2WallDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 4:
                 // turn -45 degree back
-                state = turn(landMarkAngle+fire2TurnDegree+wall2TurnDegree,
+                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 5:
                 // go straight until hit first white line
-                state = goStraight (landMarkAngle+fire2TurnDegree+wall2TurnDegree,
-                        cruisingTurnGain, cruisingPower, landMarkPosition, wall2BeaconDistance, state,state+1);
+                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
+                        cruisingTurnGain, cruisingPower, wall2BeaconDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
 
                 // check the ods for white line signal
                 if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
                     state = 6;
-                    setWheelLandmark();
+                    gyroTracker.setWheelLandmark();
                     stopWheels();
                     beaconPresser.start(0);
                 }
@@ -169,21 +193,21 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 state = beaconPresser.loop(state, state+1);
                 telemetry.addData("State:", "%02d", state);
                 if (state == 7) {
-                    setWheelLandmark();
+                    gyroTracker.setWheelLandmark();
                 }
                 break;
             case 7:
                 // go straight until hit the second white line
-                state = goStraight (landMarkAngle+fire2TurnDegree+wall2TurnDegree,
-                        cruisingTurnGain, cruisingPower, landMarkPosition, beacon2BeaconDistance, state,state+1);
+                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
+                        cruisingTurnGain, cruisingPower, beacon2BeaconDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
 
                 // check the ods for white line signal
-                if (getWheelLandmarkOdometer() > 1000
+                if (gyroTracker.getWheelLandmarkOdometer() > 1000
                 && hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
                     state = 8;
                     stopWheels();
-                    setWheelLandmark();
+                    gyroTracker.setWheelLandmark();
                     beaconPresser.start(0);
                 }
                 break;
@@ -192,19 +216,19 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 state = beaconPresser.loop(state, state+1);
                 telemetry.addData("State:", "%02d", state);
                 if (state == 9) {
-                    setWheelLandmark();
+                    gyroTracker.setWheelLandmark();
                 }
                 break;
             case 9:
                 // turn 135 degree
-                state = turn(landMarkAngle+fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
+                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 10:
                 // go straight to central parking
-                state = goStraight (landMarkAngle+fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
-                        cruisingTurnGain, cruisingPower, landMarkPosition, beacon2ParkingDistance, state,state+1);
+                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
+                        cruisingTurnGain, cruisingPower, beacon2ParkingDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 11:
@@ -217,20 +241,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 stop();
         }
         telemetry.update();
-    }
-
-    public int getWheelLandmarkOdometer () {
-        int lD = robot.motorLeftWheel.getCurrentPosition();
-        int rD = robot.motorRightWheel.getCurrentPosition();
-        int d = Math.min(lD, rD);
-        return d- landMarkPosition;
-    }
-
-    public void setWheelLandmark () {
-        int lD = robot.motorLeftWheel.getCurrentPosition();
-        int rD = robot.motorRightWheel.getCurrentPosition();
-        int d = Math.min(lD, rD);
-        landMarkPosition = d;
     }
 
     public void stopWheels() {

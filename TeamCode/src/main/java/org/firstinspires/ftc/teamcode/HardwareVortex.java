@@ -30,11 +30,8 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
  *
  * In addition, the Matrix Controller has been assigned the name:  "matrix controller"
  */
-public class HardwareVortex
+public class HardwareVortex extends HardwareBase
 {
-
-    HardwareMap hwMap           =  null;
-
     // DC Motors
     public DcMotor motorLeftArm = null;
     public DcMotor motorRightArm = null;
@@ -58,7 +55,7 @@ public class HardwareVortex
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap ahwMap) {
 
-        hwMap = ahwMap;
+        super.init(ahwMap);
 
         motorLeftWheel   = hwMap.dcMotor.get("leftWheel");
         motorRightWheel  = hwMap.dcMotor.get("rightWheel");

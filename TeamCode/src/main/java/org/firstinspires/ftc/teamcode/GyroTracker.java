@@ -28,7 +28,9 @@ public class GyroTracker extends Tracker {
     
     protected long lastLogTimeStamp = 0;
     final protected int sameplingInteval = 100;
-    
+
+    protected int landMarkPosition = 0;
+    protected int landMarkAngle = 0;
 
     public GyroTracker(ModernRoboticsI2cGyro leftO,
                        DcMotor leftW,
@@ -48,6 +50,23 @@ public class GyroTracker extends Tracker {
         skewAngleBuffer = new double [bufferSize];
         powerBuffer = new double[bufferSize];
         state =0;
+    }
+
+    @Override
+    public void start (int state ) {
+        super.start(state);
+        int lD = leftWheel.getCurrentPosition();
+        int rD = rightWheel.getCurrentPosition();
+        landMarkPosition = Math.min(lD, rD);;
+        landMarkAngle = gyro.getHeading();
+    }
+
+    public void setLandMarkAngle (int angle) {
+        landMarkAngle = angle;
+    }
+
+    public void setLandMarkPosition ( int position) {
+        landMarkPosition = position;
     }
 
     /**
@@ -133,6 +152,54 @@ public class GyroTracker extends Tracker {
         }
     }
 
+    public int goStraight ( double heading, double gain, double power,
+                            int deltaDistance,
+                            int startState, int endState) {
+        // get motor distance
+        int lD = leftWheel.getCurrentPosition();
+        int rD = rightWheel.getCurrentPosition();
+        int d = Math.min(lD, rD);
+
+        if ( d - landMarkPosition < deltaDistance) {
+            skewPowerGain = gain;
+            maintainHeading(heading, power);
+            return startState;
+        }
+        // go to next state
+        landMarkPosition = d;
+        leftWheel.setPower(0.0);
+        rightWheel.setPower(0.0);
+        return endState;
+    }
+
+    public int turn ( double heading, double sensitivity, double power,
+                      int startState, int endState) {
+        skewPowerGain = sensitivity;
+        if (maintainHeading(heading, power) != true) {
+            return startState;
+        }
+        /* got to next state */
+        leftWheel.setPower(0.0);
+        rightWheel.setPower(0.0);
+        int lD = leftWheel.getCurrentPosition();
+        int rD = rightWheel.getCurrentPosition();
+        landMarkPosition = Math.min(lD, rD);
+        return endState;
+    }
+
+    public int getWheelLandmarkOdometer () {
+        int lD = leftWheel.getCurrentPosition();
+        int rD = rightWheel.getCurrentPosition();
+        int d = Math.min(lD, rD);
+        return d- landMarkPosition;
+    }
+
+    public void setWheelLandmark () {
+        int lD = leftWheel.getCurrentPosition();
+        int rD = rightWheel.getCurrentPosition();
+        int d = Math.min(lD, rD);
+        landMarkPosition = d;
+    }
 
 
 }

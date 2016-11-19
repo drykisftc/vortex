@@ -6,7 +6,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-public class HardwareWallTracker extends HardwareVortex {
+public class HardwareWallTracker extends HardwareBase {
 
     Servo sonicArm = null;
     ModernRoboticsI2cRangeSensor sonicRange = null;

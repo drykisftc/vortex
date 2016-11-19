@@ -151,11 +151,11 @@ public class VortexMeasureOp extends VortexTeleOp {
         telemetry.addData("Arm limit switch on  ", "%b", robot.armStop.isPressed());
 
         // get range info
-        telemetry.addData("Range arm position   ", "%.2f", wallTracker.sonicArm.getPosition());
-        telemetry.addData("Range raw optical    ", "%3d", wallTracker.sonicRange.rawOptical());
-        telemetry.addData("Range cm optical     ", "%.2f cm", wallTracker.sonicRange.cmOptical());
-        telemetry.addData("Range raw ultrasonic ", "%3d",  wallTracker.sonicRange.rawUltrasonic());
-        telemetry.addData("Range cm ultrasonic  ", "%.2f cm", wallTracker.sonicRange.getDistance(DistanceUnit.CM));
+        telemetry.addData("Range arm position   ", "%.2f", wallTrackerHW.sonicArm.getPosition());
+        telemetry.addData("Range raw optical    ", "%3d", wallTrackerHW.sonicRange.rawOptical());
+        telemetry.addData("Range cm optical     ", "%.2f cm", wallTrackerHW.sonicRange.cmOptical());
+        telemetry.addData("Range raw ultrasonic ", "%3d",  wallTrackerHW.sonicRange.rawUltrasonic());
+        telemetry.addData("Range cm ultrasonic  ", "%.2f cm", wallTrackerHW.sonicRange.getDistance(DistanceUnit.CM));
 
         // get gyro info
         curResetState = (gamepad1.a && gamepad1.b);
