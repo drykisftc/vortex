@@ -7,7 +7,7 @@ public class ParticleShooter extends RobotExecutor {
 
     // arm
     private int armStartPosition =0;
-    public int armFiringPosition = 4000;
+    public int armFiringPosition = 4475;
     public int armFiringPositionAdjust = 20;
     private double armPower = 0.45;
     public int armFiringSafeZone = 3500;
@@ -281,6 +281,13 @@ public class ParticleShooter extends RobotExecutor {
         motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorHand.setPower(handCalibrationPower);
         handFirePosition = motorHand.getCurrentPosition();
+    }
+
+    public void releaseBall () {
+        motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorHand.setPower(-1.0*handCalibrationPower);
+        handFirePosition = motorHand.getCurrentPosition();
+        servoCock.setPosition(cockLoadPosition);
     }
 
     public void relax () {

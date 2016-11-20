@@ -33,6 +33,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.util.Version;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -49,27 +51,59 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Blue", group="Plan A")
-public class VortexAutoBlueOp extends VortexAutoOp{
+@Autonomous(name="Red", group="Plan B")
+public class PlanBRedAutoOp extends VortexAutoOp{
 
-    /*
-     * Code to run ONCE when the driver hits PLAY
-     */
     @Override
-    public void start() {
-        super.start();
-        fire2TurnDegree = -70;
-        wall2TurnDegree = 70;
-        beacon2ParkTurnDegree = 135;
+    public void init() {
+        super.init();
+        start2FireDistance = 2200; //2500
+        fire2TurnDegree = 0;
+        fire2WallDistance = 7500;
+        wall2TurnDegree = -65;
+        wall2BeaconDistance = 7500;
+        beacon2ParkTurnDegree = -135;
+        beacon2BeaconDistance = 8000;
+        beacon2ParkingDistance =8000;
     }
 
+    /*
+     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
+     */
     @Override
-    public void initStates() {
-
-        wallTracker.wallTrackerHW.parkingPosition = 1.0;
-        wallTracker.wallTrackerHW.park();
-
-        leftBeaconArm.start(0.0,1.0,0.01,0.01);
-        leftBeaconArm.retract();
+    public void loop() {
+        switch (state) {
+            case 0:
+                if(System.currentTimeMillis() - lastTimeStamp> 10000){
+                    state = 1;
+                }
+            case 1:
+                // go straight
+                state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
+                        start2FireDistance, state,state+1);
+                telemetry.addData("State:", "%02d", state);
+                if (state == 2) {
+                    // prepare to shoot
+                    robot.motorLeftWheel.setPower(0.0);
+                    robot.motorRightWheel.setPower(0.0);
+                    particleShooter.start(0);
+                }
+                break;
+            case 2:
+                // shoot particles
+                state = particleShooter.loop(state, state+1);
+                break;
+            case 3:
+                // go straight until hit the particle ball
+                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
+                        cruisingPower, fire2WallDistance, state,state+1);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            default:
+                // stop
+                telemetry.addData("State:", "End");
+                stop();
+        }
+        telemetry.update();
     }
 }

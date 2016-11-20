@@ -71,7 +71,7 @@ public class VortexTeleOp extends OpMode{
     protected final int leftArmLoadPositionOffset = 650;
     protected final int leftArmMovePositionOffset = 1050;
     protected final int leftArmSnapPositionOffset = 50;
-    protected final int leftArmFirePositionOffset = 4480;
+    protected final int leftArmFirePositionOffset = 4475;
     protected final int leftArmMaxOffset = 4500;
     protected int leftArmFiringSafeZoneOffset = 3500;
 
@@ -422,6 +422,8 @@ public class VortexTeleOp extends OpMode{
         if (gamepad1.right_bumper) {
             // move hand backward to compress the ball solid into fire position and calibrate the hand position
             particleShooter.calibrateHandByBall();
+        } if (gamepad1.left_bumper) {
+            particleShooter.releaseBall();
         } else {
             particleShooter.shoot_loop(gamepad1.right_trigger > 0.5);
         }

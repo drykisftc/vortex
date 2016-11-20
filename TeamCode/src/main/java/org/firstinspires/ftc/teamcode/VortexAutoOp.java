@@ -50,7 +50,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Auto: base", group="Auto")
+@Autonomous(name="Auto: base", group="Plan A")
 @Disabled
 public class VortexAutoOp extends GyroTrackerOpMode{
 
@@ -70,6 +70,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected int beacon2ParkTurnDegree = -135;
     protected int beacon2BeaconDistance = 8000;
     protected int beacon2ParkingDistance =8000;
+
+    long lastTimeStamp = 0;
 
     // to do: add wall tracker
 

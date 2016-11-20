@@ -50,91 +50,20 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Auto: base", group="Auto")
-public class RedPlanBAutoOp extends GyroTrackerOpMode{
+@Autonomous(name="Red", group="Plan C")
+public class PlanCRedAutoOp extends VortexAutoOp {
 
-    BeaconPresser beaconPresser = null;
-    HardwareLineTracker hardwareLineTracker = null;
-    WallTracker wallTracker = null;
-
-    double groundBrightness = 0.0;
-    double minLineBrightness = 0.02;
-
-    // navigation settings
-    protected int start2FireDistance = 1800; //2500
-    protected int fire2TurnDegree = 65;
-    protected int fire2WallDistance = 7500;
-    protected int wall2TurnDegree = -65;
-    protected int wall2BeaconDistance = 7500;
-    protected int beacon2ParkTurnDegree = -135;
-    protected int beacon2BeaconDistance = 8000;
-    protected int beacon2ParkingDistance =8000;
-
-    long lastTimeStamp = 0;
-
-    // to do: add wall tracker
-
-    /*
-     * Code to run ONCE when the driver hits INIT
-     */
     @Override
     public void init() {
         super.init();
-
-        // line tracker
-        hardwareLineTracker = new HardwareLineTracker();
-        hardwareLineTracker.init(hardwareMap, 4);
-        groundBrightness = Math.max(minLineBrightness,hardwareLineTracker.getBaseLineBrightness()*2.5);
-
-        // beacon presser
-        initBeaconPresser();
-
-        // wall tracker
-        initWallTracker();
-
-    }
-
-    public void initBeaconPresser() {
-
-        beaconPresser = new BeaconPresser(gyroTracker, leftBeaconArm);
-        beaconPresser.setReporter(telemetry);
-
-    }
-
-    public void initWallTracker() {
-        wallTracker = new WallTracker(wallTrackerHW,
-                robot.motorLeftWheel,
-                robot.motorRightWheel, 10);
-    }
-
-    public void initStates () {
-        // wall tracker
-        wallTracker.wallTrackerHW.parkingPosition = 1.0;
-        wallTracker.wallTrackerHW.park();
-
-        // beacon arm
-        leftBeaconArm.retract();
-    }
-
-    /*
-     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
-     */
-    @Override
-    public void init_loop() {
-        super.init_loop();
-    }
-
-    /*
-     * Code to run ONCE when the driver hits PLAY
-     */
-    @Override
-    public void start() {
-        super.start();
-        particleShooter.start(0);
-        beaconPresser.start(0);
-        lastTimeStamp = System.currentTimeMillis();
-        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
-        state = 0;
+        start2FireDistance = 2200; //2500
+        fire2TurnDegree = 0;
+        fire2WallDistance = 7500;
+        wall2TurnDegree = -65;
+        wall2BeaconDistance = 7500;
+        beacon2ParkTurnDegree = -135;
+        beacon2BeaconDistance = 8000;
+        beacon2ParkingDistance =8000;
     }
 
     /*
@@ -144,10 +73,6 @@ public class RedPlanBAutoOp extends GyroTrackerOpMode{
     public void loop() {
         switch (state) {
             case 0:
-                if(System.currentTimeMillis() - lastTimeStamp> 10000){
-                    state = 1;
-                }
-            case 1:
                 // go straight
                 state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state,state+1);
@@ -159,15 +84,43 @@ public class RedPlanBAutoOp extends GyroTrackerOpMode{
                     particleShooter.start(0);
                 }
                 break;
-            case 2:
+            case 1:
                 // shoot particles
                 state = particleShooter.loop(state, state+1);
                 break;
-            case 3:
-                // go straight until hit the particle ball
+            case 2:
+                // go straight until hit the cap-ball
                 state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
                         cruisingPower, fire2WallDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
+                break;
+            case 4:
+                //
+                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
+                        cruisingPower, fire2WallDistance, state,state+1);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 5:
+                // go straight until hit first white line
+                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
+                        inPlaceTurnGain,turningPower,state,state+1);
+                telemetry.addData("State:", "%02d", state);
+
+                // check the ods for white line signal
+                if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
+                    state = 6;
+                    gyroTracker.setWheelLandmark();
+                    stopWheels();
+                    beaconPresser.start(0);
+                }
+                break;
+            case 6:
+                // touch beacon
+                state = beaconPresser.loop(state, state+1);
+                telemetry.addData("State:", "%02d", state);
+                if (state == 7) {
+                    gyroTracker.setWheelLandmark();
+                }
                 break;
             default:
                 // stop
@@ -175,20 +128,6 @@ public class RedPlanBAutoOp extends GyroTrackerOpMode{
                 stop();
         }
         telemetry.update();
-    }
-
-    public void stopWheels() {
-        robot.motorLeftWheel.setPower(0.0);
-        robot.motorRightWheel.setPower(0.0);
-    }
-
-    /*
-     * Code to run ONCE after the driver hits STOP
-     */
-    @Override
-    public void stop() {
-        homeArm();
-        super.stop();
     }
 
 }

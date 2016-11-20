@@ -50,7 +50,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Auto: red", group="Auto")
+@Autonomous(name="Red", group="Plan A")
 public class VortexAutoRedOp extends VortexAutoOp{
     
     /*
