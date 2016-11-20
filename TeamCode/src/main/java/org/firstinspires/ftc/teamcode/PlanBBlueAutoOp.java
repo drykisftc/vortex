@@ -55,7 +55,7 @@ public class PlanBBlueAutoOp extends PlanBRedAutoOp{
     @Override
     public void init() {
         super.init();
-        fire2TurnDegree = -5;
-        wall2TurnDegree = 50;
+        fire2TurnDegree = 24;
+        wall2TurnDegree = -50;
     }
 }

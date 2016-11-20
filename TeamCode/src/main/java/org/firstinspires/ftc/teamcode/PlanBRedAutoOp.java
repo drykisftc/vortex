@@ -59,9 +59,9 @@ public class PlanBRedAutoOp extends VortexAutoOp{
     @Override
     public void init() {
         super.init();
-        start2FireDistance = 2500; //2500
-        fire2TurnDegree = 5;
-        fire2WallDistance = 7500;
+        start2FireDistance = 3800; //2500
+        fire2TurnDegree = 24;
+        fire2WallDistance = 6800;
         wall2TurnDegree = -50;
         wall2BeaconDistance = 7500;
         beacon2ParkTurnDegree = -135;
@@ -79,6 +79,7 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                 if (System.currentTimeMillis() - lastTimeStamp > 10000) {
                     state = 1;
                 }
+                break;
             case 1:
                 // go straight
                 state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,

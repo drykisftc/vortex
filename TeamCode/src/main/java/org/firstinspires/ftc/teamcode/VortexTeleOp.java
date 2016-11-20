@@ -144,7 +144,7 @@ public class VortexTeleOp extends OpMode{
     HardwareBeaconArm leftBeaconArm = null;
     boolean leftLoopTrue = false;
     double leftUpHomePosition = 0.90;
-    double leftUpStepSize = -0.03;
+    double leftUpStepSize = -0.025;
     double leftLowHomePosition = 0.85;
     double leftLowStepSize = -0.04;
 
@@ -152,7 +152,7 @@ public class VortexTeleOp extends OpMode{
     HardwareBeaconArm rightBeaconArm = null;
     boolean rightLoopTrue = false;
     double rightUpHomePosition = 0.1;
-    double rightUpStepSize = 0.03;
+    double rightUpStepSize = 0.025;
     double rightLowHomePosition = 0.08;
     double rightLowStepSize = 0.04;
 
