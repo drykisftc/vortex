@@ -95,6 +95,7 @@ public class ParticleShooter extends RobotExecutor {
                     VortexUtils.moveMotorByEncoder(motorArm,
                             armFiringPosition-armFiringPositionAdjust,
                             armPower);
+                    servoCock.setPosition(cockFirePosition);
                 }
                 if (hasReachedPosition(armFiringPosition)) {
                     state = 1;
@@ -107,8 +108,7 @@ public class ParticleShooter extends RobotExecutor {
                 // shake balls in to the slot
                 if ( System.currentTimeMillis() - lastTimeStamp < 500){
                     servoCock.setPosition(cockFirePosition);
-                    pressBall();
-
+                    relax();
                 } else {
                     state = 2;
                     lastTimeStamp = System.currentTimeMillis();

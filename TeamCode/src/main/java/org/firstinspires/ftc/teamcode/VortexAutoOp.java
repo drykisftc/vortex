@@ -82,6 +82,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     public void init() {
         super.init();
 
+        leftArmMovePositionOffset = 500;
+
         // line tracker
         hardwareLineTracker = new HardwareLineTracker();
         hardwareLineTracker.init(hardwareMap, 4);

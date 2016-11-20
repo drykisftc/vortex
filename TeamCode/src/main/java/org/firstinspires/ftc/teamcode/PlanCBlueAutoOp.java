@@ -49,8 +49,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Blue", group="Plan C")
-public class PlanCBlueAutoOp extends VortexAutoOp {
+@Autonomous(name="Plan C: Blue", group="Plan C")
+public class PlanCBlueAutoOp extends PlanCRedAutoOp {
 
     @Override
     public void init() {

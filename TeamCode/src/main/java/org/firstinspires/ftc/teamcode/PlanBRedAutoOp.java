@@ -51,13 +51,13 @@ import com.qualcomm.robotcore.util.Version;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Red", group="Plan B")
+@Autonomous(name="Plan B: Red", group="Plan B")
 public class PlanBRedAutoOp extends VortexAutoOp{
 
     @Override
     public void init() {
         super.init();
-        start2FireDistance = 2200; //2500
+        start2FireDistance = 2700; //2500
         fire2TurnDegree = 0;
         fire2WallDistance = 7500;
         wall2TurnDegree = -65;
