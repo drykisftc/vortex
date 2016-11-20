@@ -11,8 +11,8 @@ public class HardwareWallTracker extends HardwareBase {
     Servo sonicArm = null;
     ModernRoboticsI2cRangeSensor sonicRange = null;
 
-    double parkingPosition = 0.0;
-    double movingStep = 0.01;
+    double parkingPosition = 0.5;
+    double movingStep = 0.05;
 
     public void init(HardwareMap ahwMap) {
 

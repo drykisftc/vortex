@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class HardwareGyroTracker extends HardwareVortex {
+public class HardwareGyroTracker extends HardwareBase {
 
     ModernRoboticsI2cGyro gyro = null;
 
@@ -11,10 +11,7 @@ public class HardwareGyroTracker extends HardwareVortex {
 
         // Initialize base Motor and Servo objects
         super.init(ahwMap);
-
-        gyro =  (ModernRoboticsI2cGyro)hwMap.gyroSensor.get("gyro");
-
+        gyro = (ModernRoboticsI2cGyro)hwMap.gyroSensor.get("gyro");
         gyro.calibrate();
-
     }
 }

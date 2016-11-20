@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -70,7 +69,7 @@ public class VortexAutoBlueOp extends VortexAutoOp{
         wallTracker.wallTrackerHW.parkingPosition = 1.0;
         wallTracker.wallTrackerHW.park();
 
-        beaconArm.start(0.0,1.0,0.01,0.01);
-        beaconArm.retract();
+        leftBeaconArm.start(0.0,1.0,0.01,0.01);
+        leftBeaconArm.retract();
     }
 }

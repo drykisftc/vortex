@@ -8,47 +8,49 @@ public class GyroTracker extends Tracker {
 
     ModernRoboticsI2cGyro gyro = null;
 
-    DcMotor leftWheel = null;
-    DcMotor rightWheel = null;
+    private DcMotor leftWheel = null;
+    private DcMotor rightWheel = null;
 
-    protected int bufferSize = 20;
-    protected double[] skewAngleBuffer = null;
-    protected double[] powerBuffer = null;
-    protected int bufferIndex = 0;
+    private int bufferSize = 20;
+    private double[] skewAngleBuffer = null;
+    private double[] powerBuffer = null;
+    private int bufferIndex = 0;
 
-    protected double targetHeading =0;
+    private double targetHeading =0;
 
     /*
     adjust to the correct sensitivity for each robot
      */
-    protected double minTurnSpeed = 1.0;
-    protected double maxTurnSpeed = 10;
-    protected double minAnglePowerStepSize = 0.02;
-    protected int flipCountLimit = 1;
+    private double minTurnSpeed = 1.0;
+    private double maxTurnSpeed = 10;
+    private double minAnglePowerStepSize = 0.02;
+    private int flipCountLimit = 1;
     
-    protected long lastLogTimeStamp = 0;
-    final protected int sameplingInteval = 100;
+    private long lastLogTimeStamp = 0;
+    final private int sameplingInteval = 100;
 
-    protected int landMarkPosition = 0;
-    protected int landMarkAngle = 0;
+    private int landMarkPosition = 0;
+    private int landMarkAngle = 0;
 
-    public GyroTracker(ModernRoboticsI2cGyro leftO,
+    public GyroTracker(ModernRoboticsI2cGyro g,
                        DcMotor leftW,
                        DcMotor rightW,
                        int bufferS){
-        gyro = leftO;
+        gyro = g;
         leftWheel = leftW;
         rightWheel = rightW;
         bufferSize = bufferS;
+        skewAngleBuffer = new double [bufferSize];
+        powerBuffer = new double[bufferSize];
     }
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
     public void init() {
-
-        skewAngleBuffer = new double [bufferSize];
-        powerBuffer = new double[bufferSize];
+        if (reporter != null) {
+            reporter.addData("GyroTracker", "init....");
+        }
         state =0;
     }
 
@@ -57,7 +59,7 @@ public class GyroTracker extends Tracker {
         super.start(state);
         int lD = leftWheel.getCurrentPosition();
         int rD = rightWheel.getCurrentPosition();
-        landMarkPosition = Math.min(lD, rD);;
+        landMarkPosition = Math.min(lD, rD);
         landMarkAngle = gyro.getHeading();
     }
 
@@ -71,8 +73,8 @@ public class GyroTracker extends Tracker {
 
     /**
      *
-     * @param target
-     * @param power
+     * @param target heading
+     * @param power moving power
      * @return true if no heading correction
      */
     public boolean maintainHeading(double target, double power) {
@@ -110,7 +112,7 @@ public class GyroTracker extends Tracker {
         return boolNoTurning;
     }
 
-    protected void adjustMinTurnPower(double currentDelta) {
+    private void adjustMinTurnPower(double currentDelta) {
         if (currentDelta > skewTolerance) {
             double minV = 1000;
             double maxV = -1000;
@@ -133,12 +135,12 @@ public class GyroTracker extends Tracker {
                 minTurnPower += minAnglePowerStepSize;
             } else if (flipCount >= flipCountLimit ) {
                 // robot always over-compensated, tune down the min turn power
-                minTurnPower -= minAnglePowerStepSize*0.618;;
+                minTurnPower -= minAnglePowerStepSize*0.618;
             }
         }
     }
 
-    protected  void saveHistory (double delta, double deltaPower){
+    private  void saveHistory (double delta, double deltaPower){
         long ts = System.currentTimeMillis();
         if ( ts - lastLogTimeStamp > sameplingInteval) {
             skewAngleBuffer[bufferIndex] = delta;

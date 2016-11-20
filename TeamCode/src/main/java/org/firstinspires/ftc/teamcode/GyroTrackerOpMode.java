@@ -39,10 +39,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
  */
 
 @Autonomous(name="Auto: gyro tracker", group="Testing")
-public class GyroTrackerOpMode extends OpMode {
+public class GyroTrackerOpMode extends VortexTeleOp {
 
     /* Declare OpMode members. */
-    HardwareGyroTracker         robot   = new HardwareGyroTracker();   // Use a Pushbot's hardware
+    HardwareGyroTracker         gyroTrackerHW   = new HardwareGyroTracker();   // Use a Pushbot's hardware
 
     protected final int leftArmRaisedPositionOffset = 1000;
     protected final int leftArmHomePositionOffset = 100;
@@ -52,26 +52,18 @@ public class GyroTrackerOpMode extends OpMode {
 
     int bufferSize= 10;
 
-    // landmark info
-    int landMarkPosition = 0;
-    int landMarkAngle = 0;
-
     // navigation path info
-    int testDistance1 = 7500;
+    int testDistance1 = 7500; //2500
     int testDistance2 = 7500;
-    int testDistance3 = 7500;
-    int testDistance4 = 7500;
-    int testTurnAngle1 = 90;
-    int testTurnAngle2 = 90;
-    int testTurnAngle3 = 90;
-    int testTurnAngle4 = 90;
+    int testTurnAngle1 = 75;
+    int testTurnAngle2 = -135;
 
     // navigation control info
     double cruisingPower = 1.0;
     double searchingPower = 0.3;
     double cruisingTurnGain = 0.05;
-    double inPlaceTurnGain = 0.1;
-    double turningPower = 0.0; // set to 0.0 to turn in-place
+    double inPlaceTurnGain = 0.01;
+    double turningPower = 0.2; // set to 0.0 to turn in-place
 
     // arm. Warning, arm power > 0.6 will damage the gear boxes
     double armPower = 0.4;
@@ -86,17 +78,18 @@ public class GyroTrackerOpMode extends OpMode {
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */
-        robot.init(hardwareMap);
+        super.init();
+        gyroTrackerHW.init(hardwareMap);
 
-        gyroTracker = new GyroTracker(robot.gyro,
+        gyroTracker = new GyroTracker(gyroTrackerHW.gyro,
                 robot.motorLeftWheel,
                 robot.motorRightWheel,
                 bufferSize);
-        gyroTracker.init();
         gyroTracker.setReporter(telemetry);
+        gyroTracker.init();
 
         // Send telemetry message to signify robot waiting;
-        telemetry.addData("Say", "Hello LineTracker");    //
+        telemetry.addData("Say", "Hello GyroTracker");    //
         updateTelemetry(telemetry);
     }
 
@@ -105,8 +98,9 @@ public class GyroTrackerOpMode extends OpMode {
      */
     @Override
     public void init_loop() {
+        super.init_loop();
         // make sure the gyro is calibrated.
-        if (gyroTracker.gyro.isCalibrating())  {
+        if (gyroTrackerHW.gyro.isCalibrating())  {
             telemetry.addData(">", "Gyro is calibrating.  DO NOT start!!!!");
             telemetry.addData(">", "Wait! Wait! Wait! ");
             telemetry.addData(">", "Wait! Wait! Wait! Wait!");
@@ -127,8 +121,6 @@ public class GyroTrackerOpMode extends OpMode {
     public void start() {
         // compute baseline brightness
         gyroTracker.start(0);
-        landMarkPosition = 0;
-        landMarkAngle = gyroTracker.gyro.getHeading();
         raiseArm();
         state = 0;
     }
@@ -138,89 +130,29 @@ public class GyroTrackerOpMode extends OpMode {
      */
     @Override
     public void loop() {
+        telemetry.addData("State:", "%02d", state);
         switch (state) {
             case 0:
                 // go straight
-                state = goStraight (landMarkAngle, cruisingTurnGain, cruisingPower, landMarkPosition, testDistance1, 0,1);
-                telemetry.addData("State:", "%02d", state);
+                state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower, testDistance1, 0,1);
                 break;
             case 1:
                 // turn 45 degree
-                state = turn(landMarkAngle + testTurnAngle1, inPlaceTurnGain,turningPower,1,2);
-                telemetry.addData("State:", "%02d", state);
+                state = gyroTracker.turn(testTurnAngle1, inPlaceTurnGain,turningPower,1,2);
                 break;
             case 2:
                 // go straight
-                state = goStraight (landMarkAngle + testTurnAngle1, cruisingTurnGain, cruisingPower, landMarkPosition, testDistance2, 2,3);
-                telemetry.addData("State:", "%02d", state);
+                state = gyroTracker.goStraight (testTurnAngle2, cruisingTurnGain, cruisingPower, testDistance2, 2,3);
                 break;
             case 3:
                 // turn 45 degree
-                state = turn(landMarkAngle + testTurnAngle1 + testTurnAngle2, inPlaceTurnGain,turningPower,3,4);
-                telemetry.addData("State:", "%02d", state);
-                break;
-            case 4:
-                // go straight
-                state = goStraight (landMarkAngle + testTurnAngle1 + testTurnAngle2, cruisingTurnGain, cruisingPower, landMarkPosition, testDistance3, 4,5);
-                telemetry.addData("State:", "%02d", state);
-                break;
-            case 5:
-                // turn 45 degree
-                state = turn(landMarkAngle + testTurnAngle1 + testTurnAngle2 + testTurnAngle3, inPlaceTurnGain,turningPower, 5, 6);
-                telemetry.addData("State:", "%02d", state);
-                break;
-            case 6:
-                // go straight
-                state = goStraight (landMarkAngle + testTurnAngle1 + testTurnAngle2 + testTurnAngle3, cruisingTurnGain, cruisingPower, landMarkPosition, testDistance4, 6,7);
-                telemetry.addData("State:", "%02d", state);
-                break;
-            case 7:
-                // turn 45 degree
-                state = turn(landMarkAngle, inPlaceTurnGain,turningPower,7,0);
-                telemetry.addData("State:", "%02d", state);
+                state = gyroTracker.turn(testTurnAngle2, inPlaceTurnGain,turningPower,1,2);
                 break;
             default:
-                // stop
-                telemetry.addData("State:", "End");
                 homeArm();
                 stop();
         }
         telemetry.update();
-    }
-
-    public int goStraight ( double heading, double gain, double power,
-                            int startDistance, int deltaDistance,
-                            int startState, int endState) {
-        // get motor distance
-        int lD = robot.motorLeftWheel.getCurrentPosition();
-        int rD = robot.motorRightWheel.getCurrentPosition();
-        int d = Math.min(lD, rD);
-
-        if ( d - startDistance < deltaDistance) {
-            gyroTracker.skewPowerGain = gain;
-            gyroTracker.maintainHeading(heading, power);
-            return startState;
-        }
-        // go to next state
-        landMarkPosition = d;
-        robot.motorLeftWheel.setPower(0.0);
-        robot.motorRightWheel.setPower(0.0);
-        return endState;
-    }
-
-    public int turn ( double heading, double sensitivity, double power,
-                      int startState, int endState) {
-        gyroTracker.skewPowerGain = sensitivity;
-        if (gyroTracker.maintainHeading(heading, power) != true) {
-            return startState;
-        }
-        /* got to next state */
-        robot.motorLeftWheel.setPower(0.0);
-        robot.motorRightWheel.setPower(0.0);
-        int lD = robot.motorLeftWheel.getCurrentPosition();
-        int rD = robot.motorRightWheel.getCurrentPosition();
-        landMarkPosition = Math.min(lD, rD);
-        return endState;
     }
 
     public void raiseArm () {
