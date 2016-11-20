@@ -115,7 +115,7 @@ public class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 2:
-                if ( System.currentTimeMillis() - lastTimeStamp < 500){
+                if ( System.currentTimeMillis() - lastTimeStamp < 1000){
                     servoCock.setPosition(cockLoadPosition);
                     pressBall();
                 } else {

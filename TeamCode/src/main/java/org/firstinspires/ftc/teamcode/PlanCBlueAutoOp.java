@@ -55,13 +55,7 @@ public class PlanCBlueAutoOp extends PlanCRedAutoOp {
     @Override
     public void init() {
         super.init();
-        start2FireDistance = 2200; //2500
-        fire2TurnDegree = 0;
-        fire2WallDistance = 7500;
-        wall2TurnDegree = -65;
-        wall2BeaconDistance = 7500;
-        beacon2ParkTurnDegree = -135;
-        beacon2BeaconDistance = 8000;
-        beacon2ParkingDistance =8000;
+        fire2TurnDegree = -5;
+        wall2TurnDegree = 50;
     }
 }

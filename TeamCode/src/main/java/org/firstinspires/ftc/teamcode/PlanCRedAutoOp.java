@@ -53,13 +53,15 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 @Autonomous(name="Plan C: Red", group="Plan C")
 public class PlanCRedAutoOp extends VortexAutoOp {
 
+    int leftArmHitBallPosition = 400;
+
     @Override
     public void init() {
         super.init();
-        start2FireDistance = 2200; //2500
-        fire2TurnDegree = 0;
+        start2FireDistance = 2500; //2500
+        fire2TurnDegree = 5;
         fire2WallDistance = 7500;
-        wall2TurnDegree = -65;
+        wall2TurnDegree = -50;
         wall2BeaconDistance = 7500;
         beacon2ParkTurnDegree = -135;
         beacon2BeaconDistance = 8000;
@@ -73,34 +75,44 @@ public class PlanCRedAutoOp extends VortexAutoOp {
     public void loop() {
         switch (state) {
             case 0:
+                if(System.currentTimeMillis() - lastTimeStamp> 10000){
+                    state = 1;
+                }
+            case 1:
                 // go straight
                 state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
-                if (state == 1) {
+                if (state == 2) {
                     // prepare to shoot
                     robot.motorLeftWheel.setPower(0.0);
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
                 }
                 break;
-            case 1:
+            case 2:
                 // shoot particles
                 state = particleShooter.loop(state, state+1);
                 break;
-            case 2:
-                // go straight until hit the cap-ball
-                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, fire2WallDistance, state,state+1);
+            case 3:
+                state = gyroTracker.turn(fire2TurnDegree,
+                        inPlaceTurnGain, turningPower, state, state + 1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 4:
-                //
+                // go straight until hit the particle ball
+                VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHitBallPosition, leftArmAutoMovePower);
                 state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
                         cruisingPower, fire2WallDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 5:
+                //
+                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
+                        cruisingPower, fire2WallDistance, state,state+1);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 6:
                 // go straight until hit first white line
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
@@ -114,7 +126,7 @@ public class PlanCRedAutoOp extends VortexAutoOp {
                     beaconPresser.start(0);
                 }
                 break;
-            case 6:
+            case 7:
                 // touch beacon
                 state = beaconPresser.loop(state, state+1);
                 telemetry.addData("State:", "%02d", state);

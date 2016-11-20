@@ -54,13 +54,15 @@ import com.qualcomm.robotcore.util.Version;
 @Autonomous(name="Plan B: Red", group="Plan B")
 public class PlanBRedAutoOp extends VortexAutoOp{
 
+    int leftArmHitBallPosition = 400;
+
     @Override
     public void init() {
         super.init();
-        start2FireDistance = 2700; //2500
-        fire2TurnDegree = 0;
+        start2FireDistance = 2500; //2500
+        fire2TurnDegree = 5;
         fire2WallDistance = 7500;
-        wall2TurnDegree = -65;
+        wall2TurnDegree = -50;
         wall2BeaconDistance = 7500;
         beacon2ParkTurnDegree = -135;
         beacon2BeaconDistance = 8000;
@@ -74,13 +76,13 @@ public class PlanBRedAutoOp extends VortexAutoOp{
     public void loop() {
         switch (state) {
             case 0:
-                if(System.currentTimeMillis() - lastTimeStamp> 10000){
+                if (System.currentTimeMillis() - lastTimeStamp > 10000) {
                     state = 1;
                 }
             case 1:
                 // go straight
-                state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
-                        start2FireDistance, state,state+1);
+                state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
+                        start2FireDistance, state, state + 1);
                 telemetry.addData("State:", "%02d", state);
                 if (state == 2) {
                     // prepare to shoot
@@ -91,12 +93,19 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                 break;
             case 2:
                 // shoot particles
-                state = particleShooter.loop(state, state+1);
+                state = particleShooter.loop(state, state + 1);
                 break;
             case 3:
+                VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                        leftArmHitBallPosition, leftArmAutoMovePower);
+                state = gyroTracker.turn(fire2TurnDegree,
+                        inPlaceTurnGain, turningPower, state, state + 1);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 4:
                 // go straight until hit the particle ball
-                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, fire2WallDistance, state,state+1);
+                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
+                        cruisingPower, fire2WallDistance, state, state + 1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             default:
