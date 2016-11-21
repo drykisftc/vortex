@@ -32,6 +32,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
+import android.media.Image;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 /**
@@ -49,17 +51,15 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan A: Blue", group="Plan A")
-public class VortexAutoBlueOp extends VortexAutoOp{
+@Autonomous(name="Plan E: Blue", group="Plan E")
+public class PlanEBlueAutoOp extends PlanERedAutoOp{
 
-    /*
-     * Code to run ONCE when the driver hits PLAY
-     */
+
     @Override
-    public void start() {
-        super.start();
-        fire2TurnDegree = -60;
-        wall2TurnDegree = 60;
-        beacon2ParkTurnDegree = 130;
+    public void init() {
+        super.init();
+
+        fire2TurnDegree = -40;
     }
+
 }
