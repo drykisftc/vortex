@@ -20,6 +20,7 @@ public class ParticleShooter extends RobotExecutor {
     private int handFirePositionOffset = 445; // 20: 1 motor is 560. 16:1 is 445
     private int handFireOvershotOffset = 20; // 20:1 motor is 350. 16:1 is 230
     private int handFireEncoderMissOffset = 0; // to compensate steps missed by encoders
+    private int handCalibrationOffset = 20;
     private double handHoldPower = 0.05;
     private double handBeakPower = 0.1;
     private double handCalibrationPower = -0.05;
@@ -280,7 +281,8 @@ public class ParticleShooter extends RobotExecutor {
     public void pressBall () {
         motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorHand.setPower(handCalibrationPower);
-        handFirePosition = motorHand.getCurrentPosition();
+        handFirePosition = motorHand.getCurrentPosition()
+                +handCalibrationOffset; // add a little free room to allow next ball fall-in
     }
 
     public void releaseBall () {
