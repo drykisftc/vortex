@@ -33,8 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.util.Version;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -51,27 +49,19 @@ import com.qualcomm.robotcore.util.Version;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan B: Red", group="Plan B")
-public class PlanBRedAutoOp extends VortexAutoOp{
+@Autonomous(name="Plan D: Red", group="Plan D")
+public class PlanDRedAutoOp extends VortexAutoOp {
 
     int leftArmHitBallPosition = 400;
-    protected int fireToBallDistance = 4000;
-    protected int ballToParkDistance = 3500;
-
 
     @Override
     public void init() {
         super.init();
-        start2FireDistance = 3800; //2500
-        fire2TurnDegree = 24;
-        fire2WallDistance = 6800;
-        wall2TurnDegree = -50;
-        wall2BeaconDistance = 7500;
-        beacon2ParkTurnDegree = -135;
-        beacon2BeaconDistance = 8000;
-        beacon2ParkingDistance =8000;
-
-        turningPower = 0.02;
+        start2FireDistance = 1900; //2500
+        fire2TurnDegree = 90;
+        fire2WallDistance = 1000;
+        wall2TurnDegree = 45;
+        wall2BeaconDistance = 1900;
     }
 
     /*
@@ -81,14 +71,15 @@ public class PlanBRedAutoOp extends VortexAutoOp{
     public void loop() {
         switch (state) {
             case 0:
+                // wait
                 if (System.currentTimeMillis() - lastTimeStamp > 10000) {
                     state = 1;
                 }
                 break;
             case 1:
                 // go straight
-                state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
-                        start2FireDistance, state, state + 1);
+                state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
+                        start2FireDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 if (state == 2) {
                     // prepare to shoot
@@ -99,34 +90,30 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                 break;
             case 2:
                 // shoot particles
-                state = particleShooter.loop(state, state + 1);
+                state = particleShooter.loop(state, state+1);
                 break;
             case 3:
-                VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                        leftArmHitBallPosition, leftArmAutoMovePower);
-                state = gyroTracker.turn(fire2TurnDegree,
-                        inPlaceTurnGain, turningPower, state, state + 1);
+                // turn
+                state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
+                        turningPower,state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 4:
-                // go straight until hit the particle ball
-                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, fireToBallDistance, state, state + 1);
+                // go straight
+                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
+                        cruisingPower, fire2WallDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 5:
-                state = gyroTracker.turn(fire2TurnDegree + 90,
-                        inPlaceTurnGain, turningPower, state, state + 1);
+                // turn
+                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
+                        inPlaceTurnGain,turningPower,state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 6:
-                state = gyroTracker.turn(fire2TurnDegree - 90,
-                        inPlaceTurnGain, turningPower, state, state + 1);
-                telemetry.addData("State:", "%02d", state);
-                break;
-            case 7:
-                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, ballToParkDistance, state, state + 1);
+                // go straight
+                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
+                        cruisingTurnGain, cruisingPower, wall2BeaconDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             default:
@@ -136,4 +123,5 @@ public class PlanBRedAutoOp extends VortexAutoOp{
         }
         telemetry.update();
     }
+
 }

@@ -139,6 +139,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         beaconPresser.start(0);
         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
         lastTimeStamp = System.currentTimeMillis();
+        particleShooter.handFirePower = 0.73;
         state = 0;
     }
 

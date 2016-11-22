@@ -422,7 +422,7 @@ public class VortexTeleOp extends OpMode{
         if (gamepad1.right_bumper) {
             // move hand backward to compress the ball solid into fire position and calibrate the hand position
             particleShooter.calibrateHandByBall();
-        } if (gamepad1.left_bumper) {
+        } else if (gamepad1.left_bumper) {
             particleShooter.releaseBall();
         } else {
             particleShooter.shoot_loop(gamepad1.right_trigger > 0.5);

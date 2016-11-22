@@ -49,17 +49,16 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan A: Blue", group="Plan A")
-public class VortexAutoBlueOp extends VortexAutoOp{
+@Autonomous(name="Plan D: Blue", group="Plan D")
+public class PlanDBlueAutoOp extends PlanDRedAutoOp {
 
-    /*
-     * Code to run ONCE when the driver hits PLAY
-     */
+    int leftArmHitBallPosition = 400;
+
     @Override
-    public void start() {
-        super.start();
-        fire2TurnDegree = -60;
-        wall2TurnDegree = 60;
-        beacon2ParkTurnDegree = 130;
+    public void init() {
+        super.init();
+        fire2TurnDegree = -90;
+        wall2TurnDegree = -45;
     }
+
 }
