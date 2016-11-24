@@ -44,7 +44,9 @@ public class HardwareVortex extends HardwareBase
     public Servo servoCock = null;
 
     // Sensors
-    public TouchSensor armStop = null;
+    public TouchSensor armStopMin = null;
+    
+    public TouchSensor armStopMax = null;
 
     // Camera
 
@@ -87,7 +89,8 @@ public class HardwareVortex extends HardwareBase
 
         servoCock = hwMap.servo.get("cock");
 
-        armStop = hwMap.touchSensor.get("armStop");
+        armStopMin = hwMap.touchSensor.get("armStopMin");
+        armStopMax = hwMap.touchSensor.get("armStopMax");
 
     }
 

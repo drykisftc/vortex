@@ -148,7 +148,9 @@ public class VortexMeasureOp extends VortexTeleOp {
             telemetry.addData("ODS Normal" + Integer.toString(i), lineTracker.sensorArray[i].getLightDetected());
         }
 
-        telemetry.addData("Arm limit switch on  ", "%b", robot.armStop.isPressed());
+        telemetry.addData("Arm min limit switch on  ", "%b", robot.armStopMin.isPressed());
+
+        telemetry.addData("Arm max limit switch on  ", "%b", robot.armStopMax.isPressed());
 
         // get range info
         telemetry.addData("Range arm position   ", "%.2f", wallTrackerHW.sonicArm.getPosition());

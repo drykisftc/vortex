@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 public class ParticleShooter extends RobotExecutor {
 
@@ -24,7 +25,8 @@ public class ParticleShooter extends RobotExecutor {
     private double handHoldPower = 0.05;
     private double handBeakPower = 0.1;
     private double handCalibrationPower = -0.05;
-    public double handFirePower = 0.9;
+    public double handFirePower = 1.0;
+    public double handFirePowerAttenuate = 0.55;
     private int fireCount =0;
     private long lastFireTimeStamp = 0;
     private long minFireInterval = 2000;
@@ -136,7 +138,7 @@ public class ParticleShooter extends RobotExecutor {
                 break;
             case 4:
                 // shoot the first particle
-                shoot_loop(true); // will set fire state to be not zero
+                shoot_loop(true,Range.clip(handFirePower*handFirePowerAttenuate,0.01,1.0));
                 if (isReady()) { // if ready again go next state
                     state = 5;
                 }
@@ -157,7 +159,7 @@ public class ParticleShooter extends RobotExecutor {
                 break;
             case 6:
                 // shoot the second particle
-                shoot_loop(true);
+                shoot_loop(true, Range.clip(handFirePower*handFirePowerAttenuate,0.01,1.0));
                 if (isReady()) {
                     state = 7;
                 }
@@ -179,7 +181,7 @@ public class ParticleShooter extends RobotExecutor {
         return startState;
     }
 
-    public void shoot_loop(boolean triggerOn) {
+    public void shoot_loop(boolean triggerOn, double power) {
 
         long currentT = System.currentTimeMillis();
         long timeSinceLastFiring = System.currentTimeMillis() - lastFireTimeStamp;
@@ -218,7 +220,7 @@ public class ParticleShooter extends RobotExecutor {
             case 1:
                 if (servoCock.getPosition() == cockFirePosition) {
                     motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    motorHand.setPower(handFirePower);
+                    motorHand.setPower(power);
                     reporter.addData("Particle shooter", "Fox %d fired!", fireCount);
                     fireState = 2;
                 } else {

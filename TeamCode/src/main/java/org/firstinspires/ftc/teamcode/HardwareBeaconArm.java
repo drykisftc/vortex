@@ -60,8 +60,8 @@ public class HardwareBeaconArm extends HardwareBase {
         colorSensor = hwMap.colorSensor.get(colorSensorName);
         touchSensor = hwMap.touchSensor.get(touchSensorName);
 
-        colorSensor.enableLed(true);
-        calibrate();
+        colorSensor.enableLed(false);
+        calibrate(50);
     }
 
     public void start (double upperHome, double lowerHome,
@@ -180,19 +180,29 @@ public class HardwareBeaconArm extends HardwareBase {
         lowerArmCurrentPosistion = lowerArm.getPosition();
     }
 
-    public void calibrate () {
+    public void calibrate (int cycle) {
         // compute ambient rgb
+        int count = 0;
+        int r = 0;
+        int g = 0;
+        int b = 0;
+        while ( count < cycle) {
+            r += colorSensor.red();
+            g += colorSensor.green();
+            b += colorSensor.blue();
+        }
+        ambientRGB.r = r/cycle;
+        ambientRGB.g = g/cycle;
+        ambientRGB.b = b/cycle;
 
         // compute ambient intensity
-        colorSensorAmbient = 60;
-
+        colorSensorAmbient = ambientRGB.r+ambientRGB.g+ambientRGB.b;
     }
 
     public void pressButton_loop(boolean bGoNext) {
-
         switch (state) {
             case 1:
-                if (extendUntilNearLoop(colorSensorAmbient)
+                if (extendUntilNearLoop((int)(colorSensorAmbient*1.6))
                         && bGoNext) {
                     state = 2; // go to touch
                 }
@@ -209,6 +219,4 @@ public class HardwareBeaconArm extends HardwareBase {
                 break;
         }
     }
-
-
 }

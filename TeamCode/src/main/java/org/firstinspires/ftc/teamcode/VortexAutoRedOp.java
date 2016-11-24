@@ -59,6 +59,7 @@ public class VortexAutoRedOp extends VortexAutoOp{
     @Override
     public void start() {
         super.start();
+        beaconPresser.teamColor = 'r';
         fire2TurnDegree = 60;
         wall2TurnDegree = -60;
         beacon2ParkTurnDegree = -130;

@@ -44,7 +44,7 @@ public class BeaconPresser extends RobotExecutor {
     @Override
     public int loop (int startState, int endState) {
         if (reporter != null) {
-            reporter.addData("State:", "%02d", state);
+            reporter.addData("BeaconPresser State:", "%02d", state);
         }
         switch (state) {
             case 0:
