@@ -62,14 +62,14 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     double minLineBrightness = 0.02;
 
     // navigation settings
-    protected int start2FireDistance = 2200; //2500
-    protected int fire2TurnDegree = 60;
-    protected int fire2WallDistance = 7500;
-    protected int wall2TurnDegree = -60;
-    protected int wall2BeaconDistance = 7500;
-    protected int beacon2ParkTurnDegree = -130;
-    protected int beacon2BeaconDistance = 8000;
-    protected int beacon2ParkingDistance =8000;
+    protected int start2FireDistance = 5200; //2500
+    protected int fire2TurnDegree = 80;
+    protected int fire2WallDistance = 8500;
+    protected int wall2TurnDegree = -80;
+    protected int wall2BeaconDistance = 2500;
+    protected int beacon2ParkTurnDegree = -145;
+    protected int beacon2BeaconDistance = 8500;
+    protected int beacon2ParkingDistance =10432;
 
     long lastTimeStamp = 0;
 
@@ -100,10 +100,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     }
 
     public void initBeaconPresser() {
-
         beaconPresser = new BeaconPresser(gyroTracker, leftBeaconArm);
         beaconPresser.setReporter(telemetry);
-
     }
 
     public void initWallTracker() {
@@ -112,21 +110,13 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 robot.motorRightWheel, 10);
     }
 
-    public void initStates () {
-        // wall tracker
-        wallTracker.wallTrackerHW.parkingPosition = 1.0;
-        wallTracker.wallTrackerHW.park();
-
-        // beacon arm
-        leftBeaconArm.retract();
-    }
-
     /*
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
      */
     @Override
     public void init_loop() {
         super.init_loop();
+        beaconPresser.calibrate();
     }
 
     /*

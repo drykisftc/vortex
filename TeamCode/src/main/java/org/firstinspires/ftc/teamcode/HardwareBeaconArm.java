@@ -26,6 +26,7 @@ public class HardwareBeaconArm extends HardwareBase {
     ColorSensor colorSensor = null;
     String colorSensorName = "beaconArmColor";
     int colorSensorAmbient = 0;
+    int calibrationCount = 0;
 
     TouchSensor touchSensor = null;
     String touchSensorName = "beaconArmTouch";
@@ -61,7 +62,11 @@ public class HardwareBeaconArm extends HardwareBase {
         touchSensor = hwMap.touchSensor.get(touchSensorName);
 
         colorSensor.enableLed(false);
-        calibrate(50);
+
+        // reset calibration data
+        calibrationCount = 0;
+        ambientRGB.fillZero();
+
     }
 
     public void start (double upperHome, double lowerHome,
@@ -73,7 +78,6 @@ public class HardwareBeaconArm extends HardwareBase {
         colorSensor.enableLed(false);
 
         updatePosition();
-
     }
 
     public void reset () {
@@ -180,23 +184,27 @@ public class HardwareBeaconArm extends HardwareBase {
         lowerArmCurrentPosistion = lowerArm.getPosition();
     }
 
-    public void calibrate (int cycle) {
+    public void calibrate_loop () {
         // compute ambient rgb
-        int count = 0;
-        int r = 0;
-        int g = 0;
-        int b = 0;
-        while ( count < cycle) {
-            r += colorSensor.red();
-            g += colorSensor.green();
-            b += colorSensor.blue();
-        }
-        ambientRGB.r = r/cycle;
-        ambientRGB.g = g/cycle;
-        ambientRGB.b = b/cycle;
+        calibrationCount ++;
+        ambientRGB.r += colorSensor.red();
+        ambientRGB.g += colorSensor.green();
+        ambientRGB.b += colorSensor.blue();
+    }
 
+    public void commitCalibration () {
         // compute ambient intensity
-        colorSensorAmbient = ambientRGB.r+ambientRGB.g+ambientRGB.b;
+        if (calibrationCount <=0) {
+            ambientRGB.r = colorSensor.red();
+            ambientRGB.g = colorSensor.green();
+            ambientRGB.b = colorSensor.blue();
+            colorSensorAmbient = ambientRGB.r+ambientRGB.g+ambientRGB.b;
+        } else {
+            ambientRGB.r /= calibrationCount;
+            ambientRGB.g /= calibrationCount;
+            ambientRGB.b /= calibrationCount;
+            colorSensorAmbient = (ambientRGB.r + ambientRGB.g + ambientRGB.b)/calibrationCount;
+        }
     }
 
     public void pressButton_loop(boolean bGoNext) {

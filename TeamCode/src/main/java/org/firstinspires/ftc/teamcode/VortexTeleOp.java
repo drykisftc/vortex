@@ -88,9 +88,9 @@ public class VortexTeleOp extends OpMode{
     protected double leftArmHoldPower = 0.4;
     protected double leftArmAutoMovePower = 0.5;
     protected double leftArmAutoSlowMovePower = 0.1;
-    protected double leftArmHomingMovePower = -0.3;
+    protected double leftArmHomingMovePower = -0.2;
     protected long leftArmHomingTimestamp =0;
-    protected long leftArmHomingTime =8000;
+    protected long leftArmHomingTime =5000;
 
     protected int leftArmMinLimitSwitchOnCount =0;
     protected int leftArmMaxLimitSwitchOnCount =0;

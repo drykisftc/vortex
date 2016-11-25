@@ -50,7 +50,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  */
 
 @Autonomous(name="Plan F Far", group="Plan F")
-public class PlanFFarAutoOp extends PlanFAutoOp{
+public class PlanFFarAutoOp extends PlanFNearAutoOp {
 
     @Override
     public void init() {

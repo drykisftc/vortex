@@ -63,7 +63,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     double searchingPower = 0.3;
     double cruisingTurnGain = 0.05;
     double inPlaceTurnGain = 0.01;
-    double turningPower = 0.2; // set to 0.0 to turn in-place
+    double turningPower = 0.02; // set to 0.0 to turn in-place
 
     // arm. Warning, arm power > 0.6 will damage the gear boxes
     double armPower = 0.4;

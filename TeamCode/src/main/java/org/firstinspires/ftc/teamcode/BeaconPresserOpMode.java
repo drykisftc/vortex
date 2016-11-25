@@ -77,8 +77,7 @@ public class BeaconPresserOpMode extends OpMode {
      */
     @Override
     public void init_loop() {
-
-
+        beaconArm.calibrate_loop();
     }
 
     /*
@@ -88,6 +87,7 @@ public class BeaconPresserOpMode extends OpMode {
     public void start() {
         // compute baseline brightness
         beaconArm.state = 0;
+        beaconArm.commitCalibration();
     }
 
     /*

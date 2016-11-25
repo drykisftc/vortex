@@ -39,8 +39,12 @@ public class BeaconPresser extends RobotExecutor {
         lastTimeStamp = System.currentTimeMillis();
         landMarkAngle = gyroTracker.gyro.getHeading();
         bBeaconPressed = false;
+        beaconArm.commitCalibration();
     }
 
+    public void calibrate () {
+        beaconArm.calibrate_loop();
+    }
     @Override
     public int loop (int startState, int endState) {
         if (reporter != null) {

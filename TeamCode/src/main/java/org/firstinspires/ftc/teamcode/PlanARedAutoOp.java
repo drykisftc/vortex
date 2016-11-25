@@ -60,9 +60,14 @@ public class PlanARedAutoOp extends VortexAutoOp{
     public void start() {
         super.start();
         beaconPresser.teamColor = 'r';
-        fire2TurnDegree = 60;
-        wall2TurnDegree = -60;
+        fire2TurnDegree = 80;
+        wall2TurnDegree = -80;
         beacon2ParkTurnDegree = -130;
     }
 
+    @Override
+    public void initBeaconPresser() {
+        beaconPresser = new BeaconPresser(gyroTracker, leftBeaconArm);
+        beaconPresser.setReporter(telemetry);
+    }
 }

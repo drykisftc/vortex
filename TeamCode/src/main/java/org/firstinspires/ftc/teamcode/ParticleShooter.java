@@ -26,7 +26,7 @@ public class ParticleShooter extends RobotExecutor {
     private double handBeakPower = 0.1;
     private double handCalibrationPower = -0.05;
     public double handFirePower = 1.0;
-    public double handFirePowerAttenuate = 0.55;
+    public double handFirePowerAttenuate = 0.6;
     private int fireCount =0;
     private long lastFireTimeStamp = 0;
     private long minFireInterval = 2000;
