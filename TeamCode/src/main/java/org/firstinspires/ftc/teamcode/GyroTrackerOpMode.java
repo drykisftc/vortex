@@ -42,7 +42,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 public class GyroTrackerOpMode extends VortexTeleOp {
 
     /* Declare OpMode members. */
-    HardwareGyroTracker         gyroTrackerHW   = new HardwareGyroTracker();   // Use a Pushbot's hardware
+    HardwareGyroTracker gyroTrackerHW   = null;   // Use a Pushbot's hardware
 
     protected final int leftArmRaisedPositionOffset = 1000;
     protected final int leftArmHomePositionOffset = 100;
@@ -75,11 +75,13 @@ public class GyroTrackerOpMode extends VortexTeleOp {
      */
     @Override
     public void init() {
-        /* Initialize the hardware variables.
-         * The init() method of the hardware class does all the work here
-         */
-        super.init();
+
+        // init gyro first to ensure gyro calibration done
+        gyroTrackerHW = new HardwareGyroTracker();
         gyroTrackerHW.init(hardwareMap);
+
+        // init other devices
+        super.init();
 
         gyroTracker = new GyroTracker(gyroTrackerHW.gyro,
                 robot.motorLeftWheel,

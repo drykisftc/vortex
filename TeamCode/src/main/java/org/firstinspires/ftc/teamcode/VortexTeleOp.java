@@ -56,8 +56,8 @@ import com.qualcomm.robotcore.util.Range;
 public class VortexTeleOp extends OpMode{
 
     /* Declare OpMode members. */
-    protected HardwareVortex robot       = new HardwareVortex();
-    HardwareWallTracker wallTrackerHW = new HardwareWallTracker();
+    protected HardwareVortex robot = null;
+    HardwareWallTracker wallTrackerHW = null;
 
     ParticleShooter particleShooter = null;
 
@@ -167,9 +167,7 @@ public class VortexTeleOp extends OpMode{
     @Override
     public void init() {
 
-        /* Initialize the hardware variables.
-         * The init() method of the hardware class does all the work here
-         */
+        robot = new HardwareVortex();
         robot.init(hardwareMap);
 
         // wheels
@@ -199,6 +197,7 @@ public class VortexTeleOp extends OpMode{
         particleShooter.relax();
 
         // wall tracker
+        wallTrackerHW = new HardwareWallTracker();
         wallTrackerHW.init(hardwareMap);
 
         // beacon arm
@@ -445,9 +444,11 @@ public class VortexTeleOp extends OpMode{
             particleShooter.calibrateHandByBall();
         } else if (gamepad1.left_bumper) {
             particleShooter.releaseBall();
-        } else {
-            particleShooter.shoot_loop(gamepad1.right_trigger > 0.5,
-                    leftHandPowerDefaultAttenuate + gamepad1.left_trigger*0.5);
+        } else if (gamepad1.right_trigger > 0.2) {
+            particleShooter.pressBall(); // cocking
+        } else if (gamepad1.right_trigger > 0.8){
+            particleShooter.shoot_loop(true, // fire
+                    leftHandPowerDefaultAttenuate + gamepad1.left_trigger*0.5); // boost power
         }
 
         if (gamepad1.x) {
