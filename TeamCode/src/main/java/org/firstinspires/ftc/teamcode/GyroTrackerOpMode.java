@@ -76,12 +76,12 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     @Override
     public void init() {
 
+        // init other devices
+        super.init();
+
         // init gyro first to ensure gyro calibration done
         gyroTrackerHW = new HardwareGyroTracker();
         gyroTrackerHW.init(hardwareMap);
-
-        // init other devices
-        super.init();
 
         gyroTracker = new GyroTracker(gyroTrackerHW.gyro,
                 robot.motorLeftWheel,
