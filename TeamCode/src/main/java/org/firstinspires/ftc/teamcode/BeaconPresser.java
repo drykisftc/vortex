@@ -39,6 +39,7 @@ public class BeaconPresser extends RobotExecutor {
         landMarkAngle = gyroTracker.gyro.getHeading();
         bBeaconPressed = false;
         beaconArm.commitCalibration();
+        distanceThreshold = (int)(beaconArm.colorSensorAmbient*1.5) + 2;
     }
 
     public void calibrate () {

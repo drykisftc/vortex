@@ -56,6 +56,7 @@ public class GyroTracker extends Tracker {
     @Override
     public void start (int state ) {
         super.start(state);
+        gyro.resetZAxisIntegrator();
         int lD = leftWheel.getCurrentPosition();
         int rD = rightWheel.getCurrentPosition();
         landMarkPosition = Math.min(lD, rD);

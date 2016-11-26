@@ -156,16 +156,19 @@ public class HardwareBeaconArm extends HardwareBase {
         lowerArm.setPosition(lowerArmHomePosition);
     }
 
+    /**
+     * Don't care about green color
+     * @return team color in red or blue
+     */
     public char getColor () {
         int r = colorSensor.red() - ambientRGB.r;
-        int g = colorSensor.green()- ambientRGB.g;
+        //int g = colorSensor.green()- ambientRGB.g;
         int b = colorSensor.blue() - ambientRGB.b;
 
-        int m = Math.max(Math.max(r,g),b);
+        //int m = Math.max(Math.max(r,g),b);
+        int m = Math.max(r,b);
         if ( m == r ) {
             return 'r';
-        } else if ( m == g ) {
-            return 'g';
         }
         return 'b';
     }
