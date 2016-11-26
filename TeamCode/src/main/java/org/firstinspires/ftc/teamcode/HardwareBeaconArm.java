@@ -15,34 +15,35 @@ public class HardwareBeaconArm extends HardwareBase {
     String upperArmName = "upperArm";
     double upperArmHomePosition = 0.0;
     double upperArmStepSize = 0.01;
-    double upperArmCurrentPosition = 0.0;
+    protected double upperArmCurrentPosition = 0.0;
 
     Servo lowerArm = null;
     String lowerArmName = "lowerArm";
     double lowerArmHomePosition = 1.0;
     double lowerArmStepSize = 0.01;
-    double lowerArmCurrentPosistion = 0;
+    protected double lowerArmCurrentPosistion = 0;
 
     ColorSensor colorSensor = null;
     String colorSensorName = "beaconArmColor";
     int colorSensorAmbient = 0;
-    int calibrationCount = 0;
+    protected int calibrationCount = 0;
+    final protected int calibrationCountLimit = 10000;
 
     TouchSensor touchSensor = null;
     String touchSensorName = "beaconArmTouch";
-    int touchCounts = 0;
-    int touchCountLimit = 4;
+    protected int touchCounts = 0;
+    protected int touchCountLimit = 4;
 
-    int nearCounts = 0;
-    int nearCountsLimit = 3;
+    protected int nearCounts = 0;
+    protected int nearCountsLimit = 3;
 
-    int numbOfSteps =0;
+    protected int numbOfSteps =0;
 
-    int state = 0;
+    protected int state = 0;
 
-    Random random = new Random(System.currentTimeMillis());
+    protected Random random = new Random(System.currentTimeMillis());
 
-    RGB ambientRGB = new RGB(0,0,0);
+    protected RGB ambientRGB = new RGB(0,0,0);
 
     HardwareBeaconArm ( String upArmName, String lowArmName,
                         String colorName, String touchName) {
@@ -189,10 +190,12 @@ public class HardwareBeaconArm extends HardwareBase {
 
     public void calibrate_loop () {
         // compute ambient rgb
-        calibrationCount ++;
-        ambientRGB.r += colorSensor.red();
-        ambientRGB.g += colorSensor.green();
-        ambientRGB.b += colorSensor.blue();
+        if (calibrationCount < calibrationCountLimit) {
+            calibrationCount++;
+            ambientRGB.r += colorSensor.red();
+            ambientRGB.g += colorSensor.green();
+            ambientRGB.b += colorSensor.blue();
+        }
     }
 
     public void commitCalibration () {

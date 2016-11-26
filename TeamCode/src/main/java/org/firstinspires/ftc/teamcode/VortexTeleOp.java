@@ -172,25 +172,10 @@ public class VortexTeleOp extends OpMode{
 
         // arms
         leftArmMinLimitSwitchOnCount =0;
-
-        // hands
-        particleShooter = new ParticleShooter(robot.motorLeftArm,
-                robot.motorLeftHand, robot.servoCock);
-        particleShooter.init();
-        particleShooter.setReporter(telemetry);
-        particleShooter.armFiringPosition = leftArmFirePosition;
-        particleShooter.armFiringSafeZone = leftArmFiringSafeZone;
-        particleShooter.relax();
-
-        // wall tracker
-        wallTrackerHW = new HardwareWallTracker();
-        wallTrackerHW.init(hardwareMap);
+        leftArmHomingTimestamp = System.currentTimeMillis();
 
         // beacon arm
         initBeaconArms();
-
-        // set time stamp
-        leftArmHomingTimestamp = System.currentTimeMillis();
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("TeleOp", "Hello Vortex");    //
@@ -259,7 +244,18 @@ public class VortexTeleOp extends OpMode{
         leftArmMaxLimitSwitchOnCount =0;
 
         // hands
+        particleShooter = new ParticleShooter(robot.motorLeftArm,
+                robot.motorLeftHand, robot.servoCock);
+        particleShooter.init();
+        particleShooter.setReporter(telemetry);
+        particleShooter.armFiringPosition = leftArmFirePosition;
+        particleShooter.armFiringSafeZone = leftArmFiringSafeZone;
+        particleShooter.relax();
         particleShooter.start(0);
+
+        // wall tracker
+        wallTrackerHW = new HardwareWallTracker();
+        wallTrackerHW.init(hardwareMap);
         wallTrackerHW.park();
 
         telemetry.update();
