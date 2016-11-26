@@ -425,13 +425,10 @@ public class VortexTeleOp extends OpMode{
     public void triggerControl () {
 
         if (gamepad1.right_bumper) {
-            // move hand backward to compress the ball solid into fire position and calibrate the hand position
-            particleShooter.calibrateHandByBall();
-        } else if (gamepad1.left_bumper) {
             particleShooter.releaseBall();
-        } else if (gamepad1.right_trigger > 0.2
+        } else if (gamepad1.right_trigger > 0.1
                 && gamepad1.right_trigger <= 0.8) {
-            particleShooter.pressBall(); // cocking
+            particleShooter.calibrateHandByBall(); // cocking
         } else if (gamepad1.right_trigger > 0.8){
             particleShooter.shoot_loop(true, // fire
                     leftHandPowerDefaultAttenuate + gamepad1.left_trigger*0.5); // boost power
