@@ -42,7 +42,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 public class WallTrackerOpMode extends VortexTeleOp {
 
     /* Declare OpMode members. */
-    HardwareWallTracker      walTrackerHW   = new HardwareWallTracker();   // Use a Pushbot's hardware
+    HardwareWallTracker walTrackerHW   = null;   // Use a Pushbot's hardware
+    WallTracker wallTracker = null;
 
     // state machine
     int state = 0;
@@ -51,7 +52,6 @@ public class WallTrackerOpMode extends VortexTeleOp {
 
     double signValue = 1.0;
 
-    WallTracker wallTracker = null;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -61,6 +61,7 @@ public class WallTrackerOpMode extends VortexTeleOp {
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */
+        wallTrackerHW = new HardwareWallTracker();
         walTrackerHW.init(hardwareMap);
 
         wallTracker = new WallTracker(walTrackerHW,

@@ -42,7 +42,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 public class GyroTrackerOpMode extends VortexTeleOp {
 
     /* Declare OpMode members. */
-    HardwareGyroTracker gyroTrackerHW   = null;   // Use a Pushbot's hardware
+    HardwareGyroTracker gyroTrackerHW = null;
+    GyroTracker gyroTracker = null;
 
     protected final int leftArmRaisedPositionOffset = 1000;
     protected final int leftArmHomePositionOffset = 100;
@@ -67,8 +68,6 @@ public class GyroTrackerOpMode extends VortexTeleOp {
 
     // arm. Warning, arm power > 0.6 will damage the gear boxes
     double armPower = 0.4;
-
-    GyroTracker gyroTracker = null;
 
     /*
      * Code to run ONCE when the driver hits INIT

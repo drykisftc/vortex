@@ -53,8 +53,8 @@ import java.nio.Buffer;
 public class LineTrackerOpMode extends OpMode {
 
     /* Declare OpMode members. */
-    HardwareVortex vortexHW = new HardwareVortex();
-    HardwareLineTracker tracker   = new HardwareLineTracker();
+    HardwareVortex vortexHW = null;
+    HardwareLineTracker tracker   = null;
 
     // state machine
     int state = 0;
@@ -69,6 +69,9 @@ public class LineTrackerOpMode extends OpMode {
      */
     @Override
     public void init() {
+
+        vortexHW = new HardwareVortex();
+        tracker   = new HardwareLineTracker();
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */

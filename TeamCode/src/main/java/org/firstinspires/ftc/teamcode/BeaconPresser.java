@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 public class BeaconPresser extends RobotExecutor {
 
+    GyroTracker gyroTracker = null;
+    HardwareBeaconArm beaconArm = null;
 
     protected long lastTimeStamp = 0;
 
@@ -17,9 +19,6 @@ public class BeaconPresser extends RobotExecutor {
     double cruisingTurnGain = 0.05;
     int distanceThreshold = 30;
     char teamColor = 'b';
-
-    GyroTracker gyroTracker = null;
-    HardwareBeaconArm beaconArm = null;
 
     // bookkeeping
     int landMarkAngle = 0;

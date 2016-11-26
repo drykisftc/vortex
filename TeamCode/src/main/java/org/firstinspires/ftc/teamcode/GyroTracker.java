@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.util.Range;
 public class GyroTracker extends Tracker {
 
     ModernRoboticsI2cGyro gyro = null;
-
     private DcMotor leftWheel = null;
     private DcMotor rightWheel = null;
 

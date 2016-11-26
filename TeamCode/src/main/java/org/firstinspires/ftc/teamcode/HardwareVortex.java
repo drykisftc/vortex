@@ -36,7 +36,7 @@ public class HardwareVortex extends HardwareBase
     public DcMotor motorLeftArm = null;
     public DcMotor motorRightArm = null;
     public DcMotor motorLeftWheel = null;
-    public DcMotor motorRightWheel =null;
+    public DcMotor motorRightWheel = null;
     public DcMotor motorLeftHand = null;
     public DcMotor motorRightHand = null;
 
@@ -60,6 +60,11 @@ public class HardwareVortex extends HardwareBase
 
         super.init(ahwMap);
 
+        servoCock = hwMap.servo.get("cock");
+
+        armStopMin = hwMap.touchSensor.get("armStopMin");
+        armStopMax = hwMap.touchSensor.get("armStopMax");
+
         motorLeftWheel   = hwMap.dcMotor.get("leftWheel");
         motorRightWheel  = hwMap.dcMotor.get("rightWheel");
         motorLeftWheel.setDirection(DcMotor.Direction.FORWARD);  // 40 to 1 andymark motor
@@ -68,6 +73,8 @@ public class HardwareVortex extends HardwareBase
         motorRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorLeftWheel.setPower(0.0);
+        motorRightWheel.setPower(0.0);
 
         motorLeftArm   = hwMap.dcMotor.get("leftArm");
         motorRightArm  = hwMap.dcMotor.get("rightArm");
@@ -75,8 +82,10 @@ public class HardwareVortex extends HardwareBase
         motorRightArm.setDirection(DcMotor.Direction.REVERSE);
         motorLeftArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorRightArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorLeftArm.setPower(0.0);
+        motorRightArm.setPower(0.0);
 
         motorLeftHand   = hwMap.dcMotor.get("leftHand");
         motorRightHand  = hwMap.dcMotor.get("rightHand");
@@ -84,13 +93,8 @@ public class HardwareVortex extends HardwareBase
         motorRightHand.setDirection(DcMotor.Direction.FORWARD);
         motorLeftHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorRightHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        servoCock = hwMap.servo.get("cock");
-
-        armStopMin = hwMap.touchSensor.get("armStopMin");
-        armStopMax = hwMap.touchSensor.get("armStopMax");
+        motorLeftHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRightHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
 

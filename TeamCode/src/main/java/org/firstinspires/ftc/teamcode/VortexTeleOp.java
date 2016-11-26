@@ -58,7 +58,6 @@ public class VortexTeleOp extends OpMode{
     /* Declare OpMode members. */
     protected HardwareVortex robot = null;
     HardwareWallTracker wallTrackerHW = null;
-
     ParticleShooter particleShooter = null;
 
     protected boolean boolLeftArmEnable = true;
@@ -168,23 +167,10 @@ public class VortexTeleOp extends OpMode{
     public void init() {
 
         robot = new HardwareVortex();
+
         robot.init(hardwareMap);
 
-        // wheels
-        robot.motorLeftWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.motorRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.motorRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.motorLeftWheel.setPower(0.0);
-        robot.motorRightWheel.setPower(0.0);
-
         // arms
-        robot.motorLeftArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.motorRightArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.motorLeftArm.setPower(0.0);
-        robot.motorRightArm.setPower(0.0);
         leftArmMinLimitSwitchOnCount =0;
 
         // hands
@@ -234,7 +220,6 @@ public class VortexTeleOp extends OpMode{
             leftArmMinLimitSwitchOnCount =0;
         }
     }
-
 
     /*
      * Code to run ONCE when the driver hits PLAY
@@ -444,11 +429,15 @@ public class VortexTeleOp extends OpMode{
             particleShooter.calibrateHandByBall();
         } else if (gamepad1.left_bumper) {
             particleShooter.releaseBall();
-        } else if (gamepad1.right_trigger > 0.2) {
+        } else if (gamepad1.right_trigger > 0.2
+                && gamepad1.right_trigger <= 0.8) {
             particleShooter.pressBall(); // cocking
         } else if (gamepad1.right_trigger > 0.8){
             particleShooter.shoot_loop(true, // fire
                     leftHandPowerDefaultAttenuate + gamepad1.left_trigger*0.5); // boost power
+        } else {
+            particleShooter.shoot_loop(false, // fire
+                    leftHandPowerDefaultAttenuate + gamepad1.left_trigger*0.5);
         }
 
         if (gamepad1.x) {
