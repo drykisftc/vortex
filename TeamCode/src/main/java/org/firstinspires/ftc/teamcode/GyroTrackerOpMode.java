@@ -42,7 +42,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 public class GyroTrackerOpMode extends VortexTeleOp {
 
     /* Declare OpMode members. */
-    HardwareGyroTracker         gyroTrackerHW   = new HardwareGyroTracker();   // Use a Pushbot's hardware
+    HardwareGyroTracker gyroTrackerHW = null;
+    GyroTracker gyroTracker = null;
 
     protected final int leftArmRaisedPositionOffset = 1000;
     protected final int leftArmHomePositionOffset = 100;
@@ -63,23 +64,23 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     double searchingPower = 0.3;
     double cruisingTurnGain = 0.05;
     double inPlaceTurnGain = 0.01;
-    double turningPower = 0.2; // set to 0.0 to turn in-place
+    double turningPower = 0.02; // set to 0.0 to turn in-place
 
     // arm. Warning, arm power > 0.6 will damage the gear boxes
     double armPower = 0.4;
-
-    GyroTracker gyroTracker = null;
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        /* Initialize the hardware variables.
-         * The init() method of the hardware class does all the work here
-         */
-        super.init();
+
+        // init gyro first to ensure gyro calibration done
+        gyroTrackerHW = new HardwareGyroTracker();
         gyroTrackerHW.init(hardwareMap);
+
+        // init other devices
+        super.init();
 
         gyroTracker = new GyroTracker(gyroTrackerHW.gyro,
                 robot.motorLeftWheel,
@@ -89,7 +90,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
         gyroTracker.init();
 
         // Send telemetry message to signify robot waiting;
-        telemetry.addData("Say", "Hello GyroTracker");    //
+        telemetry.addData("GyroTracker", "Init");    //
         updateTelemetry(telemetry);
     }
 

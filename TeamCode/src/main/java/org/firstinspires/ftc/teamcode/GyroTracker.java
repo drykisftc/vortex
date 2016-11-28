@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.util.Range;
 public class GyroTracker extends Tracker {
 
     ModernRoboticsI2cGyro gyro = null;
-
     private DcMotor leftWheel = null;
     private DcMotor rightWheel = null;
 
@@ -57,6 +56,7 @@ public class GyroTracker extends Tracker {
     @Override
     public void start (int state ) {
         super.start(state);
+        gyro.resetZAxisIntegrator();
         int lD = leftWheel.getCurrentPosition();
         int rD = rightWheel.getCurrentPosition();
         landMarkPosition = Math.min(lD, rD);

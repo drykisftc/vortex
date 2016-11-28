@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 public class BeaconPresser extends RobotExecutor {
 
+    GyroTracker gyroTracker = null;
+    HardwareBeaconArm beaconArm = null;
 
     protected long lastTimeStamp = 0;
 
@@ -17,9 +19,6 @@ public class BeaconPresser extends RobotExecutor {
     double cruisingTurnGain = 0.05;
     int distanceThreshold = 30;
     char teamColor = 'b';
-
-    GyroTracker gyroTracker = null;
-    HardwareBeaconArm beaconArm = null;
 
     // bookkeeping
     int landMarkAngle = 0;
@@ -39,12 +38,17 @@ public class BeaconPresser extends RobotExecutor {
         lastTimeStamp = System.currentTimeMillis();
         landMarkAngle = gyroTracker.gyro.getHeading();
         bBeaconPressed = false;
+        beaconArm.commitCalibration();
+        distanceThreshold = (int)(beaconArm.colorSensorAmbient*1.5) + 2;
     }
 
+    public void calibrate () {
+        beaconArm.calibrate_loop();
+    }
     @Override
     public int loop (int startState, int endState) {
         if (reporter != null) {
-            reporter.addData("State:", "%02d", state);
+            reporter.addData("BeaconPresser State:", "%02d", state);
         }
         switch (state) {
             case 0:

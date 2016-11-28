@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class HardwareBase
 {
 
-    HardwareMap hwMap           =  null;
+    HardwareMap hwMap =  null;
 
     /* Constructor */
     public HardwareBase(){

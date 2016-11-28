@@ -56,8 +56,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @TeleOp(name="TeleOp: Z measure", group="Testing")
 public class VortexMeasureOp extends VortexTeleOp {
 
-    HardwareLineTracker lineTracker = new HardwareLineTracker();
-    HardwareGyroTracker gyroTrackerHW = new HardwareGyroTracker();
+    HardwareLineTracker lineTracker = null;
+    HardwareGyroTracker gyroTrackerHW = null;
 
     int xVal, yVal, zVal = 0;     // Gyro rate Values
     int heading = 0;              // Gyro integrated heading
@@ -74,6 +74,10 @@ public class VortexMeasureOp extends VortexTeleOp {
          * The init() method of the hardware class does all the work here
          */
         super.init();
+
+        lineTracker = new HardwareLineTracker();
+        gyroTrackerHW = new HardwareGyroTracker();
+
         gyroTrackerHW.init(robot.hwMap);
         lineTracker.init(robot.hwMap,4);
 
@@ -148,7 +152,8 @@ public class VortexMeasureOp extends VortexTeleOp {
             telemetry.addData("ODS Normal" + Integer.toString(i), lineTracker.sensorArray[i].getLightDetected());
         }
 
-        telemetry.addData("Arm limit switch on  ", "%b", robot.armStop.isPressed());
+        telemetry.addData("Arm min limit switch on  ", "%b", robot.armStopMin.isPressed());
+        telemetry.addData("Arm max limit switch on  ", "%b", robot.armStopMax.isPressed());
 
         // get range info
         telemetry.addData("Range arm position   ", "%.2f", wallTrackerHW.sonicArm.getPosition());

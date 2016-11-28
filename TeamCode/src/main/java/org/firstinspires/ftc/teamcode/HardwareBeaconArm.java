@@ -15,33 +15,35 @@ public class HardwareBeaconArm extends HardwareBase {
     String upperArmName = "upperArm";
     double upperArmHomePosition = 0.0;
     double upperArmStepSize = 0.01;
-    double upperArmCurrentPosition = 0.0;
+    protected double upperArmCurrentPosition = 0.0;
 
     Servo lowerArm = null;
     String lowerArmName = "lowerArm";
     double lowerArmHomePosition = 1.0;
     double lowerArmStepSize = 0.01;
-    double lowerArmCurrentPosistion = 0;
+    protected double lowerArmCurrentPosistion = 0;
 
     ColorSensor colorSensor = null;
     String colorSensorName = "beaconArmColor";
     int colorSensorAmbient = 0;
+    protected int calibrationCount = 0;
+    final protected int calibrationCountLimit = 10000;
 
     TouchSensor touchSensor = null;
     String touchSensorName = "beaconArmTouch";
-    int touchCounts = 0;
-    int touchCountLimit = 4;
+    protected int touchCounts = 0;
+    protected int touchCountLimit = 4;
 
-    int nearCounts = 0;
-    int nearCountsLimit = 3;
+    protected int nearCounts = 0;
+    protected int nearCountsLimit = 3;
 
-    int numbOfSteps =0;
+    protected int numbOfSteps =0;
 
-    int state = 0;
+    protected int state = 0;
 
-    Random random = new Random(System.currentTimeMillis());
+    protected Random random = new Random(System.currentTimeMillis());
 
-    RGB ambientRGB = new RGB(0,0,0);
+    protected RGB ambientRGB = new RGB(0,0,0);
 
     HardwareBeaconArm ( String upArmName, String lowArmName,
                         String colorName, String touchName) {
@@ -60,8 +62,12 @@ public class HardwareBeaconArm extends HardwareBase {
         colorSensor = hwMap.colorSensor.get(colorSensorName);
         touchSensor = hwMap.touchSensor.get(touchSensorName);
 
-        colorSensor.enableLed(true);
-        calibrate();
+        colorSensor.enableLed(false);
+
+        // reset calibration data
+        calibrationCount = 0;
+        ambientRGB.fillZero();
+
     }
 
     public void start (double upperHome, double lowerHome,
@@ -73,7 +79,6 @@ public class HardwareBeaconArm extends HardwareBase {
         colorSensor.enableLed(false);
 
         updatePosition();
-
     }
 
     public void reset () {
@@ -152,16 +157,19 @@ public class HardwareBeaconArm extends HardwareBase {
         lowerArm.setPosition(lowerArmHomePosition);
     }
 
+    /**
+     * Don't care about green color
+     * @return team color in red or blue
+     */
     public char getColor () {
         int r = colorSensor.red() - ambientRGB.r;
-        int g = colorSensor.green()- ambientRGB.g;
+        //int g = colorSensor.green()- ambientRGB.g;
         int b = colorSensor.blue() - ambientRGB.b;
 
-        int m = Math.max(Math.max(r,g),b);
+        //int m = Math.max(Math.max(r,g),b);
+        int m = Math.max(r,b);
         if ( m == r ) {
             return 'r';
-        } else if ( m == g ) {
-            return 'g';
         }
         return 'b';
     }
@@ -180,19 +188,35 @@ public class HardwareBeaconArm extends HardwareBase {
         lowerArmCurrentPosistion = lowerArm.getPosition();
     }
 
-    public void calibrate () {
+    public void calibrate_loop () {
         // compute ambient rgb
+        if (calibrationCount < calibrationCountLimit) {
+            calibrationCount++;
+            ambientRGB.r += colorSensor.red();
+            ambientRGB.g += colorSensor.green();
+            ambientRGB.b += colorSensor.blue();
+        }
+    }
 
+    public void commitCalibration () {
         // compute ambient intensity
-        colorSensorAmbient = 60;
-
+        if (calibrationCount <=0) {
+            ambientRGB.r = colorSensor.red();
+            ambientRGB.g = colorSensor.green();
+            ambientRGB.b = colorSensor.blue();
+            colorSensorAmbient = ambientRGB.r+ambientRGB.g+ambientRGB.b;
+        } else {
+            ambientRGB.r /= calibrationCount;
+            ambientRGB.g /= calibrationCount;
+            ambientRGB.b /= calibrationCount;
+            colorSensorAmbient = (ambientRGB.r + ambientRGB.g + ambientRGB.b)/calibrationCount;
+        }
     }
 
     public void pressButton_loop(boolean bGoNext) {
-
         switch (state) {
             case 1:
-                if (extendUntilNearLoop(colorSensorAmbient)
+                if (extendUntilNearLoop((int)(colorSensorAmbient*1.6))
                         && bGoNext) {
                     state = 2; // go to touch
                 }
@@ -209,6 +233,4 @@ public class HardwareBeaconArm extends HardwareBase {
                 break;
         }
     }
-
-
 }

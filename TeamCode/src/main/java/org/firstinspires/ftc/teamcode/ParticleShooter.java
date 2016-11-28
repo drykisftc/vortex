@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 public class ParticleShooter extends RobotExecutor {
 
@@ -20,14 +21,16 @@ public class ParticleShooter extends RobotExecutor {
     private int handFirePositionOffset = 445; // 20: 1 motor is 560. 16:1 is 445
     private int handFireOvershotOffset = 20; // 20:1 motor is 350. 16:1 is 230
     private int handFireEncoderMissOffset = 0; // to compensate steps missed by encoders
+    private int handCalibrationOffset = 20;
     private double handHoldPower = 0.05;
     private double handBeakPower = 0.1;
     private double handCalibrationPower = -0.05;
-    public double handFirePower = 0.9;
+    public double handFirePower = 1.0;
+    public double handFirePowerAttenuate = 0.6;
     private int fireCount =0;
     private long lastFireTimeStamp = 0;
-    private long minFireInterval = 2000;
-    private long minReloadInterval = 1500;
+    private long minFireInterval = 1200;
+    private long minReloadInterval = 800;
     private boolean handReloaded = true;
     private int leftHandFirePositionTolerance = 1;
 
@@ -135,7 +138,7 @@ public class ParticleShooter extends RobotExecutor {
                 break;
             case 4:
                 // shoot the first particle
-                shoot_loop(true); // will set fire state to be not zero
+                shoot_loop(true,Range.clip(handFirePower*handFirePowerAttenuate,0.01,1.0));
                 if (isReady()) { // if ready again go next state
                     state = 5;
                 }
@@ -156,7 +159,7 @@ public class ParticleShooter extends RobotExecutor {
                 break;
             case 6:
                 // shoot the second particle
-                shoot_loop(true);
+                shoot_loop(true, Range.clip(handFirePower*handFirePowerAttenuate,0.01,1.0));
                 if (isReady()) {
                     state = 7;
                 }
@@ -178,7 +181,7 @@ public class ParticleShooter extends RobotExecutor {
         return startState;
     }
 
-    public void shoot_loop(boolean triggerOn) {
+    public void shoot_loop(boolean triggerOn, double power) {
 
         long currentT = System.currentTimeMillis();
         long timeSinceLastFiring = System.currentTimeMillis() - lastFireTimeStamp;
@@ -217,7 +220,7 @@ public class ParticleShooter extends RobotExecutor {
             case 1:
                 if (servoCock.getPosition() == cockFirePosition) {
                     motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    motorHand.setPower(handFirePower);
+                    motorHand.setPower(power);
                     reporter.addData("Particle shooter", "Fox %d fired!", fireCount);
                     fireState = 2;
                 } else {
@@ -274,13 +277,14 @@ public class ParticleShooter extends RobotExecutor {
 
     public void calibrateHandByBall () {
         pressBall();
-        servoCock.setPosition(cockFirePosition);
+        handFirePosition = motorHand.getCurrentPosition()
+                +handCalibrationOffset; // add a little free room to allow next ball fall-in
     }
 
     public void pressBall () {
         motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorHand.setPower(handCalibrationPower);
-        handFirePosition = motorHand.getCurrentPosition();
+        servoCock.setPosition(cockFirePosition);
     }
 
     public void releaseBall () {
