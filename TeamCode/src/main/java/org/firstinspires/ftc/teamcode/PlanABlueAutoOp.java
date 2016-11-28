@@ -61,7 +61,7 @@ public class PlanABlueAutoOp extends VortexAutoOp{
         beaconPresser.teamColor = 'b';
         fire2TurnDegree = -80;
         wall2TurnDegree = 80;
-        beacon2ParkTurnDegree = 130;
+        beacon2ParkTurnDegree = 135;
     }
 
     @Override

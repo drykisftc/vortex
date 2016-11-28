@@ -37,6 +37,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
+import static org.firstinspires.ftc.teamcode.VortexTeleOp.LeftArmState.FIRE;
+
 /**
  * This file provides basic Telop driving for a Pushbot robot.
  * The code is structured as an Iterative OpMode
@@ -70,8 +72,8 @@ public class VortexTeleOp extends OpMode{
     protected final int leftArmLoadPositionOffset = 650;
     protected int leftArmMovePositionOffset = 1050;
     protected final int leftArmSnapPositionOffset = 50;
-    protected final int leftArmFirePositionOffset = 4480;
-    protected final int leftArmMaxOffset = 4500;
+    protected final int leftArmFirePositionOffset = 4550;
+    protected final int leftArmMaxOffset = 4550;
     protected int leftArmFiringSafeZoneOffset = 3500;
 
     protected int leftArmHomeParkingPostion = leftArmHomeParkingOffset;
@@ -160,6 +162,12 @@ public class VortexTeleOp extends OpMode{
     double rightLowHomePosition = 0.08;
     double rightLowStepSize = 0.04;
 
+    // scooper control
+    double leftScooperStop = 0.0;
+    double leftScooperGo = -1.0;
+    double rightScooperStop = 0.0;
+    double rightScooperGo = 1.0;
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -176,6 +184,21 @@ public class VortexTeleOp extends OpMode{
 
         // beacon arm
         initBeaconArms();
+
+        // hands
+        particleShooter = new ParticleShooter(robot.motorLeftArm,
+                robot.motorLeftHand, robot.servoCock);
+        particleShooter.init();
+        particleShooter.setReporter(telemetry);
+        particleShooter.armFiringPosition = leftArmFirePosition;
+        particleShooter.armFiringSafeZone = leftArmFiringSafeZone;
+        particleShooter.relax();
+        particleShooter.start(0);
+
+        // wall tracker
+        wallTrackerHW = new HardwareWallTracker();
+        wallTrackerHW.init(hardwareMap);
+        wallTrackerHW.park();
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("TeleOp", "Hello Vortex");    //
@@ -243,21 +266,6 @@ public class VortexTeleOp extends OpMode{
         leftArmMinLimitSwitchOnCount = 0;
         leftArmMaxLimitSwitchOnCount =0;
 
-        // hands
-        particleShooter = new ParticleShooter(robot.motorLeftArm,
-                robot.motorLeftHand, robot.servoCock);
-        particleShooter.init();
-        particleShooter.setReporter(telemetry);
-        particleShooter.armFiringPosition = leftArmFirePosition;
-        particleShooter.armFiringSafeZone = leftArmFiringSafeZone;
-        particleShooter.relax();
-        particleShooter.start(0);
-
-        // wall tracker
-        wallTrackerHW = new HardwareWallTracker();
-        wallTrackerHW.init(hardwareMap);
-        wallTrackerHW.park();
-
         telemetry.update();
     }
 
@@ -286,6 +294,7 @@ public class VortexTeleOp extends OpMode{
         triggerControl();
         elevatorControl();
         beaconArmControl();
+        scooperControl();
         telemetry.update();
     }
 
@@ -410,7 +419,7 @@ public class VortexTeleOp extends OpMode{
             leftArmState = LeftArmState.LOAD;
         } else if (gamepad1.y) {
             // go to shoot position
-            leftArmState = LeftArmState.FIRE;
+            leftArmState = FIRE;
         } else if ( gamepad1.x && gamepad1.y )
         {
             // reset left arm home position when both x and y button is pressed
@@ -421,10 +430,13 @@ public class VortexTeleOp extends OpMode{
     public void triggerControl () {
 
         if (gamepad1.right_bumper) {
+            particleShooter.calibrateHandByBall();
+        } else if ( leftArmState == FIRE
+                && gamepad1.left_bumper){
             particleShooter.releaseBall();
         } else if (gamepad1.right_trigger > 0.1
                 && gamepad1.right_trigger <= 0.8) {
-            particleShooter.calibrateHandByBall(); // cocking
+            particleShooter.pressBall(); // cocking
         } else if (gamepad1.right_trigger > 0.8){
             particleShooter.shoot_loop(true, // fire
                     leftHandPowerDefaultAttenuate + gamepad1.left_trigger*0.5); // boost power
@@ -473,7 +485,16 @@ public class VortexTeleOp extends OpMode{
         }
         leftBeaconArm.pressButton_loop (false);
         rightBeaconArm.pressButton_loop(false);
+    }
 
+    public  void scooperControl () {
+        if (gamepad1.left_bumper || gamepad2.left_bumper) {
+            robot.servoLeftScooper.setPower(leftScooperGo);
+            robot.servoRightScooper.setPower(rightScooperGo);
+        } else {
+            robot.servoLeftScooper.setPower(leftScooperStop);
+            robot.servoRightScooper.setPower(rightScooperStop);
+        }
     }
 
     public void enableLeftArm (){

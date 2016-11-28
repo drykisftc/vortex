@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.ServoController;
@@ -43,9 +44,11 @@ public class HardwareVortex extends HardwareBase
     // Servos
     public Servo servoCock = null;
 
+    public CRServo servoLeftScooper = null;
+    public CRServo servoRightScooper = null;
+
     // Sensors
     public TouchSensor armStopMin = null;
-    
     public TouchSensor armStopMax = null;
 
     // Camera
@@ -61,6 +64,8 @@ public class HardwareVortex extends HardwareBase
         super.init(ahwMap);
 
         servoCock = hwMap.servo.get("cock");
+        servoLeftScooper = hwMap.crservo.get("leftScooper");
+        servoRightScooper = hwMap.crservo.get("rightScooper");
 
         armStopMin = hwMap.touchSensor.get("armStopMin");
         armStopMax = hwMap.touchSensor.get("armStopMax");
