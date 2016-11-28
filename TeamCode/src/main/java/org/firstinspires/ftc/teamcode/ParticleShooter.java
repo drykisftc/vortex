@@ -300,7 +300,7 @@ class ParticleShooter extends RobotExecutor {
     }
 
      boolean isHammerHomed() {
-        return Math.abs(motorArm.getCurrentPosition() - handFirePosition) < handFirePositionOffset /8;
+        return Math.abs(motorArm.getCurrentPosition() - handFirePosition) < leftArmPositionTolerance;
     }
 
 }
