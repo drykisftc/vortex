@@ -21,7 +21,7 @@ class ParticleShooter extends RobotExecutor {
     private int handFirePositionOffset = 445; // 20: 1 motor is 560. 16:1 is 445
     private int handFireOvershotOffset = 20; // 20:1 motor is 350. 16:1 is 230
     private int handFireEncoderMissOffset = 0; // to compensate steps missed by encoders
-    private int handCalibrationOffset = 10;
+    private int handCalibrationOffset = 15;
     private double handHoldPower = 0.05;
     private double handBeakPower = 0.15;
     private double handCalibrationPower = -0.05;
@@ -29,7 +29,7 @@ class ParticleShooter extends RobotExecutor {
     double handFirePowerAttenuate = 0.6;
     private int fireCount =0;
     private long lastFireTimeStamp = 0;
-    private long minFireInterval = 2000;
+    private long minFireInterval = 1500;
     private long minReloadInterval = 800;
     private boolean handReloaded = true;
     private int leftHandFirePositionTolerance = 1;
@@ -239,8 +239,8 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 3:
-                VortexUtils.moveMotorByEncoder(motorHand, handFirePosition, handBeakPower);
                 servoCock.setPosition(cockLoadPosition);
+                VortexUtils.moveMotorByEncoder(motorHand, handFirePosition, handBeakPower);
                 fireState = 4;
                 break;
             case 4:

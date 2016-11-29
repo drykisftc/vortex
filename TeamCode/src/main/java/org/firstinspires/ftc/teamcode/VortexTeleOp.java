@@ -72,8 +72,8 @@ public class VortexTeleOp extends OpMode{
     protected final int leftArmLoadPositionOffset = 650;
     protected int leftArmMovePositionOffset = 1050;
     protected final int leftArmSnapPositionOffset = 50;
-    protected final int leftArmFirePositionOffset = 4550;
-    protected final int leftArmMaxOffset = 4550;
+    protected final int leftArmFirePositionOffset = 4620;
+    protected final int leftArmMaxOffset = 4620;
     protected int leftArmFiringSafeZoneOffset = 3500;
 
     protected int leftArmHomeParkingPostion = leftArmHomeParkingOffset;
@@ -420,10 +420,6 @@ public class VortexTeleOp extends OpMode{
         } else if (gamepad1.y) {
             // go to shoot position
             leftArmState = FIRE;
-        } else if ( gamepad1.x && gamepad1.y )
-        {
-            // reset left arm home position when both x and y button is pressed
-            robot.motorLeftArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
     }
 
