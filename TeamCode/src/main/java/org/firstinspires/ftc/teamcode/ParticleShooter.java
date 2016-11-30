@@ -19,7 +19,7 @@ class ParticleShooter extends RobotExecutor {
     private int handHomePosition =0;
     private int handFirePosition =0;
     private int handFirePositionOffset = 445; // 20: 1 motor is 560. 16:1 is 445
-    private int handFireOvershotOffset = 20; // 20:1 motor is 350. 16:1 is 230
+    private int handFireOvershotOffset = -75; // 20:1 motor is 350. 16:1 is 230
     private int handFireEncoderMissOffset = 0; // to compensate steps missed by encoders
     private int handCalibrationOffset = 15;
     private double handHoldPower = 0.05;
@@ -29,8 +29,9 @@ class ParticleShooter extends RobotExecutor {
     double handFirePowerAttenuate = 0.6;
     private int fireCount =0;
     private long lastFireTimeStamp = 0;
-    private long minFireInterval = 1500;
-    private long minReloadInterval = 800;
+    private long minFireInterval = 1800;
+    private long minReloadInterval = 1200;
+    private long pressBallInterval = 200;
     private boolean handReloaded = true;
     private int leftHandFirePositionTolerance = 1;
 
@@ -187,7 +188,7 @@ class ParticleShooter extends RobotExecutor {
         long timeSinceLastFiring = System.currentTimeMillis() - lastFireTimeStamp;
 
         if (!triggerOn) {
-            fireState = 5;
+            fireState = 6;
         } else {
             reporter.addData("Particle shooter", "Hot!!");
         }
@@ -205,6 +206,7 @@ class ParticleShooter extends RobotExecutor {
                         // fire
                         fireCount++;
                         servoCock.setPosition(cockFirePosition);
+                        pressBall();
                         lastFireTimeStamp = currentT;
                         handFirePosition
                                 = currentHandP + handFirePositionOffset - handFireEncoderMissOffset;
@@ -213,45 +215,53 @@ class ParticleShooter extends RobotExecutor {
                         reporter.addData("Particle shooter", "Fox %d cocking......", fireCount);
                     } else {
                         reporter.addData("Particle shooter", "In danger zone, skip!!!");
-                        fireState = 5; // skip to 5
+                        fireState = 6; // skip to 6
                     }
                 }
                 break;
             case 1:
+                if (timeSinceLastFiring < pressBallInterval) {
+                    motorHand.setPower(handCalibrationPower);
+                } else {
+                    fireState = 2;
+                }
+                break;
+            case 2:
                 if (servoCock.getPosition() == cockFirePosition) {
                     motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     motorHand.setPower(power);
                     reporter.addData("Particle shooter", "Fox %d fired!", fireCount);
-                    fireState = 2;
+                    fireState = 3;
                 } else {
                     servoCock.setPosition(cockFirePosition);
                     reporter.addData("Particle shooter", "Fox %d cocking...", fireCount);
                 }
                 break;
-            case 2:
+            case 3:
                 reporter.addData("Particle shooter", "Fox %d launching......", fireCount);
                 if (currentHandP > handFirePosition + handFireOvershotOffset
                         || timeSinceLastFiring > minReloadInterval) {
-                    motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    servoCock.setPosition(cockLoadPosition);
+                    //motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     motorHand.setPower(0);
                     reporter.addData("Particle shooter", "Fox %d out!", fireCount);
-                    fireState = 3;
+                    fireState = 4;
                 }
                 break;
-            case 3:
+            case 4:
                 servoCock.setPosition(cockLoadPosition);
                 VortexUtils.moveMotorByEncoder(motorHand, handFirePosition, handBeakPower);
-                fireState = 4;
+                fireState = 5;
                 break;
-            case 4:
+            case 5:
                 reporter.addData("Particle shooter", "Fox %d Reload......", fireCount);
                 if (Math.abs(currentHandP - handFirePosition) <= leftHandFirePositionTolerance) {
                     handReloaded = true;
-                    fireState = 5;
+                    fireState = 6;
                 } else if ( timeSinceLastFiring > minReloadInterval) {
-                    fireState = 5;
+                    fireState = 6;
                 }
-            case 5:
+            case 6:
             default:
                 if (timeSinceLastFiring > minFireInterval
                         || Math.abs(currentHandP - handFirePosition) <= leftHandFirePositionTolerance) {

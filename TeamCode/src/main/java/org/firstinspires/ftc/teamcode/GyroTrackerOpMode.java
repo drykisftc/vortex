@@ -102,6 +102,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
         super.init_loop();
         // make sure the gyro is calibrated.
         if (gyroTrackerHW.gyro.isCalibrating())  {
+            telemetry.addData("Gyro measuring mode", gyroTrackerHW.gyro.getMeasurementMode());
             telemetry.addData(">", "Gyro is calibrating.  DO NOT start!!!!");
             telemetry.addData(">", "Wait! Wait! Wait! ");
             telemetry.addData(">", "Wait! Wait! Wait! Wait!");
