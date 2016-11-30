@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
 class ParticleShooter extends RobotExecutor {
@@ -9,10 +10,10 @@ class ParticleShooter extends RobotExecutor {
     // arm
     private int armStartPosition =0;
     int armFiringPosition = 4475;
-    private int armFiringPositionAdjust = 20;
+    private int armFiringPositionAdjust = 0;
     private double armPower = 0.45;
     int armFiringSafeZone = 3500;
-    private int leftArmPositionTolerance = 2;
+    private int leftArmPositionTolerance = 50;
 
     // hand
     private int fireState =0;
@@ -43,15 +44,21 @@ class ParticleShooter extends RobotExecutor {
     private DcMotor motorArm;
     private DcMotor motorHand;
     private Servo   servoCock;
+    private TouchSensor limitSwitch;
 
     private long lastTimeStamp = 0;
 
+    private int limitSwitchCount = 0;
+    private int limitSwitchCountThreshold = 10;
+
     ParticleShooter(DcMotor arm,
-                           DcMotor hand,
-                           Servo servo){
+                    DcMotor hand,
+                    Servo servo,
+                    TouchSensor armLimitSensor){
         motorArm = arm;
         motorHand = hand;
         servoCock = servo;
+        limitSwitch = armLimitSensor;
     }
 
     @Override
@@ -88,20 +95,17 @@ class ParticleShooter extends RobotExecutor {
      public int loop (int startState, int endState) {
         switch (state) {
             case 0:
-                servoCock.setPosition(cockLoadPosition);
                 // move arm to firing position
+                int targetPos = armFiringPosition-armFiringPositionAdjust;
                 if (System.currentTimeMillis() - lastTimeStamp < 500) {
                     // slow move first
-                    VortexUtils.moveMotorByEncoder(motorArm,
-                            armFiringPosition-armFiringPositionAdjust,
-                            armPower * 0.5);
-                } else {
-                    VortexUtils.moveMotorByEncoder(motorArm,
-                            armFiringPosition-armFiringPositionAdjust,
-                            armPower);
                     servoCock.setPosition(cockFirePosition);
+                    VortexUtils.moveMotorByEncoder(motorArm, targetPos, armPower * 0.5);
+                } else {
+                    VortexUtils.moveMotorByEncoder(motorArm, targetPos, armPower);
+                    servoCock.setPosition(cockLoadPosition);
                 }
-                if (hasReachedPosition(armFiringPosition)) {
+                if (hasReachedPosition(targetPos)) {
                     state = 1;
                 }
                 if (reporter != null) {
@@ -282,7 +286,17 @@ class ParticleShooter extends RobotExecutor {
     }
 
     private boolean hasReachedPosition ( int targetPos) {
-        return Math.abs(motorArm.getCurrentPosition() - targetPos) < leftArmPositionTolerance;
+        if (limitSwitch.isPressed()) {
+            limitSwitchCount ++;
+        } else {
+            limitSwitchCount = 0;
+        }
+        return Math.abs(motorArm.getCurrentPosition() - targetPos) < leftArmPositionTolerance
+                || isLimitSwitchOn();
+    }
+
+    private  boolean isLimitSwitchOn () {
+        return limitSwitchCount >= limitSwitchCountThreshold;
     }
 
     void calibrateHandByBall () {

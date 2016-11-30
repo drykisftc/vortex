@@ -184,7 +184,7 @@ public class VortexMeasureOp extends VortexTeleOp {
         telemetry.addData("3", "Y av. %03d", yVal);
         telemetry.addData("4", "Z av. %03d", zVal);
 
-        joystickWheelControl();
+        wheelControl();
         joystickArmControlSimple();
 
         telemetry.update();
