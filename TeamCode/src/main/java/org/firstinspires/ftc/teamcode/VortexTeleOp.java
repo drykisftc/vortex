@@ -151,17 +151,17 @@ class VortexTeleOp extends OpMode{
     HardwareBeaconArm leftBeaconArm = null;
     private boolean leftLoopTrue = false;
     private double leftUpHomePosition = 0.90;
-    private double leftUpStepSize = -0.025;
-    private double leftLowHomePosition = 0.85;
-    private double leftLowStepSize = -0.04;
+    private double leftUpStepSize = -0.015;
+    private double leftLowHomePosition = 0.95;
+    private double leftLowStepSize = -0.06;
 
     // right arm control information
     HardwareBeaconArm rightBeaconArm = null;
     private boolean rightLoopTrue = false;
     private double rightUpHomePosition = 0.1;
-    private double rightUpStepSize = 0.025;
+    private double rightUpStepSize = 0.015;
     private double rightLowHomePosition = 0.08;
-    private double rightLowStepSize = 0.04;
+    private double rightLowStepSize = 0.06;
 
     // scooper control
     double leftScooperStop = 0.0;
@@ -220,7 +220,7 @@ class VortexTeleOp extends OpMode{
 
         // homing the left arm. If the touch sensor is on, turn off arm power
         if ( (!isArmJammed(robot.motorLeftArm.getCurrentPosition()))
-                &&leftArmMinLimitSwitchOnCount < leftArmLimitSwitchCountThreshold
+                && leftArmMinLimitSwitchOnCount < leftArmLimitSwitchCountThreshold
                 && System.currentTimeMillis() - leftArmHomingTimestamp < leftArmHomingTime) {
             robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.motorLeftArm.setPower(leftArmHomingMovePower);
@@ -274,6 +274,8 @@ class VortexTeleOp extends OpMode{
 
         leftArmMinLimitSwitchOnCount = 0;
         leftArmMaxLimitSwitchOnCount =0;
+
+        resetArmJammed();
 
         telemetry.update();
     }
