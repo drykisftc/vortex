@@ -17,7 +17,7 @@ public class BeaconPresser extends RobotExecutor {
     protected int button1ToButton2Distance = 100;
     double cruisingPower = 1.0;
     double cruisingTurnGain = 0.05;
-    int distanceThreshold = 30;
+    int distanceThreshold = 2;
     char teamColor = 'b';
 
     // bookkeeping
@@ -39,7 +39,7 @@ public class BeaconPresser extends RobotExecutor {
         landMarkAngle = gyroTracker.gyro.getHeading();
         bBeaconPressed = false;
         beaconArm.commitCalibration();
-        distanceThreshold = (int)(beaconArm.colorSensorAmbient*1.5) + 2;
+        distanceThreshold = beaconArm.colorSensorAmbient + 2;
     }
 
     public void calibrate () {
@@ -55,20 +55,24 @@ public class BeaconPresser extends RobotExecutor {
                 // move to first beacon button
                 state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, cruisingPower,
                         lineToBeaconDistance, 0,1);
+                if (state == 1) {
+                    lastTimeStamp = System.currentTimeMillis();
+                }
                 break;
             case 1:
                 // extend arm
-                if ( beaconArm.extendUntilNearLoop(distanceThreshold)) {
+                if ( beaconArm.extendUntilNearLoop(distanceThreshold)
+                        || System.currentTimeMillis() - lastTimeStamp > timeLimit ) {
                     state = 2;
                 }
-                state = 2;
                 break;
             case 2:
                 // detect beacon color
-                if (beaconArm.getColor() == teamColor) {
+                if (beaconArm.getColorBlueOrRed() == teamColor) {
                     state = 3;
                     lastTimeStamp = System.currentTimeMillis();
                 } else {
+                    beaconArm.retract();
                     state = 4;
                 }
                 break;
@@ -85,21 +89,37 @@ public class BeaconPresser extends RobotExecutor {
                 // move to the further side of the beacon
                 state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, cruisingPower,
                         button1ToButton2Distance, 0,1);
-                state = 4;
+                if (state == 5) {
+                    lastTimeStamp = System.currentTimeMillis();
+                }
                 break;
             case 5:
                 if (bBeaconPressed) {
-                    state = 6;
-                }  else if (beaconArm.extendUntilTouch()
+                    state = 8;
+                } else if ( beaconArm.extendUntilNearLoop(distanceThreshold)
                         || System.currentTimeMillis() - lastTimeStamp > timeLimit) {
-                    // touch button
                     state = 6;
-                    bBeaconPressed = true;
-                    beaconArm.retract();
                 }
                 break;
             case 6:
+                if (beaconArm.getColorBlueOrRed() == teamColor) {
+                    state = 7;
+                    lastTimeStamp = System.currentTimeMillis();
+                } else {
+                    state = 8;
+                }
+                break;
+            case 7:
+                if (beaconArm.extendUntilTouch()
+                        || System.currentTimeMillis() - lastTimeStamp > timeLimit) {
+                    // touch button
+                    state = 8;
+                    bBeaconPressed = true;
+                }
+                break;
+            case 8:
             default:
+                beaconArm.retract();
                 return endState;
         }
         return startState;

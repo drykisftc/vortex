@@ -73,8 +73,8 @@ class VortexTeleOp extends OpMode{
     private final int leftArmLoadPositionOffset = 650;
     protected int leftArmMovePositionOffset = 1050;
     private final int leftArmSnapPositionOffset = 50;
-    private final int leftArmFirePositionOffset = 4620;
-    private final int leftArmMaxOffset = 4620;
+    private final int leftArmFirePositionOffset = 4610;
+    private final int leftArmMaxOffset = 4610;
     private int leftArmFiringSafeZoneOffset = 3500;
 
     private int leftArmHomeParkingPostion = leftArmHomeParkingOffset;
@@ -87,8 +87,8 @@ class VortexTeleOp extends OpMode{
     private int leftArmMaxRange = leftArmMaxOffset;
 
     private double leftArmJoystickDeadZone = 0.05;
-    private double leftArmHoldPower = 0.4;
-    protected double leftArmAutoMovePower = 0.5;
+    private double leftArmHoldPower = 0.2;
+    protected double leftArmAutoMovePower = 0.4;
     private double leftArmAutoSlowMovePower = 0.1;
     private double leftArmHomingMovePower = -0.2;
     private long leftArmHomingTimestamp =0;
@@ -153,7 +153,11 @@ class VortexTeleOp extends OpMode{
     private double leftUpHomePosition = 0.90;
     private double leftUpStepSize = -0.015;
     private double leftLowHomePosition = 0.95;
-    private double leftLowStepSize = -0.06;
+    private double leftLowStepSize = -0.05;
+    /* Important: use the core device discovery tool to set color sensor address to 0x40
+    Then, use the 7 bit version of it 0x20
+     */
+    private int    leftBeaconColorSensorAddr = 0x20;
 
     // right arm control information
     HardwareBeaconArm rightBeaconArm = null;
@@ -161,7 +165,11 @@ class VortexTeleOp extends OpMode{
     private double rightUpHomePosition = 0.1;
     private double rightUpStepSize = 0.015;
     private double rightLowHomePosition = 0.08;
-    private double rightLowStepSize = 0.06;
+    private double rightLowStepSize = 0.05;
+    /* Important: use the core device discovery tool to set color sensor address to 0x48
+    Then, use the 7 bit version of it 0x24
+     */
+    private int    rightBeaconColorSensorAddr = 0x24; //
 
     // scooper control
     double leftScooperStop = 0.0;
@@ -471,6 +479,9 @@ class VortexTeleOp extends OpMode{
             if (Math.abs(throttle) > 0.1) {
                 robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.motorRightArm.setPower(Range.clip(throttle, -1.0, 1.0));
+            } else {
+                robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.motorRightArm.setPower(0.0);
             }
         }
     }
@@ -499,9 +510,12 @@ class VortexTeleOp extends OpMode{
     }
 
     void scooperControl () {
-        if ((gamepad1.left_bumper && leftArmState == LOAD)
-                || gamepad2.left_bumper) {
+        if (gamepad1.left_bumper && leftArmState == LOAD) {
             robot.servoLeftScooper.setPower(leftScooperGo);
+            robot.servoRightScooper.setPower(rightScooperGo);
+        } else if (gamepad2.left_bumper) {
+            robot.servoLeftScooper.setPower(leftScooperGo);
+        } else if (gamepad2.right_bumper) {
             robot.servoRightScooper.setPower(rightScooperGo);
         } else {
             robot.servoLeftScooper.setPower(leftScooperStop);
@@ -537,13 +551,13 @@ class VortexTeleOp extends OpMode{
 
     private void initBeaconArms () {
         leftBeaconArm = new HardwareBeaconArm("leftBeaconUpperArm", "leftBeaconLowerArm",
-                "leftBeaconColor", "leftBeaconTouch");
+                "leftBeaconColor", leftBeaconColorSensorAddr, "leftBeaconTouch");
         leftBeaconArm.init(hardwareMap);
         leftBeaconArm.start(leftUpHomePosition,leftLowHomePosition,leftUpStepSize,leftLowStepSize);
         leftBeaconArm.retract();
 
         rightBeaconArm = new HardwareBeaconArm("rightBeaconUpperArm", "rightBeaconLowerArm",
-                "rightBeaconColor", "rightBeaconTouch");
+                "rightBeaconColor",rightBeaconColorSensorAddr, "rightBeaconTouch");
         rightBeaconArm.init(hardwareMap);
         rightBeaconArm.start(rightUpHomePosition,rightLowHomePosition,rightUpStepSize,rightLowStepSize);
         rightBeaconArm.retract();

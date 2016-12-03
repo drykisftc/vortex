@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
@@ -25,6 +26,7 @@ public class HardwareBeaconArm extends HardwareBase {
 
     ColorSensor colorSensor = null;
     String colorSensorName = "beaconArmColor";
+    int colorSensorAddress = 0x1e;  // color sensor default is 0x3c. in 7 bit, it is  0x3c/2 = 0x1e
     int colorSensorAmbient = 0;
     protected int calibrationCount = 0;
     final protected int calibrationCountLimit = 10000;
@@ -53,6 +55,16 @@ public class HardwareBeaconArm extends HardwareBase {
         touchSensorName = touchName;
     }
 
+    HardwareBeaconArm ( String upArmName, String lowArmName,
+                        String colorName, int colorSensorAddr,
+                        String touchName) {
+        upperArmName = upArmName;
+        lowerArmName = lowArmName;
+        colorSensorName = colorName;
+        colorSensorAddress = colorSensorAddr;
+        touchSensorName = touchName;
+    }
+
     public void init(HardwareMap ahwMap) {
 
         super.init(ahwMap);
@@ -60,6 +72,7 @@ public class HardwareBeaconArm extends HardwareBase {
         upperArm =  hwMap.servo.get(upperArmName);
         lowerArm = hwMap.servo.get(lowerArmName);
         colorSensor = hwMap.colorSensor.get(colorSensorName);
+        colorSensor.setI2cAddress(I2cAddr.create7bit(colorSensorAddress));
         touchSensor = hwMap.touchSensor.get(touchSensorName);
 
         colorSensor.enableLed(false);
@@ -158,9 +171,28 @@ public class HardwareBeaconArm extends HardwareBase {
     }
 
     /**
+     *
+     * @return less than 0 if red, bigger than 0 if blue
+     */
+    public int isBlueOrRed () {
+        return colorSensor.blue() - colorSensor.red();
+    }
+
+    /**
      * Don't care about green color
      * @return team color in red or blue
      */
+    public char getColorBlueOrRed () {
+        int d = isBlueOrRed();
+        if ( d > 1) {
+            return 'b';
+        } else if (d < -1) {
+            return 'r';
+        } else {
+            return 'u';
+        }
+    }
+
     public char getColor () {
         int r = colorSensor.red() - ambientRGB.r;
         //int g = colorSensor.green()- ambientRGB.g;

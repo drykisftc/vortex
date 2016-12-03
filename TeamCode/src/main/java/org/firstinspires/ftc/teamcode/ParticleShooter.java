@@ -20,7 +20,7 @@ class ParticleShooter extends RobotExecutor {
     private int handHomePosition =0;
     private int handFirePosition =0;
     private int handFirePositionOffset = 445; // 20: 1 motor is 560. 16:1 is 445
-    private int handFireOvershotOffset = -75; // 20:1 motor is 350. 16:1 is 230
+    private int handFireOvershotOffset = -65; //
     private int handFireEncoderMissOffset = 0; // to compensate steps missed by encoders
     private int handCalibrationOffset = 15;
     private double handHoldPower = 0.05;
@@ -34,6 +34,7 @@ class ParticleShooter extends RobotExecutor {
     private long minReloadInterval = 1200;
     private long pressBallInterval = 300;
     private boolean handReloaded = true;
+    private boolean autoShootEnded = false;
     private int leftHandFirePositionTolerance = 1;
 
     // cock servo
@@ -81,6 +82,7 @@ class ParticleShooter extends RobotExecutor {
         fireState = 0;
         armStartPosition = motorArm.getCurrentPosition();
         servoCock.setPosition(cockLoadPosition);
+        autoShootEnded = false;
         lastTimeStamp = System.currentTimeMillis();
     }
 
@@ -137,14 +139,15 @@ class ParticleShooter extends RobotExecutor {
                     pressBall();
                 } else {
                     state = 4;
-                    lastTimeStamp = System.currentTimeMillis();
+                    autoShootEnded = false;
                     servoCock.setPosition(cockLoadPosition);
+                    lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
             case 4:
                 // shoot the first particle
                 shoot_loop(true,Range.clip(handFirePower*handFirePowerAttenuate,0.01,1.0));
-                if (isReady()) { // if ready again go next state
+                if (isReadyToShoot()) { // if ready again go next state
                     state = 5;
                 }
                 if (reporter != null) {
@@ -156,7 +159,7 @@ class ParticleShooter extends RobotExecutor {
                 VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition, armPower);
                 if (hasReachedPosition(armFiringPosition)) {
                     state = 6;
-
+                    autoShootEnded = false;
                 }
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "move arm to 2nd firing position");
@@ -165,7 +168,7 @@ class ParticleShooter extends RobotExecutor {
             case 6:
                 // shoot the second particle
                 shoot_loop(true, Range.clip(handFirePower*handFirePowerAttenuate,0.01,1.0));
-                if (isReady()) {
+                if (isReadyToShoot()) {
                     state = 7;
                 }
                 if (reporter != null) {
@@ -273,6 +276,7 @@ class ParticleShooter extends RobotExecutor {
                     servoCock.setPosition(cockLoadPosition);
                     fireState = 0;
                     handReloaded = true;
+                    autoShootEnded = true;
                     reporter.addData("Particle shooter", "Idle %d vs %d", currentHandP, handFirePosition);
                 } else {
                     reporter.addData("Particle shooter", "Fox %d Reload......", fireCount);
@@ -281,8 +285,8 @@ class ParticleShooter extends RobotExecutor {
         }
     }
 
-    private boolean isReady () {
-        return fireState == 0;
+    private boolean isReadyToShoot() {
+        return fireState == 0 && autoShootEnded == true;
     }
 
     private boolean hasReachedPosition ( int targetPos) {
