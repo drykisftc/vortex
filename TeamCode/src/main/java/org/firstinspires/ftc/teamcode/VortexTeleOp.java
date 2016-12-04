@@ -113,14 +113,12 @@ class VortexTeleOp extends OpMode{
 
     int armTargetPosition = 0;
 
-    double [] wheelPowerLUT = {0.0f, 0.05f, 0.15f, 0.18f, 0.20f,
+    double [] wheelPowerLUT = {0.0f, 0.05f, 0.12f, 0.14f, 0.16f, 0.18f, 0.20f,
             0.22f, 0.24f, 0.26f, 0.28f, 0.30f, 0.32f, 0.34f, 0.36f,
-            0.38f, 0.42f, 0.46f, 0.50f, 0.54f, 0.58f, 0.62f, 0.66f,
-            0.70f, 0.74f, 0.78f, 0.82f, 0.86f, 0.90f, 0.94f, 0.98f,
-            1.00f, 1.00f, 1.00f, 1.00f, 1.00f, 1.00f, 1.00f, 1.00f,
-            1.00f, 1.00f, 1.00f, 1.00f, 1.00f, 1.00f, 1.00f, 1.00f};
+            0.38f, 0.40f, 0.42f, 0.44f, 0.46f, 0.48f, 0.50f, 0.54f, 0.58f, 0.6f,
+            0.62f, 0.66f, 0.70f, 0.74f, 0.78f, 0.82f, 0.86f, 0.90f, 0.94f, 0.98f, 1.00f};
 
-    double [] armPowerLUT = { 0.0f, 0.01f, 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f,
+    double [] leftArmPowerLUT = { 0.0f, 0.01f, 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f,
             0.08f, 0.09f, 0.10f, 0.11f, 0.12f, 0.13f, 0.14f, 0.15f,
             0.16f, 0.17f, 0.18f, 0.19f, 0.20f, 0.21f, 0.22f, 0.23f,
             0.24f, 0.25f, 0.26f, 0.27f, 0.28f, 0.29f, 0.30f, 0.31f,
@@ -363,7 +361,7 @@ class VortexTeleOp extends OpMode{
             resetArmJammed();
 
             // get joystick position
-            double power = Range.clip(VortexUtils.lookUpTableFunc(throttle, armPowerLUT), -1, 1);
+            double power = Range.clip(VortexUtils.lookUpTableFunc(throttle, leftArmPowerLUT), -1, 1);
             telemetry.addData("arm power", "%.2f", power);
 
             // move arms
@@ -476,11 +474,12 @@ class VortexTeleOp extends OpMode{
             robot.motorRightArm.setPower(-0.5);
         } else {
             float throttle = gamepad2.right_stick_y;
+            if (throttle < 0) {
+                throttle /=2; // downward need much less power
+            }
             if (Math.abs(throttle) > 0.1) {
-                robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.motorRightArm.setPower(Range.clip(throttle, -1.0, 1.0));
             } else {
-                robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.motorRightArm.setPower(0.0);
             }
         }

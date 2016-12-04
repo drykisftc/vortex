@@ -34,7 +34,7 @@ class ParticleShooter extends RobotExecutor {
     private long minReloadInterval = 1200;
     private long pressBallInterval = 300;
     private boolean handReloaded = true;
-    private boolean autoShootEnded = false;
+    private boolean autoShootEnded = true;
     private int leftHandFirePositionTolerance = 1;
 
     // cock servo

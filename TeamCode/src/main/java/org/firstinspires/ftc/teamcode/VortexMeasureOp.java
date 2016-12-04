@@ -224,11 +224,11 @@ public class VortexMeasureOp extends VortexTeleOp {
 
 
         if (boolLeftArmEnable) {
-            robot.motorLeftArm.setPower(Range.clip(VortexUtils.lookUpTableFunc(throttle, armPowerLUT),-1,1));
+            robot.motorLeftArm.setPower(Range.clip(VortexUtils.lookUpTableFunc(throttle, leftArmPowerLUT),-1,1));
         }
 
         if (boolRightArmEnable) {
-            robot.motorRightArm.setPower(Range.clip(VortexUtils.lookUpTableFunc(throttle, armPowerLUT),-1,1));
+            robot.motorRightArm.setPower(Range.clip(VortexUtils.lookUpTableFunc(throttle, leftArmPowerLUT),-1,1));
         }
 
         robot.motorLeftHand.setPower(Range.clip(gamepad1.right_trigger, -1, 1));
