@@ -49,8 +49,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan A: Blue", group="Plan A")
-public class PlanHBlueAutoOp extends VortexAutoOp{
+@Autonomous(name="Plan H: Blue", group="Plan H")
+public class PlanHBlueAutoOp extends PlanHRedAutoOp{
 
     /*
      * Code to run ONCE when the driver hits PLAY
