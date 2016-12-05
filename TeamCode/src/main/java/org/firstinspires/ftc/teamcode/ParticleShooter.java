@@ -52,6 +52,11 @@ class ParticleShooter extends RobotExecutor {
     private int limitSwitchCount = 0;
     private int limitSwitchCountThreshold = 10;
 
+    // jam detection
+    private int armJamPosition =0;
+    private long armJammedTime =0;
+    private long armJammedTimeLimit = 1000;
+
     ParticleShooter(DcMotor arm,
                     DcMotor hand,
                     Servo servo,
@@ -110,6 +115,12 @@ class ParticleShooter extends RobotExecutor {
                 if (hasReachedPosition(targetPos)) {
                     state = 1;
                 }
+                if (isArmJammed(motorArm.getCurrentPosition())
+                        || isLimitSwitchOn()) {
+                    state = 1;
+                    motorArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    motorArm.setPower(0.0);
+                }
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "move arm to 1st firing position");
                 }
@@ -127,16 +138,15 @@ class ParticleShooter extends RobotExecutor {
             case 2:
                 if ( System.currentTimeMillis() - lastTimeStamp < 1000){
                     servoCock.setPosition(cockLoadPosition);
-                    pressBall();
                 } else {
                     state = 3;
                     lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
             case 3:
-                if ( System.currentTimeMillis() - lastTimeStamp < 500){
+                if ( System.currentTimeMillis() - lastTimeStamp < 1000){
                     servoCock.setPosition(cockFirePosition);
-                    pressBall();
+                    calibrateHandByBall();
                 } else {
                     state = 4;
                     autoShootEnded = false;
@@ -148,6 +158,7 @@ class ParticleShooter extends RobotExecutor {
                 // shoot the first particle
                 shoot_loop(true,Range.clip(handFirePower*handFirePowerAttenuate,0.01,1.0));
                 if (isReadyToShoot()) { // if ready again go next state
+                    servoCock.setPosition(cockLoadPosition);
                     state = 5;
                 }
                 if (reporter != null) {
@@ -160,28 +171,38 @@ class ParticleShooter extends RobotExecutor {
                 if (hasReachedPosition(armFiringPosition)) {
                     state = 6;
                     autoShootEnded = false;
+                    servoCock.setPosition(cockLoadPosition);
+                    lastTimeStamp = System.currentTimeMillis();
                 }
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "move arm to 2nd firing position");
                 }
                 break;
             case 6:
+                if ( System.currentTimeMillis() - lastTimeStamp < 1000){
+                    servoCock.setPosition(cockLoadPosition);
+                } else {
+                    state = 7;
+                    lastTimeStamp = System.currentTimeMillis();
+                }
+                break;
+            case 7:
                 // shoot the second particle
                 shoot_loop(true, Range.clip(handFirePower*handFirePowerAttenuate,0.01,1.0));
                 if (isReadyToShoot()) {
-                    state = 7;
+                    state = 8;
                 }
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "Fox 2");
                 }
                 break;
-            case 7:
+            case 8:
                 // move arm back
                 VortexUtils.moveMotorByEncoder(motorArm, armStartPosition, armPower);
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "move arm to back");
                 }
-                state = 8;
+                state = 9;
                 break;
             default:
                 return endState;
@@ -290,16 +311,15 @@ class ParticleShooter extends RobotExecutor {
     }
 
     private boolean hasReachedPosition ( int targetPos) {
+        return Math.abs( motorArm.getCurrentPosition() - targetPos) < leftArmPositionTolerance;
+    }
+
+    private  boolean isLimitSwitchOn () {
         if (limitSwitch.isPressed()) {
             limitSwitchCount ++;
         } else {
             limitSwitchCount = 0;
         }
-        return Math.abs(motorArm.getCurrentPosition() - targetPos) < leftArmPositionTolerance
-                || isLimitSwitchOn();
-    }
-
-    private  boolean isLimitSwitchOn () {
         return limitSwitchCount >= limitSwitchCountThreshold;
     }
 
@@ -329,6 +349,22 @@ class ParticleShooter extends RobotExecutor {
 
      boolean isHammerHomed() {
         return Math.abs(motorArm.getCurrentPosition() - handFirePosition) < leftArmPositionTolerance;
+    }
+
+    protected void resetArmJammed () {
+        armJammedTime = System.currentTimeMillis();
+    }
+
+    protected boolean isArmJammed (int position) {
+        if ( armJamPosition != position) {
+            armJammedTime = System.currentTimeMillis();
+            armJamPosition = position;
+            return false;
+        } else if (System.currentTimeMillis()- armJammedTime > armJammedTimeLimit)  {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

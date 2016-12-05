@@ -22,7 +22,7 @@ public class GyroTracker extends Tracker {
      */
     private double minTurnSpeed = 1.0;
     private double maxTurnSpeed = 10;
-    private double minAnglePowerStepSize = 0.02;
+    private double minAnglePowerStepSize = 0.002;
     private int flipCountLimit = 1;
     
     private long lastLogTimeStamp = 0;
