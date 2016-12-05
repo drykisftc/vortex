@@ -162,7 +162,7 @@ class VortexTeleOp extends OpMode{
     private boolean rightLoopTrue = false;
     private double rightUpHomePosition = 0.1;
     private double rightUpStepSize = 0.015;
-    private double rightLowHomePosition = 0.08;
+    private double rightLowHomePosition = 0.02;
     private double rightLowStepSize = 0.05;
     /* Important: use the core device discovery tool to set color sensor address to 0x48
     Then, use the 7 bit version of it 0x24
@@ -450,8 +450,8 @@ class VortexTeleOp extends OpMode{
 
         if (gamepad1.right_bumper) {
             particleShooter.calibrateHandByBall();
-        } else if ( leftArmState == FIRE
-                && gamepad1.left_bumper){
+        } else if ( (leftArmState == FIRE
+                && gamepad1.left_bumper) || gamepad2.a){
             particleShooter.releaseBall();
         } else if (gamepad1.right_trigger > 0.6){
             particleShooter.shoot_loop(true, // fire
