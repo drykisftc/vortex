@@ -60,7 +60,7 @@ public class PlanGRedAutoOp extends VortexAutoOp{
     @Override
     public void init() {
         super.init();
-        start2FireDistance = 3800; //2500
+        start2FireDistance = 2500; //2500
         fire2TurnDegree = 45;
         fire2WallDistance = 6800;
         wall2TurnDegree = -45;
