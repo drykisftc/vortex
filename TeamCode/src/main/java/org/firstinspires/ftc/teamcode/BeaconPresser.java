@@ -13,8 +13,8 @@ public class BeaconPresser extends RobotExecutor {
     protected long lastTimeStamp = 0;
 
     // navigation info
-    protected int lineToBeaconDistance = 250;
-    protected int button1ToButton2Distance = 50;
+    protected int lineToBeaconDistance = 509;
+    protected int button1ToButton2Distance = 486;
     double cruisingPower = 0.4;
     double cruisingTurnGain = 0.002;
     int distanceThreshold = 2;
