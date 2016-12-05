@@ -49,19 +49,21 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan D: Red", group="Plan D")
-public class PlanDRedAutoOp extends VortexAutoOp {
+@Autonomous(name="Plan C: Red", group="Plan C")
+public class PlanLRedAutoOp extends VortexAutoOp {
 
     int leftArmHitBallPosition = 400;
 
     @Override
     public void init() {
         super.init();
-        start2FireDistance = 1900; //2500
-        fire2TurnDegree = 90;
-        fire2WallDistance = 1000;
-        wall2TurnDegree = 45;
-        wall2BeaconDistance = 1900;
+        start2FireDistance = 3800; //2500
+        fire2TurnDegree = 24;
+        fire2WallDistance = 6800;
+        wall2TurnDegree = -50;
+        wall2BeaconDistance = 7500;
+        beacon2ParkTurnDegree = -145;
+        beacon2ParkingDistance = 5200;
     }
 
     /*
@@ -71,49 +73,71 @@ public class PlanDRedAutoOp extends VortexAutoOp {
     public void loop() {
         switch (state) {
             case 0:
-                // wait
-                if (System.currentTimeMillis() - lastTimeStamp > 10000) {
-                    state = 1;
-                }
-                break;
-            case 1:
                 // go straight
                 state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
-                if (state == 2) {
+                if (state == 1) {
                     // prepare to shoot
                     robot.motorLeftWheel.setPower(0.0);
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
                 }
                 break;
-            case 2:
+            case 1:
                 // shoot particles
                 state = particleShooter.loop(state, state+1);
                 break;
+            case 2:
+                state = gyroTracker.turn(fire2TurnDegree,
+                        inPlaceTurnGain, turningPower, state, state + 1);
+                telemetry.addData("State:", "%02d", state);
+                break;
             case 3:
-                // turn 90 degrees
-                state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
-                        turningPower, state, state+1);
+                // go straight until hit the particle ball
+                VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHitBallPosition, leftArmAutoMovePower);
+                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
+                        cruisingPower, fire2WallDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 4:
-                // go straight to wall
+                // turn
                 state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
                         cruisingPower, fire2WallDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 5:
-                // turn
+                // go straight until hit first white line
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
                 telemetry.addData("State:", "%02d", state);
+
+                // check the ods for white line signal
+                if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
+                    state = 6;
+                    gyroTracker.setWheelLandmark();
+                    stopWheels();
+                    beaconPresser.start(0);
+                }
                 break;
             case 6:
-                // go straight
-                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
-                        cruisingTurnGain, cruisingPower, wall2BeaconDistance, state,state+1);
+                // touch beacon
+                state = beaconPresser.loop(state, state+1);
+                telemetry.addData("State:", "%02d", state);
+                if (state == 7) {
+                    gyroTracker.setWheelLandmark();
+                }
+                break;
+            case 7:
+                // turn back
+                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
+                        inPlaceTurnGain,turningPower,state,state+1);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 8:
+                // go straight to central parking
+                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
+                        cruisingTurnGain, cruisingPower, beacon2ParkingDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             default:

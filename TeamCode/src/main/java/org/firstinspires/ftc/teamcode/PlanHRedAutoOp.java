@@ -34,6 +34,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+
 /**
  * This file provides basic Telop driving for a Pushbot robot.
  * The code is structured as an Iterative OpMode
@@ -49,49 +50,25 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan F Near", group="Plan F")
-public class PlanFNearAutoOp extends VortexAutoOp{
-
-    protected long waitingPeriod =1000;
-
-    @Override
-    public void init() {
-        super.init();
-        start2FireDistance = 3800; //2500
-    }
-
+@Autonomous(name="Plan A: Red", group="Plan A")
+public class PlanHRedAutoOp extends VortexAutoOp{
+    
     /*
-     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
+     * Code to run ONCE when the driver hits PLAY
      */
     @Override
-    public void loop() {
-        switch (state) {
-            case 0:
-                if (System.currentTimeMillis() - lastTimeStamp > waitingPeriod) {
-                    state = 1;
-                }
-                break;
-            case 1:
-                // go straight
-                state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
-                        start2FireDistance, state, state + 1);
-                telemetry.addData("State:", "%02d", state);
-                if (state == 2) {
-                    // prepare to shoot
-                    robot.motorLeftWheel.setPower(0.0);
-                    robot.motorRightWheel.setPower(0.0);
-                    particleShooter.start(0);
-                }
-                break;
-            case 2:
-                // shoot particles
-                state = particleShooter.loop(state, state + 1);
-                break;
-            default:
-                // stop
-                telemetry.addData("State:", "End");
-                stop();
-        }
-        telemetry.update();
+    public void start() {
+        super.start();
+        beaconPresser.teamColor = 'r';
+        start2FireDistance = 7350;
+        fire2TurnDegree = 80;
+        wall2TurnDegree = -80;
+        beacon2ParkTurnDegree = -130;
+    }
+
+    @Override
+    public void initBeaconPresser() {
+        beaconPresser = new BeaconPresser(gyroTracker, leftBeaconArm);
+        beaconPresser.setReporter(telemetry);
     }
 }

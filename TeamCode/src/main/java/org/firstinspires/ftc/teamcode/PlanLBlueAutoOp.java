@@ -34,7 +34,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-
 /**
  * This file provides basic Telop driving for a Pushbot robot.
  * The code is structured as an Iterative OpMode
@@ -50,24 +49,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan A: Red", group="Plan A")
-public class PlanARedAutoOp extends VortexAutoOp{
-    
-    /*
-     * Code to run ONCE when the driver hits PLAY
-     */
-    @Override
-    public void start() {
-        super.start();
-        beaconPresser.teamColor = 'r';
-        fire2TurnDegree = 80;
-        wall2TurnDegree = -80;
-        beacon2ParkTurnDegree = -135;
-    }
+@Autonomous(name="Plan C: Blue", group="Plan C")
+public class PlanLBlueAutoOp extends PlanLRedAutoOp {
 
     @Override
-    public void initBeaconPresser() {
-        beaconPresser = new BeaconPresser(gyroTracker, leftBeaconArm);
-        beaconPresser.setReporter(telemetry);
+    public void init() {
+        super.init();
+        fire2TurnDegree = -24;
+        wall2TurnDegree = 50;
+        beacon2ParkTurnDegree = 145;
     }
 }
