@@ -49,7 +49,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan C: Blue", group="Plan C")
+@Autonomous(name="Plan J: Blue", group="Plan J")
 public class PlanJBlueAutoOp extends PlanJRedAutoOp {
 
     @Override
