@@ -54,24 +54,24 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 @Disabled
 public class VortexAutoOp extends GyroTrackerOpMode{
 
-    BeaconPresser beaconPresser = null;
-    HardwareLineTracker hardwareLineTracker = null;
-    WallTracker wallTracker = null;
+    protected BeaconPresser beaconPresser = null;
+    protected HardwareLineTracker hardwareLineTracker = null;
+    protected WallTracker wallTracker = null;
 
-    double groundBrightness = 0.0;
-    double minLineBrightness = 0.02;
+    protected double groundBrightness = 0.0;
+    protected double minLineBrightness = 0.02;
 
     // navigation settings
-    protected int start2FireDistance = 5200; //2500
+    protected int start2FireDistance = 2525; //2500
     protected int fire2TurnDegree = 80;
-    protected int fire2WallDistance = 8500;
+    protected int fire2WallDistance = 4750;
     protected int wall2TurnDegree = -80;
-    protected int wall2BeaconDistance = 2500;
+    protected int wall2BeaconDistance = 1300;
     protected int beacon2ParkTurnDegree = -145;
-    protected int beacon2BeaconDistance = 8500;
-    protected int beacon2ParkingDistance =10432;
+    protected int beacon2BeaconDistance = 4750;
+    protected int beacon2ParkingDistance =5200;
 
-    long lastTimeStamp = 0;
+    protected long lastTimeStamp = 0;
 
     // to do: add wall tracker
 

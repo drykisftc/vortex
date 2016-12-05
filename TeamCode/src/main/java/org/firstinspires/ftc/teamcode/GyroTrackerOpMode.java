@@ -75,12 +75,12 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     @Override
     public void init() {
 
-        // init other devices
-        super.init();
-
         // init gyro first to ensure gyro calibration done
         gyroTrackerHW = new HardwareGyroTracker();
         gyroTrackerHW.init(hardwareMap);
+
+        // init other devices
+        super.init();
 
         gyroTracker = new GyroTracker(gyroTrackerHW.gyro,
                 robot.motorLeftWheel,
@@ -90,7 +90,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
         gyroTracker.init();
 
         // Send telemetry message to signify robot waiting;
-        telemetry.addData("Say", "Hello GyroTracker");    //
+        telemetry.addData("GyroTracker", "Init");    //
         updateTelemetry(telemetry);
     }
 
@@ -102,6 +102,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
         super.init_loop();
         // make sure the gyro is calibrated.
         if (gyroTrackerHW.gyro.isCalibrating())  {
+            telemetry.addData("Gyro measuring mode", gyroTrackerHW.gyro.getMeasurementMode());
             telemetry.addData(">", "Gyro is calibrating.  DO NOT start!!!!");
             telemetry.addData(">", "Wait! Wait! Wait! ");
             telemetry.addData(">", "Wait! Wait! Wait! Wait!");

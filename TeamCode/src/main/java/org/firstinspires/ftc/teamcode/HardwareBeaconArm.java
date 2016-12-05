@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
@@ -15,40 +16,52 @@ public class HardwareBeaconArm extends HardwareBase {
     String upperArmName = "upperArm";
     double upperArmHomePosition = 0.0;
     double upperArmStepSize = 0.01;
-    double upperArmCurrentPosition = 0.0;
+    protected double upperArmCurrentPosition = 0.0;
 
     Servo lowerArm = null;
     String lowerArmName = "lowerArm";
     double lowerArmHomePosition = 1.0;
     double lowerArmStepSize = 0.01;
-    double lowerArmCurrentPosistion = 0;
+    protected double lowerArmCurrentPosistion = 0;
 
     ColorSensor colorSensor = null;
     String colorSensorName = "beaconArmColor";
+    int colorSensorAddress = 0x1e;  // color sensor default is 0x3c. in 7 bit, it is  0x3c/2 = 0x1e
     int colorSensorAmbient = 0;
-    int calibrationCount = 0;
+    protected int calibrationCount = 0;
+    final protected int calibrationCountLimit = 10000;
 
     TouchSensor touchSensor = null;
     String touchSensorName = "beaconArmTouch";
-    int touchCounts = 0;
-    int touchCountLimit = 4;
+    protected int touchCounts = 0;
+    protected int touchCountLimit = 4;
 
-    int nearCounts = 0;
-    int nearCountsLimit = 3;
+    protected int nearCounts = 0;
+    protected int nearCountsLimit = 3;
 
-    int numbOfSteps =0;
+    protected int numbOfSteps =0;
 
-    int state = 0;
+    protected int state = 0;
 
-    Random random = new Random(System.currentTimeMillis());
+    protected Random random = new Random(System.currentTimeMillis());
 
-    RGB ambientRGB = new RGB(0,0,0);
+    protected RGB ambientRGB = new RGB(0,0,0);
 
     HardwareBeaconArm ( String upArmName, String lowArmName,
                         String colorName, String touchName) {
         upperArmName = upArmName;
         lowerArmName = lowArmName;
         colorSensorName = colorName;
+        touchSensorName = touchName;
+    }
+
+    HardwareBeaconArm ( String upArmName, String lowArmName,
+                        String colorName, int colorSensorAddr,
+                        String touchName) {
+        upperArmName = upArmName;
+        lowerArmName = lowArmName;
+        colorSensorName = colorName;
+        colorSensorAddress = colorSensorAddr;
         touchSensorName = touchName;
     }
 
@@ -59,6 +72,7 @@ public class HardwareBeaconArm extends HardwareBase {
         upperArm =  hwMap.servo.get(upperArmName);
         lowerArm = hwMap.servo.get(lowerArmName);
         colorSensor = hwMap.colorSensor.get(colorSensorName);
+        colorSensor.setI2cAddress(I2cAddr.create7bit(colorSensorAddress));
         touchSensor = hwMap.touchSensor.get(touchSensorName);
 
         colorSensor.enableLed(false);
@@ -157,9 +171,28 @@ public class HardwareBeaconArm extends HardwareBase {
     }
 
     /**
+     *
+     * @return less than 0 if red, bigger than 0 if blue
+     */
+    public int isBlueOrRed () {
+        return colorSensor.blue() - colorSensor.red();
+    }
+
+    /**
      * Don't care about green color
      * @return team color in red or blue
      */
+    public char getColorBlueOrRed () {
+        int d = isBlueOrRed();
+        if ( d > 1) {
+            return 'b';
+        } else if (d < -1) {
+            return 'r';
+        } else {
+            return 'u';
+        }
+    }
+
     public char getColor () {
         int r = colorSensor.red() - ambientRGB.r;
         //int g = colorSensor.green()- ambientRGB.g;
@@ -189,10 +222,12 @@ public class HardwareBeaconArm extends HardwareBase {
 
     public void calibrate_loop () {
         // compute ambient rgb
-        calibrationCount ++;
-        ambientRGB.r += colorSensor.red();
-        ambientRGB.g += colorSensor.green();
-        ambientRGB.b += colorSensor.blue();
+        if (calibrationCount < calibrationCountLimit) {
+            calibrationCount++;
+            ambientRGB.r += colorSensor.red();
+            ambientRGB.g += colorSensor.green();
+            ambientRGB.b += colorSensor.blue();
+        }
     }
 
     public void commitCalibration () {

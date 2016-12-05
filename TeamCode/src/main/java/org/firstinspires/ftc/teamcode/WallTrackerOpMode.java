@@ -52,7 +52,6 @@ public class WallTrackerOpMode extends VortexTeleOp {
 
     double signValue = 1.0;
 
-
     /*
      * Code to run ONCE when the driver hits INIT
      */

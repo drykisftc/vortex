@@ -93,6 +93,7 @@ public class VortexMeasureOp extends VortexTeleOp {
     public void init_loop() {
         // make sure the gyro is calibrated.
         if (gyroTrackerHW.gyro.isCalibrating())  {
+            telemetry.addData("Gyro measuring mode", gyroTrackerHW.gyro.getMeasurementMode());
             telemetry.addData(">", "Gyro is calibrating.  DO NOT start!!!!");
             telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
             telemetry.addData(">", "NO! NO! NO! Don't! Don't! Don't! Wait! Wait! Wait! ");
@@ -138,32 +139,8 @@ public class VortexMeasureOp extends VortexTeleOp {
         telemetry.addData("Left wheel pos ", "%6d", robot.motorLeftWheel.getCurrentPosition());
         telemetry.addData("right wheel pos", "%6d", robot.motorRightWheel.getCurrentPosition());
 
-        // get arm info
-        telemetry.addData("left arm pos  ", "%6d", robot.motorLeftArm.getCurrentPosition());
-        telemetry.addData("right arm pos ", "%6d", robot.motorRightArm.getCurrentPosition());
-
-        // get hand info
-        telemetry.addData("left hand pos ", "%6d", robot.motorLeftHand.getCurrentPosition());
-        telemetry.addData("right hand pos", "%6d", robot.motorRightHand.getCurrentPosition());
-
-        // get ods info
-        for (int i =0; i< lineTracker.arraySize; i++) {
-            telemetry.addData("ODS Raw   " + Integer.toString(i), lineTracker.sensorArray[i].getRawLightDetected());
-            telemetry.addData("ODS Normal" + Integer.toString(i), lineTracker.sensorArray[i].getLightDetected());
-        }
-
-        telemetry.addData("Arm min limit switch on  ", "%b", robot.armStopMin.isPressed());
-        telemetry.addData("Arm max limit switch on  ", "%b", robot.armStopMax.isPressed());
-
-        // get range info
-        telemetry.addData("Range arm position   ", "%.2f", wallTrackerHW.sonicArm.getPosition());
-        telemetry.addData("Range raw optical    ", "%3d", wallTrackerHW.sonicRange.rawOptical());
-        telemetry.addData("Range cm optical     ", "%.2f cm", wallTrackerHW.sonicRange.cmOptical());
-        telemetry.addData("Range raw ultrasonic ", "%3d",  wallTrackerHW.sonicRange.rawUltrasonic());
-        telemetry.addData("Range cm ultrasonic  ", "%.2f cm", wallTrackerHW.sonicRange.getDistance(DistanceUnit.CM));
-
         // get gyro info
-        curResetState = (gamepad1.a && gamepad1.b);
+        curResetState = (gamepad1.x);
         if(curResetState && !lastResetState)  {
             gyroTrackerHW.gyro.resetZAxisIntegrator();
         }
@@ -183,9 +160,55 @@ public class VortexMeasureOp extends VortexTeleOp {
         telemetry.addData("3", "Y av. %03d", yVal);
         telemetry.addData("4", "Z av. %03d", zVal);
 
-        joystickWheelControl();
-        joystickArmControlSimple();
+        // get beacon arm sensor info
+        telemetry.addData("Left Upper Arm Pos   ", leftBeaconArm.upperArm.getPosition());
+        telemetry.addData("Left Lower Arm Pos   ", leftBeaconArm.lowerArm.getPosition());
+        telemetry.addData("Left Color sensor rgb", "%d,%d,%d", leftBeaconArm.colorSensor.red(),
+                leftBeaconArm.colorSensor.green(), leftBeaconArm.colorSensor.blue());
+        telemetry.addData("Left Color sensor background rgb", "%d,%d,%d", leftBeaconArm.ambientRGB.r,
+                leftBeaconArm.ambientRGB.g, leftBeaconArm.ambientRGB.b);
+        telemetry.addData("Left Near counts     ", leftBeaconArm.nearCounts);
+        telemetry.addData("Left Touch sensor on ", "%b", leftBeaconArm.touchSensor.isPressed());
+        telemetry.addData("Left Touch counts    ", leftBeaconArm.touchCounts);
+        telemetry.addData("Left Arm State:", "%02d", leftBeaconArm.state);
 
+        telemetry.addData("Right Upper Arm Pos   ", rightBeaconArm.upperArm.getPosition());
+        telemetry.addData("Right Lower Arm Pos   ", rightBeaconArm.lowerArm.getPosition());
+        telemetry.addData("Right Color sensor rgb", "%d,%d,%d", rightBeaconArm.colorSensor.red(),
+                rightBeaconArm.colorSensor.green(), rightBeaconArm.colorSensor.blue());
+        telemetry.addData("Right Color sensor rgb", "%d,%d,%d", rightBeaconArm.ambientRGB.r,
+                rightBeaconArm.ambientRGB.g, rightBeaconArm.ambientRGB.b);
+        telemetry.addData("Right Near counts     ", rightBeaconArm.nearCounts);
+        telemetry.addData("Right Touch sensor on ", "%b", rightBeaconArm.touchSensor.isPressed());
+        telemetry.addData("Right Touch counts    ", rightBeaconArm.touchCounts);
+        telemetry.addData("Right Arm State:", "%02d", rightBeaconArm.state);
+
+        // get range info
+        telemetry.addData("Range arm position   ", "%.2f", wallTrackerHW.sonicArm.getPosition());
+        telemetry.addData("Range raw optical    ", "%3d", wallTrackerHW.sonicRange.rawOptical());
+        telemetry.addData("Range cm optical     ", "%.2f cm", wallTrackerHW.sonicRange.cmOptical());
+        telemetry.addData("Range raw ultrasonic ", "%3d",  wallTrackerHW.sonicRange.rawUltrasonic());
+        telemetry.addData("Range cm ultrasonic  ", "%.2f cm", wallTrackerHW.sonicRange.getDistance(DistanceUnit.CM));
+
+        // get arm info
+        telemetry.addData("left arm pos  ", "%6d", robot.motorLeftArm.getCurrentPosition());
+        telemetry.addData("right arm pos ", "%6d", robot.motorRightArm.getCurrentPosition());
+        telemetry.addData("left arm min limit switch on  ", "%b", robot.armStopMin.isPressed());
+        telemetry.addData("left arm max limit switch on  ", "%b", robot.armStopMax.isPressed());
+
+        // get hand info
+        telemetry.addData("left hand pos ", "%6d", robot.motorLeftHand.getCurrentPosition());
+        telemetry.addData("right hand pos", "%6d", robot.motorRightHand.getCurrentPosition());
+
+        // get ods info
+        for (int i =0; i< lineTracker.arraySize; i++) {
+            telemetry.addData("ODS Raw   " + Integer.toString(i), lineTracker.sensorArray[i].getRawLightDetected());
+            telemetry.addData("ODS Normal" + Integer.toString(i), lineTracker.sensorArray[i].getLightDetected());
+        }
+
+        wheelControl();
+        joystickArmControlSimple();
+        beaconArmControl();
         telemetry.update();
     }
 
@@ -201,11 +224,11 @@ public class VortexMeasureOp extends VortexTeleOp {
 
 
         if (boolLeftArmEnable) {
-            robot.motorLeftArm.setPower(Range.clip(VortexUtils.lookUpTableFunc(throttle, armPowerLUT),-1,1));
+            robot.motorLeftArm.setPower(Range.clip(VortexUtils.lookUpTableFunc(throttle, leftArmPowerLUT),-1,1));
         }
 
         if (boolRightArmEnable) {
-            robot.motorRightArm.setPower(Range.clip(VortexUtils.lookUpTableFunc(throttle, armPowerLUT),-1,1));
+            robot.motorRightArm.setPower(Range.clip(VortexUtils.lookUpTableFunc(throttle, leftArmPowerLUT),-1,1));
         }
 
         robot.motorLeftHand.setPower(Range.clip(gamepad1.right_trigger, -1, 1));
