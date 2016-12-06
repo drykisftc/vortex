@@ -115,7 +115,7 @@ public class GyroTracker extends Tracker {
     }
 
     private void adjustMinTurnPower(double currentDelta) {
-        if (currentDelta > skewTolerance) {
+        if ( Math.abs(currentDelta) > skewTolerance) {
             double minV = 1000;
             double maxV = -1000;
             double lastV = 0;

@@ -141,6 +141,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         switch (state) {
             case 0:
                 // go straight
+                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
@@ -157,24 +158,28 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 2:
                 // turn 45 degree
+                gyroTracker.skewTolerance = 5;
                 state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
                         turningPower,state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 3:
                 // go straight until hit the wall
+                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
                         cruisingPower, fire2WallDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 4:
                 // turn -45 degree back
+                gyroTracker.skewTolerance = 5;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 5:
                 // go straight until hit first white line
+                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
                         cruisingTurnGain, cruisingPower, wall2BeaconDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
@@ -197,6 +202,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 7:
                 // go straight until hit the second white line
+                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
                         cruisingTurnGain, cruisingPower, beacon2BeaconDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
@@ -220,12 +226,14 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 9:
                 // turn 135 degree
+                gyroTracker.skewTolerance = 5;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
                 telemetry.addData("State:", "%02d", state);
                 break;
             case 10:
                 // go straight to central parking
+                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
                         cruisingTurnGain, cruisingPower, beacon2ParkingDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
