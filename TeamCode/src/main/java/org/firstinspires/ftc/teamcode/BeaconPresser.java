@@ -14,8 +14,9 @@ public class BeaconPresser extends RobotExecutor {
 
     // navigation info
     protected int lineToBeaconDistance = 509;
+    protected int beaconPressDistance = 2500;
     protected int button1ToButton2Distance = 486;
-    double cruisingPower = 0.4;
+    double cruisingPower = 0.3;
     double cruisingTurnGain = 0.002;
     int distanceThreshold = 2;
     char teamColor = 'b';
@@ -23,8 +24,10 @@ public class BeaconPresser extends RobotExecutor {
     // bookkeeping
     int landMarkAngle = 0;
     boolean bBeaconPressed = false;
+    int teamColorCount = 0;
+    int teamColorCountThreshold = 6;
 
-    protected long timeLimit = 3000; // 3 seconds
+    protected long timeLimit = 10000; // 10 seconds
 
     public BeaconPresser(GyroTracker g,
                          HardwareBeaconArm arm){
@@ -45,8 +48,68 @@ public class BeaconPresser extends RobotExecutor {
     public void calibrate () {
         beaconArm.calibrate_loop();
     }
+
     @Override
     public int loop (int startState, int endState) {
+        if (reporter != null) {
+            reporter.addData("BeaconPresser State:", "%02d", state);
+        }
+        switch (state) {
+            case 0:
+                // move to first beacon button
+                state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, cruisingPower,
+                        lineToBeaconDistance, 0,1);
+                if (state == 1) {
+                    lastTimeStamp = System.currentTimeMillis();
+                }
+                break;
+            case 1:
+                // extend arm
+                if ( beaconArm.extendUntilNearLoop(distanceThreshold)
+                        || System.currentTimeMillis() - lastTimeStamp > timeLimit ) {
+                    state = 2;
+                }
+                break;
+            case 2:
+                // move slowly until see the team color
+                state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, cruisingPower,
+                        beaconPressDistance, 2,3);
+                if (isColor(teamColor)) {
+                    state = 3;
+                }
+                if (state ==3 ) {
+                    gyroTracker.setWheelLandmark();
+                    gyroTracker.stopWheels();
+                    lastTimeStamp = System.currentTimeMillis();
+                }
+                break;
+            case 3:
+                // touch beacon button
+                if (beaconArm.extendUntilTouch()
+                        || System.currentTimeMillis() - lastTimeStamp > timeLimit ){
+                    state = 4;
+                    bBeaconPressed = true;
+                    beaconArm.retract();
+                }
+                break;
+            case 4:
+            default: {
+                beaconArm.retract();
+                return endState;
+            }
+        }
+        return startState;
+    }
+
+    private boolean isColor (char color) {
+        if (beaconArm.getColorBlueOrRed() == color) {
+            teamColorCount ++;
+        } else {
+            teamColorCount = 0;
+        }
+        return teamColorCount > teamColorCountThreshold;
+    }
+    public int loop2 (int startState, int endState) {
         if (reporter != null) {
             reporter.addData("BeaconPresser State:", "%02d", state);
         }
@@ -118,9 +181,10 @@ public class BeaconPresser extends RobotExecutor {
                 }
                 break;
             case 8:
-            default:
+            default: {
                 beaconArm.retract();
                 return endState;
+            }
         }
         return startState;
     }

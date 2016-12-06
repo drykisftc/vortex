@@ -16,7 +16,7 @@ public class GyroTracker extends Tracker {
     private int bufferIndex = 0;
 
     private double targetHeading =0;
-    private int breakDistance = 500; // slow down before complete stop
+    public  int breakDistance = 500; // slow down before complete stop
     private double breakPower = 0.15;
 
     /*
@@ -213,5 +213,9 @@ public class GyroTracker extends Tracker {
         landMarkPosition = d;
     }
 
+    public void stopWheels() {
+        leftWheel.setPower(0.0);
+        rightWheel.setPower(0.0);
+    }
 
 }

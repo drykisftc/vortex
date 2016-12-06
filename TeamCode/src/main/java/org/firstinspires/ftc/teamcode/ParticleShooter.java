@@ -9,10 +9,10 @@ class ParticleShooter extends RobotExecutor {
 
     // arm
     private int armStartPosition =0;
-    int armFiringPosition = 4475;
+    int armFiringPosition = 500;
     private int armFiringPositionAdjust = 0;
     private double armPower = 0.45;
-    int armFiringSafeZone = 3500;
+    int armFiringSafeZone = 500;
     private int leftArmPositionTolerance = 50;
 
     // hand
@@ -124,31 +124,28 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 1:
-                // shake balls in to the slot
-                if ( System.currentTimeMillis() - lastTimeStamp < 800){
-                    servoCock.setPosition(cockFirePosition);
-                    relax();
+                if ( System.currentTimeMillis() - lastTimeStamp < 500){
+                    servoCock.setPosition(cockLoadPosition);
                 } else {
                     state = 2;
                     lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
             case 2:
-                if ( System.currentTimeMillis() - lastTimeStamp < 1000){
-                    servoCock.setPosition(cockLoadPosition);
+                if ( System.currentTimeMillis() - lastTimeStamp < 800){
+                    servoCock.setPosition(cockFirePosition);
+                    calibrateHandByBall();
                 } else {
                     state = 3;
+                    servoCock.setPosition(cockLoadPosition);
                     lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
             case 3:
                 if ( System.currentTimeMillis() - lastTimeStamp < 1000){
-                    servoCock.setPosition(cockFirePosition);
-                    calibrateHandByBall();
+                    servoCock.setPosition(cockLoadPosition);
                 } else {
                     state = 4;
-                    autoShootEnded = false;
-                    servoCock.setPosition(cockLoadPosition);
                     lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
@@ -156,6 +153,9 @@ class ParticleShooter extends RobotExecutor {
                 // wait half second to recharge
                 if ( System.currentTimeMillis() - lastTimeStamp > 500){
                     state = 5;
+                    motorArm.setPower(0.0);
+                    servoCock.setPosition(cockFirePosition);
+                    autoShootEnded = false;
                     lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
@@ -175,7 +175,6 @@ class ParticleShooter extends RobotExecutor {
                 VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition, armPower);
                 if (hasReachedPosition(armFiringPosition)) {
                     state = 7;
-                    autoShootEnded = false;
                     servoCock.setPosition(cockLoadPosition);
                     lastTimeStamp = System.currentTimeMillis();
                 }
@@ -186,6 +185,7 @@ class ParticleShooter extends RobotExecutor {
             case 7:
                 if ( System.currentTimeMillis() - lastTimeStamp < 1000){
                     servoCock.setPosition(cockLoadPosition);
+                    autoShootEnded = false;
                 } else {
                     state = 8;
                     lastTimeStamp = System.currentTimeMillis();

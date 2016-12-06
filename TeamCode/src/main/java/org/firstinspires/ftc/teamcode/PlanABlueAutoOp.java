@@ -59,14 +59,17 @@ public class PlanABlueAutoOp extends VortexAutoOp{
     public void start() {
         super.start();
         beaconPresser.teamColor = 'b';
-        fire2TurnDegree = -80;
-        wall2TurnDegree = 80;
-        beacon2ParkTurnDegree = 135;
+        fire2TurnDegree = -75;
+        fire2WallDistance = 4000;
+        wall2TurnDegree = 75;
+        beacon2ParkTurnDegree = -45;
     }
 
     @Override
     public void initBeaconPresser() {
         beaconPresser = new BeaconPresser(gyroTracker, rightBeaconArm);
         beaconPresser.setReporter(telemetry);
+        beaconPresser.beaconArm.upperArmStepSize /=2;
+        beaconPresser.beaconArm.lowerArmStepSize /=2;
     }
 }
