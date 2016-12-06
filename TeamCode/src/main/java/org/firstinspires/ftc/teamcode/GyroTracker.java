@@ -16,6 +16,8 @@ public class GyroTracker extends Tracker {
     private int bufferIndex = 0;
 
     private double targetHeading =0;
+    private int breakDistance = 500; // slow down before complete stop
+    private double breakPower = 0.15;
 
     /*
     adjust to the correct sensitivity for each robot
@@ -161,13 +163,21 @@ public class GyroTracker extends Tracker {
         int lD = leftWheel.getCurrentPosition();
         int rD = rightWheel.getCurrentPosition();
         int d = Math.min(lD, rD);
+        int travelDistance = d - landMarkPosition;
+        skewPowerGain = gain;
 
-        if ( d - landMarkPosition < deltaDistance) {
-            skewPowerGain = gain;
-            maintainHeading(heading, power);
-            return startState;
+        // move
+        if ( travelDistance < deltaDistance) {
+            if (deltaDistance - travelDistance < breakDistance) {
+                maintainHeading(heading, breakPower);
+                return startState;
+            } else {
+                maintainHeading(heading, power);
+                return startState;
+            }
         }
-        // go to next state
+
+        // stop and return next state
         landMarkPosition = d;
         leftWheel.setPower(0.0);
         rightWheel.setPower(0.0);

@@ -103,14 +103,12 @@ class ParticleShooter extends RobotExecutor {
         switch (state) {
             case 0:
                 // move arm to firing position
+                servoCock.setPosition(cockLoadPosition);
                 int targetPos = armFiringPosition-armFiringPositionAdjust;
                 if (System.currentTimeMillis() - lastTimeStamp < 500) {
-                    // slow move first
-                    servoCock.setPosition(cockFirePosition);
                     VortexUtils.moveMotorByEncoder(motorArm, targetPos, armPower * 0.5);
                 } else {
                     VortexUtils.moveMotorByEncoder(motorArm, targetPos, armPower);
-                    servoCock.setPosition(cockLoadPosition);
                 }
                 if (hasReachedPosition(targetPos)) {
                     state = 1;
@@ -127,7 +125,7 @@ class ParticleShooter extends RobotExecutor {
                 break;
             case 1:
                 // shake balls in to the slot
-                if ( System.currentTimeMillis() - lastTimeStamp < 500){
+                if ( System.currentTimeMillis() - lastTimeStamp < 800){
                     servoCock.setPosition(cockFirePosition);
                     relax();
                 } else {
@@ -155,21 +153,28 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 4:
+                // wait half second to recharge
+                if ( System.currentTimeMillis() - lastTimeStamp > 500){
+                    state = 5;
+                    lastTimeStamp = System.currentTimeMillis();
+                }
+                break;
+            case 5:
                 // shoot the first particle
                 shoot_loop(true,Range.clip(handFirePower*handFirePowerAttenuate,0.01,1.0));
                 if (isReadyToShoot()) { // if ready again go next state
                     servoCock.setPosition(cockLoadPosition);
-                    state = 5;
+                    state = 6;
                 }
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "Fox 1");
                 }
                 break;
-            case 5:
+            case 6:
                 // adjust arm position
                 VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition, armPower);
                 if (hasReachedPosition(armFiringPosition)) {
-                    state = 6;
+                    state = 7;
                     autoShootEnded = false;
                     servoCock.setPosition(cockLoadPosition);
                     lastTimeStamp = System.currentTimeMillis();
@@ -178,31 +183,31 @@ class ParticleShooter extends RobotExecutor {
                     reporter.addData("Particle shooter ", "move arm to 2nd firing position");
                 }
                 break;
-            case 6:
+            case 7:
                 if ( System.currentTimeMillis() - lastTimeStamp < 1000){
                     servoCock.setPosition(cockLoadPosition);
                 } else {
-                    state = 7;
+                    state = 8;
                     lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
-            case 7:
+            case 8:
                 // shoot the second particle
                 shoot_loop(true, Range.clip(handFirePower*handFirePowerAttenuate,0.01,1.0));
                 if (isReadyToShoot()) {
-                    state = 8;
+                    state = 9;
                 }
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "Fox 2");
                 }
                 break;
-            case 8:
+            case 9:
                 // move arm back
                 VortexUtils.moveMotorByEncoder(motorArm, armStartPosition, armPower);
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "move arm to back");
                 }
-                state = 9;
+                state = 10;
                 break;
             default:
                 return endState;

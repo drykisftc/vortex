@@ -444,10 +444,10 @@ class VortexTeleOp extends OpMode{
 
     public void leftHandControl() {
 
-        if (gamepad1.right_bumper) {
+        if (gamepad1.right_bumper || gamepad2.left_trigger > 0.7) {
             particleShooter.calibrateHandByBall();
         } else if ( (leftArmState == FIRE
-                && gamepad1.left_bumper) || gamepad2.a){
+                && gamepad1.left_bumper) || gamepad2.right_trigger > 0.7){
             particleShooter.releaseBall();
         } else if (gamepad1.right_trigger > 0.6){
             particleShooter.shoot_loop(true, // fire
