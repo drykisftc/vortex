@@ -8,11 +8,11 @@ public class BeaconPresser extends RobotExecutor {
     protected long lastTimeStamp = 0;
 
     // navigation info
-    protected int lineToBeaconDistance = 400; //509
+    protected int lineToBeaconDistance = 350; //509
     protected int beaconPressDistance = 2500;
     protected int button1ToButton2Distance = 486;
-    double cruisingPower = 0.3;
-    double searchingPower = 0.15;
+    double cruisingPower = 0.5;
+    double searchingPower = 0.2;
     double cruisingTurnGain = 0.002;
     int distanceThreshold = 2;
     char teamColor = 'b';
@@ -21,7 +21,7 @@ public class BeaconPresser extends RobotExecutor {
     int landMarkAngle = 0;
     boolean bBeaconPressed = false;
     int teamColorCount = 0;
-    int teamColorCountThreshold = 6;
+    int teamColorCountThreshold = 3;
 
     double slowSpeedGain = 0.1;
     double fastSpeedGain = 1.0;
@@ -42,7 +42,6 @@ public class BeaconPresser extends RobotExecutor {
         lastTimeStamp = System.currentTimeMillis();
         landMarkAngle = gyroTracker.gyro.getHeading();
         bBeaconPressed = false;
-        beaconArm.commitCalibration();
         distanceThreshold = beaconArm.colorSensorAmbient + 2;
     }
 

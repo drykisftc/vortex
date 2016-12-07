@@ -64,7 +64,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     // navigation settings
     protected int start2FireDistance = 2800; //2500
     protected int fire2TurnDegree = 75;
-    protected int fire2WallDistance = 5220; // 5121
+    protected int fire2WallDistance = 5500; // 5121
     protected int wall2TurnDegree = -75;
     protected int wall2BeaconDistance = 1500; //953 actually
     protected int beacon2ParkTurnDegree = 45;
@@ -126,6 +126,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     public void start() {
         super.start();
         particleShooter.start(0);
+        beaconPresser.beaconArm.commitCalibration();
         beaconPresser.start(0);
         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
         lastTimeStamp = System.currentTimeMillis();
@@ -138,6 +139,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     @Override
     public void loop() {
         telemetry.addData("State:", "%02d", state);
+        telemetry.addData("Wall Distance: ", "%02f", wallTracker.wallTrackerHW.getDistance());
         switch (state) {
             case 0:
                 // go straight
@@ -146,10 +148,17 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                         start2FireDistance, state,state+1);
 
                 if (System.currentTimeMillis() - lastTimeStamp > 500) {
+                    // move and raise arm at same time
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
                             particleShooter.armFiringPosition, armPower);
+                    state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
+                            start2FireDistance, state,state+1);
                     particleShooter.reload();
                     particleShooter.relax();
+                } else {
+                    // slow start to avoid turning
+                    state = gyroTracker.goStraight (0, cruisingTurnGain, searchingPower,
+                            start2FireDistance, state,state+1);
                 }
 
                 if (state == 1) {

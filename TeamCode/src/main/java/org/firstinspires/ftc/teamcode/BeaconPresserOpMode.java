@@ -85,8 +85,18 @@ public class BeaconPresserOpMode extends VortexAutoOp {
             beaconPresser.beaconArm.state = 3;
         }
 
+        if (gamepad1.left_bumper) {
+            beaconPresser.beaconArm.state = 4;
+            beaconPresser.start(0);
+        }
+
         float gain = 1.0f - gamepad1.left_trigger+0.01f;
-        beaconPresser.beaconArm.pressButton_loop (gain);
+
+        if (beaconPresser.beaconArm.state == 4) {
+            beaconPresser.loop(0, 1);
+        } else {
+            beaconPresser.beaconArm.pressButton_loop(gain);
+        }
 
         telemetry.addData("Speed gain      ", gain);
         telemetry.addData("Upper Arm Pos   ", beaconPresser.beaconArm.upperArm.getPosition());

@@ -272,8 +272,12 @@ public class HardwareBeaconArm extends HardwareBase {
 
     public void pressButton_loop(double speedGain) {
         switch (state) {
+            case 0:
+                resetCounters();
+                retract();
+                break;
             case 1:
-                if (extendUntilNearLoop(colorSensorForegroundThreshold, speedGain));
+                if (extendUntilNearLoop(colorSensorForegroundThreshold, speedGain)) ;
                 break;
             case 2:
                 extendUntilTouch(speedGain);
@@ -282,8 +286,6 @@ public class HardwareBeaconArm extends HardwareBase {
                 hoverNear(colorSensorForegroundThreshold, speedGain);
                 break;
             default:
-                resetCounters();
-                retract();
                 break;
         }
     }
