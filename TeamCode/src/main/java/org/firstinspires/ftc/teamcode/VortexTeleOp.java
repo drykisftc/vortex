@@ -500,8 +500,8 @@ class VortexTeleOp extends OpMode{
             leftBeaconArm.state = 0;
             rightBeaconArm.state =0;
         }
-        leftBeaconArm.pressButton_loop (false);
-        rightBeaconArm.pressButton_loop(false);
+        leftBeaconArm.pressButton_loop (1.0);
+        rightBeaconArm.pressButton_loop(1.0);
     }
 
     void scooperControl () {
