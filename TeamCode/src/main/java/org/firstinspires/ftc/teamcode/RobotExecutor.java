@@ -49,4 +49,9 @@ public class RobotExecutor {
         reporter = t;
     }
 
+    public void report (String key, String value) {
+        if (reporter != null) {
+            reporter.addData(key, value);
+        }
+    }
 }

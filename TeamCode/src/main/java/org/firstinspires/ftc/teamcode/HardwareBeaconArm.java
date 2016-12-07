@@ -16,12 +16,16 @@ public class HardwareBeaconArm extends HardwareBase {
     String upperArmName = "upperArm";
     double upperArmHomePosition = 0.0;
     double upperArmStepSize = 0.01;
+    double upperArmMax = 0.99;
+    double upperArmMin = 0.45;
     protected double upperArmCurrentPosition = 0.0;
 
     Servo lowerArm = null;
     String lowerArmName = "lowerArm";
     double lowerArmHomePosition = 1.0;
     double lowerArmStepSize = 0.01;
+    double lowerArmMax = 0.99;
+    double lowerArmMin = 0.01;
     protected double lowerArmCurrentPosistion = 0;
 
     ColorSensor colorSensor = null;
@@ -152,16 +156,35 @@ public class HardwareBeaconArm extends HardwareBase {
         return bT;
     }
 
+    public void extendNear ( int target) {
+
+        if (getColorIntensity() > target) {
+            numbOfSteps--;
+        } else {
+            numbOfSteps ++;
+        }
+
+        upperArm.setPosition(Range.clip(upperArmHomePosition + numbOfSteps * upperArmStepSize,
+                upperArmMin, upperArmMax));
+        lowerArm.setPosition(Range.clip(lowerArmHomePosition + numbOfSteps * lowerArmStepSize,
+                lowerArmMin, lowerArmMax));
+
+    }
+
     public void extend ( ) {
         numbOfSteps ++;
-        upperArm.setPosition(Range.clip(upperArmHomePosition+numbOfSteps*upperArmStepSize, 0.45, 0.99));
-        lowerArm.setPosition(Range.clip(lowerArmHomePosition+numbOfSteps*lowerArmStepSize, 0.01, 0.99));
+        upperArm.setPosition(Range.clip(upperArmHomePosition+numbOfSteps*upperArmStepSize,
+                upperArmMin, upperArmMax));
+        lowerArm.setPosition(Range.clip(lowerArmHomePosition+numbOfSteps*lowerArmStepSize,
+                lowerArmMin, lowerArmMax));
     }
 
     public void shake ( ) {
         numbOfSteps = numbOfSteps + random.nextInt(9) - 4;
-        upperArm.setPosition(Range.clip(upperArmHomePosition+numbOfSteps*upperArmStepSize, 0.45, 0.99));
-        lowerArm.setPosition(Range.clip(lowerArmHomePosition+numbOfSteps*lowerArmStepSize, 0.01, 0.99));
+        upperArm.setPosition(Range.clip(upperArmHomePosition+numbOfSteps*upperArmStepSize,
+                upperArmMin, upperArmMax));
+        lowerArm.setPosition(Range.clip(lowerArmHomePosition+numbOfSteps*lowerArmStepSize,
+                lowerArmMin, lowerArmMax));
     }
 
     public void retract () {

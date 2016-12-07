@@ -49,9 +49,8 @@ public class GyroTracker extends Tracker {
      * Code to run ONCE when the driver hits INIT
      */
     public void init() {
-        if (reporter != null) {
-            reporter.addData("GyroTracker", "init....");
-        }
+        report("GyroTracker", "init....");
+        
         state =0;
     }
 

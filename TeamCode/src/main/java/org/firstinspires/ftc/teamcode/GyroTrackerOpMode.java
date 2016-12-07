@@ -45,9 +45,6 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     HardwareGyroTracker gyroTrackerHW = null;
     GyroTracker gyroTracker = null;
 
-    protected final int leftArmRaisedPositionOffset = 1000;
-    protected final int leftArmHomePositionOffset = 100;
-
     // state machine
     int state = 0;
 
@@ -67,7 +64,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     double turningPower = 0.0; // set to 0.0 to turn in-place
 
     // arm. Warning, arm power > 0.6 will damage the gear boxes
-    double armPower = 0.4;
+    double armPower = 0.35;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -158,12 +155,12 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     }
 
     public void raiseArm () {
-        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmRaisedPositionOffset, armPower);
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, armPower);
 
     }
 
     public void homeArm () {
-        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomePositionOffset, 0.1);
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPostion, 0.1);
 
     }
 

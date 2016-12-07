@@ -77,7 +77,7 @@ class VortexTeleOp extends OpMode{
     private final int leftArmMaxOffset = 4610;
     private int leftArmFiringSafeZoneOffset = 3500;
 
-    private int leftArmHomeParkingPostion = leftArmHomeParkingOffset;
+    int leftArmHomeParkingPostion = leftArmHomeParkingOffset;
     private int leftArmLoadPosition = leftArmLoadPositionOffset;
     protected int leftArmMovePosition = leftArmMovePositionOffset;
     private int leftArmSnapPosition= leftArmSnapPositionOffset;
@@ -97,8 +97,6 @@ class VortexTeleOp extends OpMode{
     private int leftArmMinLimitSwitchOnCount =0;
     private int leftArmMaxLimitSwitchOnCount =0;
     private int leftArmLimitSwitchCountThreshold = 8;
-
-    private double leftHandPowerDefaultAttenuate = 0.5;
 
     enum LeftArmState {
         HOME,
@@ -149,7 +147,7 @@ class VortexTeleOp extends OpMode{
     HardwareBeaconArm leftBeaconArm = null;
     private boolean leftLoopTrue = false;
     private double leftUpHomePosition = 0.90;
-    private double leftUpStepSize = -0.015;
+    private double leftUpStepSize = -0.013;
     private double leftLowHomePosition = 0.95;
     private double leftLowStepSize = -0.05;
     /* Important: use the core device discovery tool to set color sensor address to 0x40
@@ -161,7 +159,7 @@ class VortexTeleOp extends OpMode{
     HardwareBeaconArm rightBeaconArm = null;
     private boolean rightLoopTrue = false;
     private double rightUpHomePosition = 0.1;
-    private double rightUpStepSize = 0.015;
+    private double rightUpStepSize = 0.013;
     private double rightLowHomePosition = 0.02;
     private double rightLowStepSize = 0.05;
     /* Important: use the core device discovery tool to set color sensor address to 0x48
@@ -453,7 +451,7 @@ class VortexTeleOp extends OpMode{
             particleShooter.releaseBall();
         } else if (gamepad1.right_trigger > 0.6){
             particleShooter.shoot_loop(true, // fire
-                    leftHandPowerDefaultAttenuate + gamepad1.left_trigger*0.5); // boost power
+                    particleShooter.handFirePower + gamepad1.left_trigger*0.5); // boost power
         } else {
             particleShooter.shoot_loop(false, 0.0); // stop
         }

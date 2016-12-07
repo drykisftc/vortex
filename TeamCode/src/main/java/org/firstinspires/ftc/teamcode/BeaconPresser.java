@@ -1,10 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-
 public class BeaconPresser extends RobotExecutor {
 
     GyroTracker gyroTracker = null;
@@ -13,7 +8,7 @@ public class BeaconPresser extends RobotExecutor {
     protected long lastTimeStamp = 0;
 
     // navigation info
-    protected int lineToBeaconDistance = 509;
+    protected int lineToBeaconDistance = 400; //509
     protected int beaconPressDistance = 2500;
     protected int button1ToButton2Distance = 486;
     double cruisingPower = 0.3;
@@ -27,7 +22,13 @@ public class BeaconPresser extends RobotExecutor {
     int teamColorCount = 0;
     int teamColorCountThreshold = 6;
 
-    protected long timeLimit = 10000; // 10 seconds
+    protected long pressTimeLimit = 2000; // 3 seconds
+    protected long travelTimeLimit = 10000; // 10 seconds
+
+    protected double upperArmSlowStepSize = 0.01;
+    protected double lowerArmSlowStepSize = 0.05;
+    protected double upperArmFastStepSize = 0.01;
+    protected double lowerArmFastStepSize = 0.05;
 
     public BeaconPresser(GyroTracker g,
                          HardwareBeaconArm arm){
@@ -43,6 +44,10 @@ public class BeaconPresser extends RobotExecutor {
         bBeaconPressed = false;
         beaconArm.commitCalibration();
         distanceThreshold = beaconArm.colorSensorAmbient + 2;
+        upperArmFastStepSize = beaconArm.upperArmStepSize;
+        upperArmSlowStepSize = beaconArm.upperArmStepSize /3;
+        lowerArmFastStepSize = beaconArm.lowerArmStepSize;
+        lowerArmSlowStepSize = beaconArm.lowerArmStepSize /3;
     }
 
     public void calibrate () {
@@ -60,33 +65,44 @@ public class BeaconPresser extends RobotExecutor {
                 state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, cruisingPower,
                         lineToBeaconDistance, 0,1);
                 if (state == 1) {
+                    // make arm moving slow enough to see intensity change
+                    beaconArm.upperArmStepSize= upperArmSlowStepSize;
+                    beaconArm.lowerArmStepSize= lowerArmSlowStepSize;
                     lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
             case 1:
                 // extend arm
                 if ( beaconArm.extendUntilNearLoop(distanceThreshold)
-                        || System.currentTimeMillis() - lastTimeStamp > timeLimit ) {
+                        || System.currentTimeMillis() - lastTimeStamp > travelTimeLimit) {
                     state = 2;
                 }
                 break;
             case 2:
-                // move slowly until see the team color
+                // move slowly until it gets the team color
                 state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, cruisingPower,
                         beaconPressDistance, 2,3);
+
+                // hover beacon arm over beacon
+                beaconArm.extendNear(distanceThreshold);
+
                 if (isColor(teamColor)) {
                     state = 3;
                 }
-                if (state ==3 ) {
+
+                if (state == 3 ) {
                     gyroTracker.setWheelLandmark();
                     gyroTracker.stopWheels();
+                    beaconArm.upperArmStepSize= upperArmFastStepSize;
+                    beaconArm.lowerArmStepSize= lowerArmFastStepSize;
+                    beaconArm.retract();
                     lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
             case 3:
                 // touch beacon button
                 if (beaconArm.extendUntilTouch()
-                        || System.currentTimeMillis() - lastTimeStamp > timeLimit ){
+                        || System.currentTimeMillis() - lastTimeStamp > pressTimeLimit){
                     state = 4;
                     bBeaconPressed = true;
                     beaconArm.retract();
@@ -109,6 +125,7 @@ public class BeaconPresser extends RobotExecutor {
         }
         return teamColorCount > teamColorCountThreshold;
     }
+
     public int loop2 (int startState, int endState) {
         if (reporter != null) {
             reporter.addData("BeaconPresser State:", "%02d", state);
@@ -125,7 +142,7 @@ public class BeaconPresser extends RobotExecutor {
             case 1:
                 // extend arm
                 if ( beaconArm.extendUntilNearLoop(distanceThreshold)
-                        || System.currentTimeMillis() - lastTimeStamp > timeLimit ) {
+                        || System.currentTimeMillis() - lastTimeStamp > travelTimeLimit) {
                     state = 2;
                 }
                 break;
@@ -142,7 +159,7 @@ public class BeaconPresser extends RobotExecutor {
             case 3:
                 // touch beacon button
                 if (beaconArm.extendUntilTouch()
-                        || System.currentTimeMillis() - lastTimeStamp > timeLimit ){
+                        || System.currentTimeMillis() - lastTimeStamp > travelTimeLimit){
                     state = 4;
                     bBeaconPressed = true;
                     beaconArm.retract();
@@ -160,7 +177,7 @@ public class BeaconPresser extends RobotExecutor {
                 if (bBeaconPressed) {
                     state = 8;
                 } else if ( beaconArm.extendUntilNearLoop(distanceThreshold)
-                        || System.currentTimeMillis() - lastTimeStamp > timeLimit) {
+                        || System.currentTimeMillis() - lastTimeStamp > travelTimeLimit) {
                     state = 6;
                 }
                 break;
@@ -174,7 +191,7 @@ public class BeaconPresser extends RobotExecutor {
                 break;
             case 7:
                 if (beaconArm.extendUntilTouch()
-                        || System.currentTimeMillis() - lastTimeStamp > timeLimit) {
+                        || System.currentTimeMillis() - lastTimeStamp > travelTimeLimit) {
                     // touch button
                     state = 8;
                     bBeaconPressed = true;
