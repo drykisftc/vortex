@@ -145,7 +145,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state,state+1);
 
-                if (System.currentTimeMillis() - lastTimeStamp > 1000) {
+                if (System.currentTimeMillis() - lastTimeStamp > 500) {
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
                             particleShooter.armFiringPosition, armPower);
                     particleShooter.reload();

@@ -12,6 +12,7 @@ public class BeaconPresser extends RobotExecutor {
     protected int beaconPressDistance = 2500;
     protected int button1ToButton2Distance = 486;
     double cruisingPower = 0.3;
+    double searchingPower = 0.15;
     double cruisingTurnGain = 0.002;
     int distanceThreshold = 2;
     char teamColor = 'b';
@@ -73,7 +74,7 @@ public class BeaconPresser extends RobotExecutor {
                 break;
             case 2:
                 // move slowly until it gets the team color
-                state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, cruisingPower,
+                state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, searchingPower,
                         beaconPressDistance, 2,3);
 
                 // hover beacon arm over beacon
