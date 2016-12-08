@@ -39,7 +39,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
  *
  */
 
-@TeleOp(name="TeleOp: beacon presser", group="Testing")
+@TeleOp(name="TeleOp: left beacon presser", group="Testing")
 public class BeaconPresserOpMode extends VortexAutoOp {
 
     /*
@@ -98,6 +98,7 @@ public class BeaconPresserOpMode extends VortexAutoOp {
             beaconPresser.beaconArm.pressButton_loop(gain);
         }
 
+        telemetry.addData("BeaconArm State ", beaconPresser.beaconArm.state);
         telemetry.addData("Speed gain      ", gain);
         telemetry.addData("Upper Arm Pos   ", beaconPresser.beaconArm.upperArm.getPosition());
         telemetry.addData("Lower Arm Pos   ", beaconPresser.beaconArm.lowerArm.getPosition());

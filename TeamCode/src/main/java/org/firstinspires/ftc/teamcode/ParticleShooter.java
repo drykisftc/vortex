@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.Range;
 class ParticleShooter extends RobotExecutor {
 
     // arm
-    private int armStartPosition = 0;
+    int armStartPosition = 0;
     int armFiringPosition = 500;
     private int armFiringPositionAdjust = 0;
     private double armPower = 0.45;
@@ -105,7 +105,7 @@ class ParticleShooter extends RobotExecutor {
                 // move arm to firing position
                 reload();
                 int targetPos = armFiringPosition - armFiringPositionAdjust;
-                if (System.currentTimeMillis() - lastTimeStamp < 500) {
+                if (System.currentTimeMillis() - lastTimeStamp < 200) {
                     VortexUtils.moveMotorByEncoder(motorArm, targetPos, armPower * 0.5);
                 } else {
                     VortexUtils.moveMotorByEncoder(motorArm, targetPos, armPower);
@@ -196,6 +196,7 @@ class ParticleShooter extends RobotExecutor {
                 // shoot the second particle
                 shoot_loop(true, handFirePower);
                 if (isReadyToShoot()) {
+                    VortexUtils.moveMotorByEncoder(motorArm, armStartPosition, armPower);
                     state = 9;
                 }
                 if (reporter != null) {

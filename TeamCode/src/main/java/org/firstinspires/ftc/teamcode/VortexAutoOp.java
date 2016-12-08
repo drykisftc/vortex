@@ -166,6 +166,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     robot.motorLeftWheel.setPower(0.0);
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
+                    particleShooter.armStartPosition = leftArmMovePosition;
                 }
                 break;
             case 1:

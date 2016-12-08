@@ -91,6 +91,8 @@ public class HardwareBeaconArm extends HardwareBase {
     public void start (double upperHome, double lowerHome,
                        double upStepSize, double lowStepSize) {
         upperArmHomePosition = upperHome;
+        upperArmMin = upperHome;
+        upperArmMax = upperHome + upStepSize/Math.abs(upStepSize)* 0.45;
         lowerArmHomePosition = lowerHome;
         upperArmStepSize = upStepSize;
         lowerArmStepSize = lowStepSize;
