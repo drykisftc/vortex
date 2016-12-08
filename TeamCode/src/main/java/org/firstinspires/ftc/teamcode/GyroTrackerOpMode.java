@@ -115,6 +115,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
      */
     @Override
     public void start() {
+        super.start();
         // compute baseline brightness
         gyroTracker.start(0);
         raiseArm();
