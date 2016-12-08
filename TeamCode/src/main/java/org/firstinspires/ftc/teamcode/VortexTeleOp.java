@@ -81,7 +81,7 @@ class VortexTeleOp extends OpMode{
     private int leftArmLoadPosition = leftArmLoadPositionOffset;
     protected int leftArmMovePosition = leftArmMovePositionOffset;
     private int leftArmSnapPosition= leftArmSnapPositionOffset;
-    private int leftArmFirePosition = leftArmFirePositionOffset;
+    int leftArmFirePosition = leftArmFirePositionOffset;
     private int leftArmFiringSafeZone = leftArmFiringSafeZoneOffset;
     private int leftArmPeakPosition = leftArmMaxOffset/2;
     private int leftArmMaxRange = leftArmMaxOffset;
