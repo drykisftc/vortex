@@ -55,8 +55,8 @@ public class PlanIAutoOp extends VortexAutoOp{
     protected long waitingPeriod =1000;
 
     @Override
-    public void init() {
-        super.init();
+    public void start() {
+        super.start();
         start2FireDistance = 2525; //2500
     }
 

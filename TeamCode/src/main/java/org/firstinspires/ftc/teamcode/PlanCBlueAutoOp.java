@@ -54,8 +54,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 public class PlanCBlueAutoOp extends PlanCRedAutoOp {
 
     @Override
-    public void init() {
-        super.init();
+    public void start() {
+        super.start();
         fire2TurnDegree = -24;
         wall2TurnDegree = 50;
     }

@@ -55,8 +55,8 @@ public class PlanJRedAutoOp extends VortexAutoOp {
     int leftArmHitBallPosition = 400;
 
     @Override
-    public void init() {
-        super.init();
+    public void start() {
+        super.start();
         start2FireDistance = 2700; //2500
         fire2TurnDegree = -24;
         fire2WallDistance = 3000;
