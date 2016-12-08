@@ -135,6 +135,7 @@ class ParticleShooter extends RobotExecutor {
             case 2:
                 if (System.currentTimeMillis() - lastTimeStamp < 500) {
                     reload();
+                    relax();
                 } else {
                     state = 3;
                     motorArm.setPower(0.0);
@@ -142,7 +143,7 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 3:
-                // wait half second to recharge
+                // wait half second to recharge the capacitor in the motor
                 if (System.currentTimeMillis() - lastTimeStamp < 500) {
                     cock();
                 } else {
