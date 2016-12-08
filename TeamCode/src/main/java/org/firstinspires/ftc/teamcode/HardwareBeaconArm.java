@@ -91,11 +91,15 @@ public class HardwareBeaconArm extends HardwareBase {
     public void start (double upperHome, double lowerHome,
                        double upStepSize, double lowStepSize) {
         upperArmHomePosition = upperHome;
-        upperArmMin = upperHome;
-        upperArmMax = upperHome + upStepSize/Math.abs(upStepSize)* 0.45;
-        lowerArmHomePosition = lowerHome;
         upperArmStepSize = upStepSize;
+        upperArmMin = Range.clip(Math.min(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.45), 0.0, 1.0);
+        upperArmMax = Range.clip(Math.max(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.45), 0.0, 1.0); // trick to flip sign
+
+        lowerArmHomePosition = lowerHome;
         lowerArmStepSize = lowStepSize;
+        lowerArmMin = Range.clip(Math.min(lowerHome, lowerHome + lowStepSize/Math.abs(lowStepSize)* 0.99), 0.0, 1.0);
+        lowerArmMax = Range.clip(Math.max(lowerHome, lowerHome + lowStepSize/Math.abs(lowStepSize)* 0.99), 0.0, 1.0);
+
         colorSensor.enableLed(false);
 
         updatePosition();
