@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.text.DecimalFormat;
 
-public class WallTracker {
+public class WallTracker extends RobotExecutor {
 
     HardwareWallTracker wallTrackerHW = null;
     ModernRoboticsI2cRangeSensor rangeSensor = null;
@@ -34,8 +34,6 @@ public class WallTracker {
             0.38f, 0.42f, 0.46f, 0.50f, 0.54f, 0.58f, 0.62f, 0.66f,
             0.70f, 0.74f, 0.78f, 0.82f, 0.86f, 0.90f, 0.94f, 0.98f, 1.00f};
 
-    Telemetry reporter = null;
-
     private static DecimalFormat df3 = new DecimalFormat(".###");
 
     public WallTracker(HardwareWallTracker wallTracker,
@@ -56,6 +54,7 @@ public class WallTracker {
     /*
      * Code to run ONCE when the driver hits INIT
      */
+    @Override
     public void init() {
 
         distanceBuffer = new double[bufferSize];
@@ -73,6 +72,7 @@ public class WallTracker {
      *
      * @param startState, The initial state of wall follower
      */
+    @Override
     public void start(int startState) {
 
         state = startState;
@@ -84,17 +84,17 @@ public class WallTracker {
             case 0:
                 // detect wall
                 state = detectWall(power);
-                reporter.addData("Wall Tracker", "state = DETECT");
+                report("Wall Tracker", "state = DETECT");
                 break;
             case 1:
                 // detect wall
                 state = followWall(power, powerDelta,targetDistance, direction);
-                reporter.addData("Wal Tracker", "state = FOLLOW");
+                report("Wal Tracker", "state = FOLLOW");
                 break;
             case 2:
                 // search wall
                 state = searchWall(power);
-                reporter.addData("Wall Tracker", "state = SEARCH");
+                report("Wall Tracker", "state = SEARCH");
                 break;
             default:
                 break;
@@ -104,7 +104,7 @@ public class WallTracker {
     /*
      * Code to run ONCE after the driver hits STOP
      */
-
+    @Override
     public void stop() {
         leftWheel.setPower(0.0);
         rightWheel.setPower(0.0);
@@ -156,9 +156,7 @@ public class WallTracker {
         // go straight until it find the wall
         double l = getHistoryDistanceAverage(4);
 
-        if (reporter != null) {
-            reporter.addData("Wall Distance", df3.format(l) );
-        }
+        report("Wall Distance", df3.format(l) );
 
         if ( l < targetDistance) {
             leftWheel.setPower(0);
@@ -185,9 +183,7 @@ public class WallTracker {
 
         double l = readDistance();
 
-        if (reporter != null) {
-            reporter.addData("Wall Distance", df3.format(l) );
-        }
+        report("Wall Distance", df3.format(l) );
 
         double avgD = getHistoryDistanceAverage(4);
         if (avgD > lostDistance) {
@@ -226,10 +222,6 @@ public class WallTracker {
             rightWheel.setPower(0);
             return 1;
         }
-    }
-
-    public void setReporter (Telemetry t){
-        reporter = t;
     }
 
 }

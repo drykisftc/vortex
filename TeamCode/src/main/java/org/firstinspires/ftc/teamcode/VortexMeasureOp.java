@@ -118,14 +118,19 @@ public class VortexMeasureOp extends VortexTeleOp {
         robot.motorRightWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.motorLeftWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.motorRightWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.motorLeftWheel.setPower(0.0);
+        robot.motorRightWheel.setPower(0.0);
 
         robot.motorLeftArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.motorRightArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.motorLeftArm.setPower(0.0);
+        robot.motorRightArm.setPower(0.0);
 
         robot.motorLeftHand.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.motorLeftHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.motorLeftHand.setPower(0.0);
 
     }
 
@@ -231,7 +236,9 @@ public class VortexMeasureOp extends VortexTeleOp {
             robot.motorRightArm.setPower(Range.clip(VortexUtils.lookUpTableFunc(throttle, leftArmPowerLUT),-1,1));
         }
 
-        robot.motorLeftHand.setPower(Range.clip(gamepad1.right_trigger, -1, 1));
+        if (Math.abs(gamepad1.right_trigger) > 0.01){
+            robot.motorLeftHand.setPower(Range.clip(gamepad1.right_trigger, -1, 1));
+        }
     }
 
     /*

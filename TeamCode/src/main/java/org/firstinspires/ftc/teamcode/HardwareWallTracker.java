@@ -13,6 +13,8 @@ public class HardwareWallTracker extends HardwareBase {
 
     double parkingPosition = 0.5;
     double movingStep = 0.05;
+    double leftMax = 1.0;
+    double rightMax = 0.0;
 
     public void init(HardwareMap ahwMap) {
 
@@ -32,8 +34,16 @@ public class HardwareWallTracker extends HardwareBase {
         sonicArm.setPosition(Range.clip(sonicArm.getPosition() + movingStep, 0.0, 1.0));
     }
 
+    public void moveSonicArmToMaxLeft() {
+        sonicArm.setPosition(leftMax);
+    }
+
     public void moveSonicArmToRight() {
         sonicArm.setPosition(Range.clip(sonicArm.getPosition() - movingStep, 0.0, 1.0));
+    }
+
+    public void moveSonicArmToMaxRight() {
+        sonicArm.setPosition(rightMax);
     }
 
     public double getDistance (double position) {

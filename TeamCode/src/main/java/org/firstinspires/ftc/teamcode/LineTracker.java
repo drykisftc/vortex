@@ -81,17 +81,17 @@ public class LineTracker extends RobotExecutor {
             case 0:
                 // detect line
                 state = detectLine(power);
-                reporter.addData("Line Tracker", "state = DETECT");
+                report("Line Tracker", "state = DETECT");
                 break;
             case 1:
                 // follow line
                 state = followLine(power);
-                reporter.addData("Line Tracker", "state = FOLLOW");
+                report("Line Tracker", "state = FOLLOW");
                 break;
             case 2:
                 // search for line
                 state = searchLine(power);
-                reporter.addData("Line Tracker", "state = SEARCH");
+                report("Line Tracker", "state = SEARCH");
                 break;
             default:
                 break;

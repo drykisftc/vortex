@@ -16,13 +16,15 @@ public class GyroTracker extends Tracker {
     private int bufferIndex = 0;
 
     private double targetHeading =0;
+    public  int breakDistance = 500; // slow down before complete stop
+    private double breakPower = 0.15;
 
     /*
     adjust to the correct sensitivity for each robot
      */
     private double minTurnSpeed = 1.0;
     private double maxTurnSpeed = 10;
-    private double minAnglePowerStepSize = 0.02;
+    private double minAnglePowerStepSize = 0.002;
     private int flipCountLimit = 1;
     
     private long lastLogTimeStamp = 0;
@@ -47,9 +49,8 @@ public class GyroTracker extends Tracker {
      * Code to run ONCE when the driver hits INIT
      */
     public void init() {
-        if (reporter != null) {
-            reporter.addData("GyroTracker", "init....");
-        }
+        report("GyroTracker", "init....");
+        
         state =0;
     }
 
@@ -113,7 +114,7 @@ public class GyroTracker extends Tracker {
     }
 
     private void adjustMinTurnPower(double currentDelta) {
-        if (currentDelta > skewTolerance) {
+        if ( Math.abs(currentDelta) > skewTolerance) {
             double minV = 1000;
             double maxV = -1000;
             double lastV = 0;
@@ -161,13 +162,21 @@ public class GyroTracker extends Tracker {
         int lD = leftWheel.getCurrentPosition();
         int rD = rightWheel.getCurrentPosition();
         int d = Math.min(lD, rD);
+        int travelDistance = d - landMarkPosition;
+        skewPowerGain = gain;
 
-        if ( d - landMarkPosition < deltaDistance) {
-            skewPowerGain = gain;
-            maintainHeading(heading, power);
-            return startState;
+        // move
+        if ( travelDistance < deltaDistance) {
+            if (deltaDistance - travelDistance < breakDistance) {
+                maintainHeading(heading, breakPower);
+                return startState;
+            } else {
+                maintainHeading(heading, power);
+                return startState;
+            }
         }
-        // go to next state
+
+        // stop and return next state
         landMarkPosition = d;
         leftWheel.setPower(0.0);
         rightWheel.setPower(0.0);
@@ -203,5 +212,9 @@ public class GyroTracker extends Tracker {
         landMarkPosition = d;
     }
 
+    public void stopWheels() {
+        leftWheel.setPower(0.0);
+        rightWheel.setPower(0.0);
+    }
 
 }
