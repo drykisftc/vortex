@@ -126,7 +126,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     public void start() {
         super.start();
         particleShooter.start(0);
-        particleShooter.handFirePower = 0.6;
+        particleShooter.handFirePower = 0.55; // slightly incease power to allow it shoots from a little further
         particleShooter.armPower = leftArmAutoMovePower;
         beaconPresser.beaconArm.commitCalibration();
         beaconPresser.start(0);
