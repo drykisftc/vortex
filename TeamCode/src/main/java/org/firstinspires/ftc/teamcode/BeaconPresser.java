@@ -98,6 +98,8 @@ public class BeaconPresser extends RobotExecutor {
                     state = 4;
                     bBeaconPressed = true;
                     beaconArm.retract();
+                } else if (System.currentTimeMillis() - lastTimeStamp > pressTimeLimit/3)  {
+                    beaconArm.shake(fastSpeedGain);
                 }
                 break;
             case 4:

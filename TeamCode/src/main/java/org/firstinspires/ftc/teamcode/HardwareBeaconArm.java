@@ -166,14 +166,14 @@ public class HardwareBeaconArm extends HardwareBase {
     public void hoverNear(int target, double speedGain) {
 
         if (getColorIntensity() > target) {
-            upperArm.setPosition(Range.clip(upperArm.getPosition()-numbOfSteps * upperArmStepSize*speedGain,
+            upperArm.setPosition(Range.clip(upperArm.getPosition()-upperArmStepSize*speedGain,
                     upperArmMin, upperArmMax));
-            lowerArm.setPosition(Range.clip(lowerArm.getPosition()-numbOfSteps * lowerArmStepSize*speedGain,
+            lowerArm.setPosition(Range.clip(lowerArm.getPosition()-lowerArmStepSize*speedGain,
                     lowerArmMin, lowerArmMax));
         } else {
-            upperArm.setPosition(Range.clip(upperArm.getPosition()+numbOfSteps * upperArmStepSize*speedGain,
+            upperArm.setPosition(Range.clip(upperArm.getPosition()+upperArmStepSize*speedGain,
                     upperArmMin, upperArmMax));
-            lowerArm.setPosition(Range.clip(lowerArm.getPosition()+numbOfSteps * lowerArmStepSize*speedGain,
+            lowerArm.setPosition(Range.clip(lowerArm.getPosition()+lowerArmStepSize*speedGain,
                     lowerArmMin, lowerArmMax));
         }
     }

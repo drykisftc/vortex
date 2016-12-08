@@ -101,8 +101,14 @@ public class BeaconPresserOpMode extends VortexAutoOp {
         telemetry.addData("BeaconPresser State:", "%02d", beaconPresser.beaconArm.state);
         telemetry.addData("BeaconArm State:    ", beaconPresser.beaconArm.state);
         telemetry.addData("Speed gain:          ", gain);
-        telemetry.addData("Upper Arm Pos:       ", beaconPresser.beaconArm.upperArm.getPosition());
-        telemetry.addData("Lower Arm Pos   ", beaconPresser.beaconArm.lowerArm.getPosition());
+        telemetry.addData("Upper Arm Pos:       ", "%f, (%f,%f)",
+                beaconPresser.beaconArm.upperArm.getPosition(),
+                beaconPresser.beaconArm.upperArmMin,
+                beaconPresser.beaconArm.upperArmMax);
+        telemetry.addData("Lower Arm Pos   ", "%f, (%f,%f)",
+                beaconPresser.beaconArm.lowerArm.getPosition(),
+                beaconPresser.beaconArm.lowerArmMin,
+                beaconPresser.beaconArm.lowerArmMax);
         telemetry.addData("Upper Arm step size: ", beaconPresser.beaconArm.upperArmStepSize);
         telemetry.addData("Upper Arm step size: ", beaconPresser.beaconArm.lowerArmStepSize);
         telemetry.addData("Color sensor rgb     ", "%d,%d,%d",
