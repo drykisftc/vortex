@@ -28,7 +28,6 @@ public class RobotExecutor {
      * @param startState, The initial state of wall follower
      */
     public void start(int startState) {
-
         state = startState;
     }
 

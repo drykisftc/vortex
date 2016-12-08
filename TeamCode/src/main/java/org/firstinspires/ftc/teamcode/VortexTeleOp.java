@@ -75,20 +75,20 @@ class VortexTeleOp extends OpMode{
     private final int leftArmSnapPositionOffset = 50;
     private final int leftArmFirePositionOffset = 4610;
     private final int leftArmMaxOffset = 4610;
-    private int leftArmFiringSafeZoneOffset = 3500;
+    private int leftArmFiringSafeZoneOffset = 3000;
 
     int leftArmHomeParkingPostion = leftArmHomeParkingOffset;
     private int leftArmLoadPosition = leftArmLoadPositionOffset;
     protected int leftArmMovePosition = leftArmMovePositionOffset;
     private int leftArmSnapPosition= leftArmSnapPositionOffset;
-    private int leftArmFirePosition = leftArmFirePositionOffset;
-    private int leftArmFiringSafeZone = leftArmFiringSafeZoneOffset;
+    int leftArmFirePosition = leftArmFirePositionOffset;
+    int leftArmFiringSafeZone = leftArmFiringSafeZoneOffset;
     private int leftArmPeakPosition = leftArmMaxOffset/2;
     private int leftArmMaxRange = leftArmMaxOffset;
 
     private double leftArmJoystickDeadZone = 0.05;
     private double leftArmHoldPower = 0.2;
-    protected double leftArmAutoMovePower = 0.4;
+    protected double leftArmAutoMovePower = 0.35;
     private double leftArmAutoSlowMovePower = 0.1;
     private double leftArmHomingMovePower = -0.2;
     private long leftArmHomingTimestamp =0;
@@ -147,7 +147,7 @@ class VortexTeleOp extends OpMode{
     HardwareBeaconArm leftBeaconArm = null;
     private boolean leftLoopTrue = false;
     private double leftUpHomePosition = 0.90;
-    private double leftUpStepSize = -0.011;
+    private double leftUpStepSize = -0.02;
     private double leftLowHomePosition = 0.95;
     private double leftLowStepSize = -0.05;
 
@@ -160,7 +160,7 @@ class VortexTeleOp extends OpMode{
     HardwareBeaconArm rightBeaconArm = null;
     private boolean rightLoopTrue = false;
     private double rightUpHomePosition = 0.1;
-    private double rightUpStepSize = 0.011;
+    private double rightUpStepSize = 0.02;
     private double rightLowHomePosition = 0.02;
     private double rightLowStepSize = 0.05;
     /* Important: use the core device discovery tool to set color sensor address to 0x48
@@ -193,9 +193,7 @@ class VortexTeleOp extends OpMode{
                 robot.motorLeftHand, robot.servoCock, robot.armStopMax);
         particleShooter.init();
         particleShooter.setReporter(telemetry);
-        particleShooter.armFiringPosition = leftArmFirePosition;
-        particleShooter.armFiringSafeZone = leftArmFiringSafeZone;
-        particleShooter.relax();
+        particleShooter.relaxHand();
         particleShooter.start(0);
         particleShooter.resetArmJammed();
 
@@ -303,6 +301,7 @@ class VortexTeleOp extends OpMode{
         }
 
         leftArmCurrentPosition = robot.motorLeftArm.getCurrentPosition();
+        telemetry.addData("left arm pos ", "%6d vs max %6d", leftArmCurrentPosition, leftArmMaxRange);
 
         wheelControl();
         leftArmControl();
@@ -327,8 +326,8 @@ class VortexTeleOp extends OpMode{
         robot.motorRightWheel.setPower(right);
 
         // Send telemetry message to signify robot running;
-        telemetry.addData("left",  "%.2f", left);
-        telemetry.addData("right", "%.2f", right);
+        telemetry.addData("left  wheel power ",  "%.2f", left);
+        telemetry.addData("right wheel power ", "%.2f", right);
     }
 
     public void leftArmControl() {
@@ -363,7 +362,6 @@ class VortexTeleOp extends OpMode{
 
             // move arms
             robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            telemetry.addData("left arm pos", "%6d vs %6d", leftArmCurrentPosition, leftArmMaxRange);
 
             // button x allow arm moving to home, just in case the arm loses encoder home position
             // giving a chance to reset home position

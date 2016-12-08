@@ -63,9 +63,6 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     double inPlaceTurnGain = 0.005;
     double turningPower = 0.0; // set to 0.0 to turn in-place
 
-    // arm. Warning, arm power > 0.6 will damage the gear boxes
-    double armPower = 0.35;
-
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -155,7 +152,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     }
 
     public void raiseArm () {
-        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, armPower);
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
 
     }
 

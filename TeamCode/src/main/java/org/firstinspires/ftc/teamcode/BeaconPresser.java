@@ -17,6 +17,9 @@ public class BeaconPresser extends RobotExecutor {
     int distanceThreshold = 2;
     char teamColor = 'b';
 
+    int pressButtonTimes = 0;
+    int pressButtonTimesLimit = 3;
+
     // bookkeeping
     int landMarkAngle = 0;
     boolean bBeaconPressed = false;
@@ -26,7 +29,7 @@ public class BeaconPresser extends RobotExecutor {
     double slowSpeedGain = 0.1;
     double fastSpeedGain = 1.0;
 
-    protected long pressTimeLimit = 2000; // 3 seconds
+    protected long pressTimeLimit = 800; // 3 seconds
     protected long travelTimeLimit = 10000; // 10 seconds
 
 
@@ -42,6 +45,7 @@ public class BeaconPresser extends RobotExecutor {
         lastTimeStamp = System.currentTimeMillis();
         landMarkAngle = gyroTracker.gyro.getHeading();
         bBeaconPressed = false;
+        pressButtonTimes = 0;
         distanceThreshold = beaconArm.colorSensorAmbient + 2;
     }
 
@@ -96,13 +100,21 @@ public class BeaconPresser extends RobotExecutor {
                 if (beaconArm.extendUntilTouch(fastSpeedGain)
                         || System.currentTimeMillis() - lastTimeStamp > pressTimeLimit){
                     state = 4;
+                    pressButtonTimes ++;
                     bBeaconPressed = true;
+                    lastTimeStamp = System.currentTimeMillis();
                     beaconArm.retract();
-                } else if (System.currentTimeMillis() - lastTimeStamp > pressTimeLimit/3)  {
-                    beaconArm.shake(fastSpeedGain);
                 }
                 break;
             case 4:
+                if (System.currentTimeMillis() - lastTimeStamp < pressTimeLimit/3)  {
+                    beaconArm.retract();
+                } else if (pressButtonTimes >= pressButtonTimesLimit) {
+                    state = 5;
+                } else {
+                    state = 3;
+                }
+                break;
             default: {
                 beaconArm.retract();
                 return endState;

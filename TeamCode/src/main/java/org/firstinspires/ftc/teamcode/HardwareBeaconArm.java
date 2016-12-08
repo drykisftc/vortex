@@ -92,8 +92,8 @@ public class HardwareBeaconArm extends HardwareBase {
                        double upStepSize, double lowStepSize) {
         upperArmHomePosition = upperHome;
         upperArmStepSize = upStepSize;
-        upperArmMin = Range.clip(Math.min(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.45), 0.0, 1.0);
-        upperArmMax = Range.clip(Math.max(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.45), 0.0, 1.0); // trick to flip sign
+        upperArmMin = Range.clip(Math.min(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.80), 0.0, 1.0);
+        upperArmMax = Range.clip(Math.max(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.80), 0.0, 1.0); // trick to flip sign
 
         lowerArmHomePosition = lowerHome;
         lowerArmStepSize = lowStepSize;
@@ -151,13 +151,8 @@ public class HardwareBeaconArm extends HardwareBase {
         if (touchCounts >= touchCountLimit) {
             bT = true;
             touchCounts = touchCountLimit;
-        }
-
-        if (!bT) {
-            extend(speedGain);
         } else {
-            // shake it
-            //shake();
+            extend(speedGain);
         }
 
         return bT;
