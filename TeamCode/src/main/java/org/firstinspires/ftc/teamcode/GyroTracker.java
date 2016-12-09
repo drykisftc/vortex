@@ -24,7 +24,7 @@ public class GyroTracker extends Tracker {
      */
     private double minTurnSpeed = 1.0;
     private double maxTurnSpeed = 10;
-    private double minAnglePowerStepSize = 0.002;
+    private double minAnglePowerStepSize = 0.001;
     private int flipCountLimit = 1;
     
     private long lastLogTimeStamp = 0;
@@ -136,7 +136,7 @@ public class GyroTracker extends Tracker {
                 minTurnPower += minAnglePowerStepSize;
             } else if (flipCount >= flipCountLimit ) {
                 // robot always over-compensated, tune down the min turn power
-                minTurnPower -= minAnglePowerStepSize*0.618;
+                minTurnPower -= minAnglePowerStepSize;
             }
         }
     }

@@ -53,14 +53,14 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     // navigation path info
     int testDistance1 = 7500; //2500
     int testDistance2 = 7500;
-    int testTurnAngle1 = 75;
-    int testTurnAngle2 = -135;
+    int testTurnAngle1 = 90;
+    int testTurnAngle2 = 90;
 
     // navigation control info
     double cruisingPower = 0.4;
     double searchingPower = 0.3;
-    double cruisingTurnGain = 0.005;
-    double inPlaceTurnGain = 0.005;
+    double cruisingTurnGain = 0.008;
+    double inPlaceTurnGain = 0.008;
     double turningPower = 0.0; // set to 0.0 to turn in-place
 
     /*
@@ -82,7 +82,10 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 bufferSize);
         gyroTracker.setReporter(telemetry);
         gyroTracker.init();
-        gyroTracker.minTurnPower = 0.02;
+        gyroTracker.minTurnPower = 0.01;
+        gyroTracker.maxTurnPower = 0.35;
+        gyroTracker.skewPowerGain = 1.0/100; // 180 for track wheels
+        gyroTracker.skewTolerance = 0;
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("GyroTracker", "Init");    //
@@ -129,22 +132,51 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     @Override
     public void loop() {
         telemetry.addData("State:", "%02d", state);
+        telemetry.addData("skew gain: ", gyroTracker.skewPowerGain);
+        telemetry.addData("skew tolerance: ", gyroTracker.skewTolerance);
+        telemetry.addData("min turn power: ", gyroTracker.minTurnPower);
+        telemetry.addData("max turn power: ", gyroTracker.maxTurnPower);
+
         switch (state) {
             case 0:
                 // go straight
-                state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower, testDistance1, 0,1);
+                gyroTracker.skewTolerance = 0;
+                state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower, testDistance1, state, state+1);
                 break;
             case 1:
-                // turn 45 degree
-                state = gyroTracker.turn(testTurnAngle1, inPlaceTurnGain,turningPower,1,2);
+                // turn 90 degree
+                gyroTracker.skewTolerance = 2;
+                state = gyroTracker.turn(testTurnAngle1, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 2:
                 // go straight
-                state = gyroTracker.goStraight (testTurnAngle2, cruisingTurnGain, cruisingPower, testDistance2, 2,3);
+                gyroTracker.skewTolerance = 0;
+                state = gyroTracker.goStraight (testTurnAngle1, cruisingTurnGain, cruisingPower, testDistance1,state, state+1);
                 break;
             case 3:
                 // turn 45 degree
-                state = gyroTracker.turn(testTurnAngle2, inPlaceTurnGain,turningPower,1,2);
+                gyroTracker.skewTolerance = 2;
+                state = gyroTracker.turn(testTurnAngle1*2, inPlaceTurnGain,turningPower,state, state+1);
+                break;
+            case 4:
+                // go straight
+                gyroTracker.skewTolerance = 0;
+                state = gyroTracker.goStraight (testTurnAngle1*2, cruisingTurnGain, cruisingPower, testDistance1, state, state+1);
+                break;
+            case 5:
+                // turn 45 degree
+                gyroTracker.skewTolerance = 2;
+                state = gyroTracker.turn(testTurnAngle1*3, inPlaceTurnGain,turningPower,state, state+1);
+                break;
+            case 6:
+                // go straight
+                gyroTracker.skewTolerance = 0;
+                state = gyroTracker.goStraight (testTurnAngle1*3, cruisingTurnGain, cruisingPower, testDistance1, state, state+1);
+                break;
+            case 7:
+                // turn 45 degree
+                gyroTracker.skewTolerance = 2;
+                state = gyroTracker.turn(testTurnAngle1*4, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             default:
                 homeArm();
