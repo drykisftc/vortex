@@ -55,9 +55,9 @@ public class PlanCRedAutoOp extends VortexAutoOp{
     @Override
     public void start() {
         super.start();
-        start2FireDistance = 3560; //2500
-        fire2TurnDegree = 200;
-        fire2WallDistance= -2000; // go backwards
+        start2FireDistance = 3360; //2500
+        fire2TurnDegree = 170;
+        fire2WallDistance= -1500; // go backwards
     }
 
     /*
@@ -67,7 +67,7 @@ public class PlanCRedAutoOp extends VortexAutoOp{
     public void loop() {
         switch (state) {
             case 0:
-                if (System.currentTimeMillis() - lastTimeStamp > 10000) {
+                if (System.currentTimeMillis() - lastTimeStamp > 5000) {
                     state = 1;
                 }
                 break;
@@ -76,6 +76,12 @@ public class PlanCRedAutoOp extends VortexAutoOp{
                 state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state, state + 1);
                 telemetry.addData("State:", "%02d", state);
+
+                if (System.currentTimeMillis() - lastTimeStamp > 200) {
+                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                            leftArmFirePosition, leftArmAutoMovePower);
+                }
+
                 if (state == 2) {
                     // prepare to shoot
                     robot.motorLeftWheel.setPower(0.0);
@@ -99,7 +105,7 @@ public class PlanCRedAutoOp extends VortexAutoOp{
                 // go backward and park
                 gyroTracker.skewTolerance = 0;
                 gyroTracker.breakDistance = 0;
-                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
+                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree, cruisingTurnGain,
                         -1.0*cruisingPower, fire2WallDistance, state,state+1);
                 break;
             default:

@@ -166,13 +166,27 @@ public class GyroTracker extends Tracker {
         skewPowerGain = gain;
 
         // move
-        if ( travelDistance < deltaDistance) {
-            if (deltaDistance - travelDistance < breakDistance) {
-                maintainHeading(heading, breakPower);
-                return startState;
-            } else {
-                maintainHeading(heading, power);
-                return startState;
+        if (power >= 0) {
+            // forward
+            if (travelDistance < deltaDistance) {
+                if (deltaDistance - travelDistance < breakDistance) {
+                    maintainHeading(heading, breakPower);
+                    return startState;
+                } else {
+                    maintainHeading(heading, power);
+                    return startState;
+                }
+            }
+        } else {
+            // backward
+            if (travelDistance > deltaDistance) {
+                if (deltaDistance - travelDistance > breakDistance) {
+                    maintainHeading(heading, breakPower);
+                    return startState;
+                } else {
+                    maintainHeading(heading, power);
+                    return startState;
+                }
             }
         }
 

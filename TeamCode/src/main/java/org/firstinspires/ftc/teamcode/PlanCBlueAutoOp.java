@@ -56,7 +56,7 @@ public class PlanCBlueAutoOp extends PlanCRedAutoOp{
     public void start() {
         super.start();
         start2FireDistance = 3000; //2500
-        fire2TurnDegree = -200;
+        fire2TurnDegree = -100;
         fire2WallDistance= -2000; // go backwards
     }
 }
