@@ -52,9 +52,7 @@ class ParticleShooter extends RobotExecutor {
     private int limitSwitchCountThreshold = 10;
 
     // jam detection
-    private int armJamPosition = 0;
-    private long armJammedTime = 0;
-    private long armJammedTimeLimit = 1000;
+    private JammingDetection  jammingDetection = null;
 
     ParticleShooter(DcMotor arm,
                     DcMotor hand,
@@ -64,6 +62,7 @@ class ParticleShooter extends RobotExecutor {
         motorHand = hand;
         servoCock = servo;
         limitSwitch = armLimitSensor;
+        jammingDetection = new JammingDetection(1000L);
     }
 
     @Override
@@ -359,19 +358,11 @@ class ParticleShooter extends RobotExecutor {
     }
 
     protected void resetArmJammed() {
-        armJammedTime = System.currentTimeMillis();
+        jammingDetection.reset();
     }
 
     protected boolean isArmJammed(int position) {
-        if (armJamPosition != position) {
-            armJammedTime = System.currentTimeMillis();
-            armJamPosition = position;
-            return false;
-        } else if (System.currentTimeMillis() - armJammedTime > armJammedTimeLimit) {
-            return true;
-        } else {
-            return false;
-        }
+        return jammingDetection.isJammed(position);
     }
 
 }
