@@ -91,11 +91,15 @@ public class HardwareBeaconArm extends HardwareBase {
     public void start (double upperHome, double lowerHome,
                        double upStepSize, double lowStepSize) {
         upperArmHomePosition = upperHome;
-        upperArmMin = upperHome;
-        upperArmMax = upperHome + upStepSize/Math.abs(upStepSize)* 0.45;
-        lowerArmHomePosition = lowerHome;
         upperArmStepSize = upStepSize;
+        upperArmMin = Range.clip(Math.min(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.80), 0.0, 1.0);
+        upperArmMax = Range.clip(Math.max(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.80), 0.0, 1.0); // trick to flip sign
+
+        lowerArmHomePosition = lowerHome;
         lowerArmStepSize = lowStepSize;
+        lowerArmMin = Range.clip(Math.min(lowerHome, lowerHome + lowStepSize/Math.abs(lowStepSize)* 0.99), 0.0, 1.0);
+        lowerArmMax = Range.clip(Math.max(lowerHome, lowerHome + lowStepSize/Math.abs(lowStepSize)* 0.99), 0.0, 1.0);
+
         colorSensor.enableLed(false);
 
         updatePosition();
@@ -147,13 +151,8 @@ public class HardwareBeaconArm extends HardwareBase {
         if (touchCounts >= touchCountLimit) {
             bT = true;
             touchCounts = touchCountLimit;
-        }
-
-        if (!bT) {
-            extend(speedGain);
         } else {
-            // shake it
-            //shake();
+            extend(speedGain);
         }
 
         return bT;
@@ -162,14 +161,14 @@ public class HardwareBeaconArm extends HardwareBase {
     public void hoverNear(int target, double speedGain) {
 
         if (getColorIntensity() > target) {
-            upperArm.setPosition(Range.clip(upperArm.getPosition()-numbOfSteps * upperArmStepSize*speedGain,
+            upperArm.setPosition(Range.clip(upperArm.getPosition()-upperArmStepSize*speedGain,
                     upperArmMin, upperArmMax));
-            lowerArm.setPosition(Range.clip(lowerArm.getPosition()-numbOfSteps * lowerArmStepSize*speedGain,
+            lowerArm.setPosition(Range.clip(lowerArm.getPosition()-lowerArmStepSize*speedGain,
                     lowerArmMin, lowerArmMax));
         } else {
-            upperArm.setPosition(Range.clip(upperArm.getPosition()+numbOfSteps * upperArmStepSize*speedGain,
+            upperArm.setPosition(Range.clip(upperArm.getPosition()+upperArmStepSize*speedGain,
                     upperArmMin, upperArmMax));
-            lowerArm.setPosition(Range.clip(lowerArm.getPosition()+numbOfSteps * lowerArmStepSize*speedGain,
+            lowerArm.setPosition(Range.clip(lowerArm.getPosition()+lowerArmStepSize*speedGain,
                     lowerArmMin, lowerArmMax));
         }
     }

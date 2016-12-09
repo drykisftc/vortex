@@ -53,8 +53,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 public class PlanLBlueAutoOp extends PlanLRedAutoOp {
 
     @Override
-    public void init() {
-        super.init();
+    public void start() {
+        super.start();
         fire2TurnDegree = -24;
         wall2TurnDegree = 50;
         beacon2ParkTurnDegree = 145;

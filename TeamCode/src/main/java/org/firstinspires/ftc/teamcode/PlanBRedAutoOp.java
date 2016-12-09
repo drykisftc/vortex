@@ -54,24 +54,10 @@ import com.qualcomm.robotcore.util.Version;
 @Autonomous(name="Plan B: Red", group="Plan B")
 public class PlanBRedAutoOp extends VortexAutoOp{
 
-    int leftArmHitBallPosition = 400;
-    protected int fireToBallDistance = 4000;
-    protected int ballToParkDistance = 3500;
-
-
     @Override
-    public void init() {
-        super.init();
-        start2FireDistance = 4180; //2500
-//        fire2TurnDegree = 24;
-//        fire2WallDistance = 6800;
-//        wall2TurnDegree = -50;
-//        wall2BeaconDistance = 7500;
-//        beacon2ParkTurnDegree = -135;
-//        beacon2BeaconDistance = 8000;
-//        beacon2ParkingDistance =8000;
-
-        turningPower = 0.02;
+    public void start() {
+        super.start();
+        start2FireDistance = 3560; //2500
     }
 
     /*
@@ -95,41 +81,14 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                     robot.motorLeftWheel.setPower(0.0);
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
-                    particleShooter.armStartPosition = leftArmFirePosition;
+                    particleShooter.armPower = leftArmAutoMovePower;
+                    particleShooter.armStartPosition = leftArmFiringSafeZone;
                 }
                 break;
             case 2:
                 // shoot particles
                 state = particleShooter.loop(state, state + 1);
                 break;
-//            case 3:
-//                VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-//                        leftArmHitBallPosition, leftArmAutoMovePower);
-//                state = gyroTracker.turn(fire2TurnDegree,
-//                        inPlaceTurnGain, turningPower, state, state + 1);
-//                telemetry.addData("State:", "%02d", state);
-//                break;
-//            case 4:
-//                // go straight until hit the particle ball
-//                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
-//                        cruisingPower, fireToBallDistance, state, state + 1);
-//                telemetry.addData("State:", "%02d", state);
-//                break;
-//            case 5:
-//                state = gyroTracker.turn(fire2TurnDegree + 90,
-//                        inPlaceTurnGain, turningPower, state, state + 1);
-//                telemetry.addData("State:", "%02d", state);
-//                break;
-//            case 6:
-//                state = gyroTracker.turn(fire2TurnDegree - 90,
-//                        inPlaceTurnGain, turningPower, state, state + 1);
-//                telemetry.addData("State:", "%02d", state);
-//                break;
-//            case 7:
-//                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
-//                        cruisingPower, ballToParkDistance, state, state + 1);
-//                telemetry.addData("State:", "%02d", state);
-//                break;
             default:
                 // stop
                 telemetry.addData("State:", "End");

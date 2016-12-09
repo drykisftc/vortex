@@ -73,6 +73,9 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
     protected long lastTimeStamp = 0;
 
+    // jam detection
+    private JammingDetection  jammingDetection = null;
+
     // to do: add wall tracker
 
     /*
@@ -94,6 +97,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
         // wall tracker
         initWallTracker();
+
+        jammingDetection = new JammingDetection (1000L);
 
         state = 0;
 
@@ -126,6 +131,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     public void start() {
         super.start();
         particleShooter.start(0);
+        particleShooter.handFirePower = 0.55; // slightly incease power to allow it shoots from a little further
+        particleShooter.armPower = leftArmAutoMovePower;
         beaconPresser.beaconArm.commitCalibration();
         beaconPresser.start(0);
         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
@@ -150,11 +157,11 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 if (System.currentTimeMillis() - lastTimeStamp > 500) {
                     // move and raise arm at same time
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                            particleShooter.armFiringPosition, armPower);
+                            leftArmFirePosition, leftArmAutoMovePower);
                     state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
                             start2FireDistance, state,state+1);
                     particleShooter.reload();
-                    particleShooter.relax();
+                    particleShooter.relaxHand();
                 } else {
                     // slow start to avoid turning
                     state = gyroTracker.goStraight (0, cruisingTurnGain, searchingPower,
@@ -166,7 +173,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     robot.motorLeftWheel.setPower(0.0);
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
-                    particleShooter.armStartPosition = leftArmMovePosition;
+                    particleShooter.armPower = leftArmAutoMovePower;
+                    particleShooter.armStartPosition = leftArmFiringSafeZone;
                 }
                 break;
             case 1:
@@ -178,6 +186,11 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 gyroTracker.skewTolerance = 3;
                 state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
                         turningPower,state,state+1);
+
+                if (state == 3) {
+                    // activate jamming detection
+                    jammingDetection.reset();
+                }
                 break;
             case 3:
                 // go straight until hit the wall
@@ -185,10 +198,16 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 gyroTracker.breakDistance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
                         cruisingPower, fire2WallDistance, state,state+1);
+
+                // jamming detection
+                if (jammingDetection.isJammed(Math.min(robot.motorLeftWheel.getCurrentPosition(),
+                        robot.motorRightWheel.getCurrentPosition()))) {
+                    state = 4;
+                }
                 break;
             case 4:
                 // turn -45 degree back
-                gyroTracker.skewTolerance = 3;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
                 break;
@@ -198,6 +217,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 gyroTracker.breakDistance = 200;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
                         cruisingTurnGain, cruisingPower, wall2BeaconDistance, state,state+1);
+
                 // check the ods for white line signal
                 if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
                     state = 6;

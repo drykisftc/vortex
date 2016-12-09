@@ -49,17 +49,49 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan G: Blue", group="Plan G")
-public class PlanGBlueAutoOp extends PlanGRedAutoOp {
+@Autonomous(name="Plan F Near", group="Plan F")
+public class PlanMAutoOp extends VortexAutoOp{
 
-    int leftArmHitBallPosition = 400;
+    protected long waitingPeriod =1000;
 
     @Override
     public void start() {
         super.start();
-        fire2TurnDegree = -45;
-        wall2TurnDegree = 45;
-        beacon2ParkTurnDegree = 45;
+        start2FireDistance = 2525; //2500
     }
 
+    /*
+     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
+     */
+    @Override
+    public void loop() {
+        switch (state) {
+            case 0:
+                if (System.currentTimeMillis() - lastTimeStamp > waitingPeriod) {
+                    state = 1;
+                }
+                break;
+            case 1:
+                // go straight
+                state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
+                        start2FireDistance, state, state + 1);
+                telemetry.addData("State:", "%02d", state);
+                if (state == 2) {
+                    // prepare to shoot
+                    robot.motorLeftWheel.setPower(0.0);
+                    robot.motorRightWheel.setPower(0.0);
+                    particleShooter.start(0);
+                }
+                break;
+            case 2:
+                // shoot particles
+                state = particleShooter.loop(state, state + 1);
+                break;
+            default:
+                // stop
+                telemetry.addData("State:", "End");
+                stop();
+        }
+        telemetry.update();
+    }
 }

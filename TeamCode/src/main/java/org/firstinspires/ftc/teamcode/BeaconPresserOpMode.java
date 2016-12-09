@@ -98,22 +98,30 @@ public class BeaconPresserOpMode extends VortexAutoOp {
             beaconPresser.beaconArm.pressButton_loop(gain);
         }
 
-        telemetry.addData("BeaconArm State ", beaconPresser.beaconArm.state);
-        telemetry.addData("Speed gain      ", gain);
-        telemetry.addData("Upper Arm Pos   ", beaconPresser.beaconArm.upperArm.getPosition());
-        telemetry.addData("Lower Arm Pos   ", beaconPresser.beaconArm.lowerArm.getPosition());
-        telemetry.addData("Color sensor rgb", "%d,%d,%d",
+        telemetry.addData("BeaconPresser State:", "%02d", beaconPresser.beaconArm.state);
+        telemetry.addData("BeaconArm State:    ", beaconPresser.beaconArm.state);
+        telemetry.addData("Speed gain:          ", gain);
+        telemetry.addData("Upper Arm Pos:       ", "%f, (%f,%f)",
+                beaconPresser.beaconArm.upperArm.getPosition(),
+                beaconPresser.beaconArm.upperArmMin,
+                beaconPresser.beaconArm.upperArmMax);
+        telemetry.addData("Lower Arm Pos   ", "%f, (%f,%f)",
+                beaconPresser.beaconArm.lowerArm.getPosition(),
+                beaconPresser.beaconArm.lowerArmMin,
+                beaconPresser.beaconArm.lowerArmMax);
+        telemetry.addData("Upper Arm step size: ", beaconPresser.beaconArm.upperArmStepSize);
+        telemetry.addData("Upper Arm step size: ", beaconPresser.beaconArm.lowerArmStepSize);
+        telemetry.addData("Color sensor rgb     ", "%d,%d,%d",
                 beaconPresser.beaconArm.colorSensor.red(),
                 beaconPresser.beaconArm.colorSensor.green(),
                 beaconPresser.beaconArm.colorSensor.blue());
-        telemetry.addData("Color sensor ambient", "%d,%d,%d",
+        telemetry.addData("Color sensor ambient:", "%d,%d,%d",
                 beaconPresser.beaconArm.ambientRGB.r,
                 beaconPresser.beaconArm.ambientRGB.g,
                 beaconPresser.beaconArm.ambientRGB.b);
-        telemetry.addData("Near counts     ", beaconPresser.beaconArm.nearCounts);
-        telemetry.addData("Touch sensor on ", "%b", beaconPresser.beaconArm.touchSensor.isPressed());
-        telemetry.addData("Touch counts    ", beaconPresser.beaconArm.touchCounts);
-        telemetry.addData("State:", "%02d", beaconPresser.beaconArm.state);
+        telemetry.addData("Near counts:        ", beaconPresser.beaconArm.nearCounts);
+        telemetry.addData("Touch sensor on:    ", "%b", beaconPresser.beaconArm.touchSensor.isPressed());
+        telemetry.addData("Touch counts:       ", beaconPresser.beaconArm.touchCounts);
     }
 
 }

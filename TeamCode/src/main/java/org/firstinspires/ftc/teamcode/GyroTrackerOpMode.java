@@ -63,9 +63,6 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     double inPlaceTurnGain = 0.005;
     double turningPower = 0.0; // set to 0.0 to turn in-place
 
-    // arm. Warning, arm power > 0.6 will damage the gear boxes
-    double armPower = 0.35;
-
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -85,6 +82,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 bufferSize);
         gyroTracker.setReporter(telemetry);
         gyroTracker.init();
+        gyroTracker.minTurnPower = 0.02;
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("GyroTracker", "Init");    //
@@ -118,6 +116,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
      */
     @Override
     public void start() {
+        super.start();
         // compute baseline brightness
         gyroTracker.start(0);
         raiseArm();
@@ -155,7 +154,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     }
 
     public void raiseArm () {
-        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, armPower);
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
 
     }
 
