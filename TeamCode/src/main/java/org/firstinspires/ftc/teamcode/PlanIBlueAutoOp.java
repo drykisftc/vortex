@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -48,50 +49,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
-
-@Autonomous(name="Plan F Near", group="Plan F")
-public class PlanIAutoOp extends VortexAutoOp{
-
-    protected long waitingPeriod =1000;
+@Disabled
+@Autonomous(name="Plan C: Blue", group="Plan C")
+public class PlanIBlueAutoOp extends PlanIRedAutoOp {
 
     @Override
     public void start() {
         super.start();
-        start2FireDistance = 2525; //2500
-    }
-
-    /*
-     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
-     */
-    @Override
-    public void loop() {
-        switch (state) {
-            case 0:
-                if (System.currentTimeMillis() - lastTimeStamp > waitingPeriod) {
-                    state = 1;
-                }
-                break;
-            case 1:
-                // go straight
-                state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
-                        start2FireDistance, state, state + 1);
-                telemetry.addData("State:", "%02d", state);
-                if (state == 2) {
-                    // prepare to shoot
-                    robot.motorLeftWheel.setPower(0.0);
-                    robot.motorRightWheel.setPower(0.0);
-                    particleShooter.start(0);
-                }
-                break;
-            case 2:
-                // shoot particles
-                state = particleShooter.loop(state, state + 1);
-                break;
-            default:
-                // stop
-                telemetry.addData("State:", "End");
-                stop();
-        }
-        telemetry.update();
+        fire2TurnDegree = -24;
+        wall2TurnDegree = 50;
     }
 }

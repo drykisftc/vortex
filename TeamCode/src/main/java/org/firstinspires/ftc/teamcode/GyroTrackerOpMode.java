@@ -59,8 +59,8 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     // navigation control info
     double cruisingPower = 0.4;
     double searchingPower = 0.3;
-    double cruisingTurnGain = 0.01;
-    double inPlaceTurnGain = 0.01;
+    double cruisingTurnGain = 0.005;
+    double inPlaceTurnGain = 0.005;
     double turningPower = 0.0; // set to 0.0 to turn in-place
 
     /*

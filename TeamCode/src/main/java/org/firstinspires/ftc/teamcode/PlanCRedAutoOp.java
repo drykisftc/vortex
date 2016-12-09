@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -49,23 +48,16 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
-@Disabled
-@Autonomous(name="Plan C: Red", group="Plan C")
-public class PlanCRedAutoOp extends VortexAutoOp {
 
-    int leftArmHitBallPosition = 400;
+@Autonomous(name="Plan C: Red", group="Plan C")
+public class PlanCRedAutoOp extends VortexAutoOp{
 
     @Override
     public void start() {
         super.start();
-        start2FireDistance = 3800; //2500
-        fire2TurnDegree = 24;
-        fire2WallDistance = 6800;
-        wall2TurnDegree = -50;
-        wall2BeaconDistance = 7500;
-        beacon2ParkTurnDegree = -135;
-        beacon2BeaconDistance = 8000;
-        beacon2ParkingDistance =8000;
+        start2FireDistance = 3360; //2500
+        fire2TurnDegree = 170;
+        fire2WallDistance= -1500; // go backwards
     }
 
     /*
@@ -75,60 +67,46 @@ public class PlanCRedAutoOp extends VortexAutoOp {
     public void loop() {
         switch (state) {
             case 0:
+                if (System.currentTimeMillis() - lastTimeStamp > 5000) {
+                    state = 1;
+                }
+                break;
+            case 1:
                 // go straight
-                state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
-                        start2FireDistance, state,state+1);
+                state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
+                        start2FireDistance, state, state + 1);
                 telemetry.addData("State:", "%02d", state);
-                if (state == 1) {
+
+                if (System.currentTimeMillis() - lastTimeStamp > 200) {
+                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                            leftArmFirePosition, leftArmAutoMovePower);
+                }
+
+                if (state == 2) {
                     // prepare to shoot
                     robot.motorLeftWheel.setPower(0.0);
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
+                    particleShooter.armPower = leftArmAutoMovePower;
+                    particleShooter.armStartPosition = leftArmFiringSafeZone;
                 }
-                break;
-            case 1:
-                // shoot particles
-                state = particleShooter.loop(state, state+1);
                 break;
             case 2:
-                state = gyroTracker.turn(fire2TurnDegree,
-                        inPlaceTurnGain, turningPower, state, state + 1);
-                telemetry.addData("State:", "%02d", state);
+                // shoot particles
+                state = particleShooter.loop(state, state + 1);
                 break;
             case 3:
-                // go straight until hit the particle ball
-                VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHitBallPosition, leftArmAutoMovePower);
-                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, fire2WallDistance, state,state+1);
-                telemetry.addData("State:", "%02d", state);
+                // turn 45 degree
+                gyroTracker.skewTolerance = 3;
+                state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
+                        turningPower,state,state+1);
                 break;
             case 4:
-                //
-                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, fire2WallDistance, state,state+1);
-                telemetry.addData("State:", "%02d", state);
-                break;
-            case 5:
-                // go straight until hit first white line
-                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
-                        inPlaceTurnGain,turningPower,state,state+1);
-                telemetry.addData("State:", "%02d", state);
-
-                // check the ods for white line signal
-                if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
-                    state = 6;
-                    gyroTracker.setWheelLandmark();
-                    stopWheels();
-                    beaconPresser.start(0);
-                }
-                break;
-            case 6:
-                // touch beacon
-                state = beaconPresser.loop(state, state+1);
-                telemetry.addData("State:", "%02d", state);
-                if (state == 7) {
-                    gyroTracker.setWheelLandmark();
-                }
+                // go backward and park
+                gyroTracker.skewTolerance = 0;
+                gyroTracker.breakDistance = 0;
+                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree, cruisingTurnGain,
+                        -1.0*cruisingPower, fire2WallDistance, state,state+1);
                 break;
             default:
                 // stop
@@ -137,5 +115,4 @@ public class PlanCRedAutoOp extends VortexAutoOp {
         }
         telemetry.update();
     }
-
 }
