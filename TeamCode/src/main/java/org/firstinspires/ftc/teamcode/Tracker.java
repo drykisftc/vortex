@@ -7,8 +7,9 @@ package org.firstinspires.ftc.teamcode;
 public class Tracker extends RobotExecutor {
 
     // change this value for different robot to compensate the friction
-    double minTurnPower = 0.05;
-    double skewPowerGain = 1.0/180.0;
+    double minTurnPower = 0.02;
+    double maxTurnPower = 0.5;
+    double skewPowerGain = 1.0/100; // 180 for track wheels
     double skewTolerance = 0;
 
     /**
@@ -27,7 +28,7 @@ public class Tracker extends RobotExecutor {
                 deltaPower -= minTurnPower;
             }
         }
-        return deltaPower;
+        return Math.min(maxTurnPower,deltaPower);
     }
 
 }

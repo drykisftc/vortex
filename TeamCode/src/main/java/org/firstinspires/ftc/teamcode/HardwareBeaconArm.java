@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
@@ -15,19 +16,25 @@ public class HardwareBeaconArm extends HardwareBase {
     String upperArmName = "upperArm";
     double upperArmHomePosition = 0.0;
     double upperArmStepSize = 0.01;
+    double upperArmMax = 0.99;
+    double upperArmMin = 0.45;
     protected double upperArmCurrentPosition = 0.0;
 
     Servo lowerArm = null;
     String lowerArmName = "lowerArm";
     double lowerArmHomePosition = 1.0;
     double lowerArmStepSize = 0.01;
+    double lowerArmMax = 0.99;
+    double lowerArmMin = 0.01;
     protected double lowerArmCurrentPosistion = 0;
 
     ColorSensor colorSensor = null;
     String colorSensorName = "beaconArmColor";
+    int colorSensorAddress = 0x1e;  // color sensor default is 0x3c. in 7 bit, it is  0x3c/2 = 0x1e
     int colorSensorAmbient = 0;
     protected int calibrationCount = 0;
     final protected int calibrationCountLimit = 10000;
+    int colorSensorForegroundThreshold = 0;
 
     TouchSensor touchSensor = null;
     String touchSensorName = "beaconArmTouch";
@@ -53,6 +60,16 @@ public class HardwareBeaconArm extends HardwareBase {
         touchSensorName = touchName;
     }
 
+    HardwareBeaconArm ( String upArmName, String lowArmName,
+                        String colorName, int colorSensorAddr,
+                        String touchName) {
+        upperArmName = upArmName;
+        lowerArmName = lowArmName;
+        colorSensorName = colorName;
+        colorSensorAddress = colorSensorAddr;
+        touchSensorName = touchName;
+    }
+
     public void init(HardwareMap ahwMap) {
 
         super.init(ahwMap);
@@ -60,6 +77,7 @@ public class HardwareBeaconArm extends HardwareBase {
         upperArm =  hwMap.servo.get(upperArmName);
         lowerArm = hwMap.servo.get(lowerArmName);
         colorSensor = hwMap.colorSensor.get(colorSensorName);
+        colorSensor.setI2cAddress(I2cAddr.create7bit(colorSensorAddress));
         touchSensor = hwMap.touchSensor.get(touchSensorName);
 
         colorSensor.enableLed(false);
@@ -73,9 +91,15 @@ public class HardwareBeaconArm extends HardwareBase {
     public void start (double upperHome, double lowerHome,
                        double upStepSize, double lowStepSize) {
         upperArmHomePosition = upperHome;
-        lowerArmHomePosition = lowerHome;
         upperArmStepSize = upStepSize;
+        upperArmMin = Range.clip(Math.min(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.80), 0.0, 1.0);
+        upperArmMax = Range.clip(Math.max(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.80), 0.0, 1.0); // trick to flip sign
+
+        lowerArmHomePosition = lowerHome;
         lowerArmStepSize = lowStepSize;
+        lowerArmMin = Range.clip(Math.min(lowerHome, lowerHome + lowStepSize/Math.abs(lowStepSize)* 0.99), 0.0, 1.0);
+        lowerArmMax = Range.clip(Math.max(lowerHome, lowerHome + lowStepSize/Math.abs(lowStepSize)* 0.99), 0.0, 1.0);
+
         colorSensor.enableLed(false);
 
         updatePosition();
@@ -96,16 +120,16 @@ public class HardwareBeaconArm extends HardwareBase {
      * @param intensityThreshold
      * @return false if not near yet
      */
-    public boolean extendUntilNearLoop ( int intensityThreshold) {
+    public boolean extendUntilNearLoop ( int intensityThreshold, double speedGain) {
 
-        if (getColorIntensity() > intensityThreshold) {
+        if (getColorIntensity() >= intensityThreshold) {
             nearCounts++;
         } else {
             nearCounts = 0;
         }
 
         if (nearCounts < nearCountsLimit) {
-            extend();
+            extend(speedGain);
             return false;
         }
         return true;
@@ -114,7 +138,7 @@ public class HardwareBeaconArm extends HardwareBase {
     /**
      * @return false if not touch yet
      */
-    public boolean extendUntilTouch () {
+    public boolean extendUntilTouch (double speedGain) {
 
         boolean bT = false ;
 
@@ -127,28 +151,42 @@ public class HardwareBeaconArm extends HardwareBase {
         if (touchCounts >= touchCountLimit) {
             bT = true;
             touchCounts = touchCountLimit;
-        }
-
-        if (!bT) {
-            extend();
         } else {
-            // shake it
-            //shake();
+            extend(speedGain);
         }
 
         return bT;
     }
 
-    public void extend ( ) {
-        numbOfSteps ++;
-        upperArm.setPosition(Range.clip(upperArmHomePosition+numbOfSteps*upperArmStepSize, 0.45, 0.99));
-        lowerArm.setPosition(Range.clip(lowerArmHomePosition+numbOfSteps*lowerArmStepSize, 0.01, 0.99));
+    public void hoverNear(int target, double speedGain) {
+
+        if (getColorIntensity() > target) {
+            upperArm.setPosition(Range.clip(upperArm.getPosition()-upperArmStepSize*speedGain,
+                    upperArmMin, upperArmMax));
+            lowerArm.setPosition(Range.clip(lowerArm.getPosition()-lowerArmStepSize*speedGain,
+                    lowerArmMin, lowerArmMax));
+        } else {
+            upperArm.setPosition(Range.clip(upperArm.getPosition()+upperArmStepSize*speedGain,
+                    upperArmMin, upperArmMax));
+            lowerArm.setPosition(Range.clip(lowerArm.getPosition()+lowerArmStepSize*speedGain,
+                    lowerArmMin, lowerArmMax));
+        }
     }
 
-    public void shake ( ) {
+    public void extend ( double speedGain ) {
+        numbOfSteps ++;
+        upperArm.setPosition(Range.clip(upperArmHomePosition+numbOfSteps*upperArmStepSize*speedGain,
+                upperArmMin, upperArmMax));
+        lowerArm.setPosition(Range.clip(lowerArmHomePosition+numbOfSteps*lowerArmStepSize*speedGain,
+                lowerArmMin, lowerArmMax));
+    }
+
+    public void shake ( double speedGain ) {
         numbOfSteps = numbOfSteps + random.nextInt(9) - 4;
-        upperArm.setPosition(Range.clip(upperArmHomePosition+numbOfSteps*upperArmStepSize, 0.45, 0.99));
-        lowerArm.setPosition(Range.clip(lowerArmHomePosition+numbOfSteps*lowerArmStepSize, 0.01, 0.99));
+        upperArm.setPosition(Range.clip(upperArmHomePosition+numbOfSteps*upperArmStepSize*speedGain,
+                upperArmMin, upperArmMax));
+        lowerArm.setPosition(Range.clip(lowerArmHomePosition+numbOfSteps*lowerArmStepSize*speedGain,
+                lowerArmMin, lowerArmMax));
     }
 
     public void retract () {
@@ -158,9 +196,28 @@ public class HardwareBeaconArm extends HardwareBase {
     }
 
     /**
+     *
+     * @return less than 0 if red, bigger than 0 if blue
+     */
+    public int isBlueOrRed () {
+        return colorSensor.blue() - colorSensor.red();
+    }
+
+    /**
      * Don't care about green color
      * @return team color in red or blue
      */
+    public char getColorBlueOrRed () {
+        int d = isBlueOrRed();
+        if ( d > 1) {
+            return 'b';
+        } else if (d < -1) {
+            return 'r';
+        } else {
+            return 'u';
+        }
+    }
+
     public char getColor () {
         int r = colorSensor.red() - ambientRGB.r;
         //int g = colorSensor.green()- ambientRGB.g;
@@ -211,25 +268,25 @@ public class HardwareBeaconArm extends HardwareBase {
             ambientRGB.b /= calibrationCount;
             colorSensorAmbient = (ambientRGB.r + ambientRGB.g + ambientRGB.b)/calibrationCount;
         }
+        colorSensorForegroundThreshold = colorSensorAmbient+2;
     }
 
-    public void pressButton_loop(boolean bGoNext) {
+    public void pressButton_loop(double speedGain) {
         switch (state) {
-            case 1:
-                if (extendUntilNearLoop((int)(colorSensorAmbient*1.6))
-                        && bGoNext) {
-                    state = 2; // go to touch
-                }
-                break;
-            case 2:
-                if ( extendUntilTouch()
-                        && bGoNext) {
-                    state = 0; // retract
-                }
-                break;
-            default:
+            case 0:
                 resetCounters();
                 retract();
+                break;
+            case 1:
+                if (extendUntilNearLoop(colorSensorForegroundThreshold, speedGain)) ;
+                break;
+            case 2:
+                extendUntilTouch(speedGain);
+                break;
+            case 3:
+                hoverNear(colorSensorForegroundThreshold, speedGain);
+                break;
+            default:
                 break;
         }
     }

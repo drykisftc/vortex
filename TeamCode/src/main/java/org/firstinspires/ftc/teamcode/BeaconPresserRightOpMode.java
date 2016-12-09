@@ -1,6 +1,4 @@
 /*
-Copyright (c) 2016 Robert Atkinson
-
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -32,29 +30,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 
 /**
- * This file provides basic Telop driving for a Pushbot robot.
- * The code is structured as an Iterative OpMode
  *
- * This OpMode uses the common Pushbot hardware class to define the devices on the robot.
- * All device access is managed through the HardwareVortex class.
- *
- * This particular OpMode executes a basic Tank Drive Teleop for a PushBot
- * It raises and lowers the claw using the Gampad Y and A buttons respectively.
- * It also opens and closes the claws slowly using the left and right Bumper buttons.
- *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan F Far", group="Plan F")
-public class PlanFFarAutoOp extends PlanFNearAutoOp {
+@TeleOp(name="TeleOp: right beacon presser", group="Testing")
+public class BeaconPresserRightOpMode extends BeaconPresserOpMode {
+
 
     @Override
-    public void init() {
-        super.init();
-        start2FireDistance = 3800; //2500
+    public void initBeaconPresser() {
+        beaconPresser = new BeaconPresser(gyroTracker, rightBeaconArm);
+        beaconPresser.setReporter(telemetry);
     }
+
 }

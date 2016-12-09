@@ -56,8 +56,8 @@ public class PlanEBlueAutoOp extends PlanERedAutoOp{
 
 
     @Override
-    public void init() {
-        super.init();
+    public void start() {
+        super.start();
 
         fire2TurnDegree = -40;
     }

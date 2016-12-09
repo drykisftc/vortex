@@ -55,8 +55,8 @@ public class PlanDBlueAutoOp extends PlanDRedAutoOp {
     int leftArmHitBallPosition = 400;
 
     @Override
-    public void init() {
-        super.init();
+    public void start() {
+        super.start();
         fire2TurnDegree = -90;
         wall2TurnDegree = -45;
     }
