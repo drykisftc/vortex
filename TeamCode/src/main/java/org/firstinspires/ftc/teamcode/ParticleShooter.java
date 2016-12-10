@@ -178,8 +178,7 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 6:
-                if (System.currentTimeMillis() - lastTimeStamp < 800) {
-                    calibrateHandByBall();
+                if (System.currentTimeMillis() - lastTimeStamp < 400) {
                     cock();
                     autoShootEnded = false;
                 } else {
@@ -188,11 +187,21 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 7:
+                if (System.currentTimeMillis() - lastTimeStamp < 800) {
+                    cock();
+                    calibrateHandByBall();
+                    autoShootEnded = false;
+                } else {
+                    state = 8;
+                    lastTimeStamp = System.currentTimeMillis();
+                }
+                break;
+            case 8:
                 // shoot the second particle
                 shoot_loop(true, handFirePower);
                 if (isReadyToShoot()) {
                     VortexUtils.moveMotorByEncoder(motorArm, armStartPosition, armPower);
-                    state = 8;
+                    state = 9;
                 }
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "Fox 2");
