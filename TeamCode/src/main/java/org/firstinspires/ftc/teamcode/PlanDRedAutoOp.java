@@ -50,18 +50,16 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  */
 
 @Autonomous(name="Plan D: Red", group="Plan D")
-public class PlanDRedAutoOp extends VortexAutoOp {
-
-    int leftArmHitBallPosition = 400;
+public class PlanDRedAutoOp extends VortexAutoOp{
 
     @Override
     public void start() {
         super.start();
-        start2FireDistance = 1900; //2500
-        fire2TurnDegree = 90;
-        fire2WallDistance = 1000;
-        wall2TurnDegree = 45;
-        wall2BeaconDistance = 1900;
+        start2FireDistance = 3360; //2500
+        fire2TurnDegree = 45;
+        fire2WallDistance= 1500;// go backwards
+        wall2BeaconDistance = 1500;
+        wall2TurnDegree = -45;
     }
 
     /*
@@ -71,50 +69,56 @@ public class PlanDRedAutoOp extends VortexAutoOp {
     public void loop() {
         switch (state) {
             case 0:
-                // wait
-                if (System.currentTimeMillis() - lastTimeStamp > 10000) {
+                if (System.currentTimeMillis() - lastTimeStamp > 5000) {
                     state = 1;
                 }
                 break;
             case 1:
                 // go straight
-                state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
-                        start2FireDistance, state,state+1);
+                state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
+                        start2FireDistance, state, state + 1);
                 telemetry.addData("State:", "%02d", state);
+
+                if (System.currentTimeMillis() - lastTimeStamp > 200) {
+                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                            leftArmFirePosition, leftArmAutoMovePower);
+                }
+
                 if (state == 2) {
                     // prepare to shoot
                     robot.motorLeftWheel.setPower(0.0);
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
+                    particleShooter.armPower = leftArmAutoMovePower;
+                    particleShooter.armStartPosition = leftArmFiringSafeZone;
                 }
                 break;
             case 2:
                 // shoot particles
-                state = particleShooter.loop(state, state+1);
+                state = particleShooter.loop(state, state + 1);
                 break;
             case 3:
-                // turn 90 degrees
+                // turn 45 degree
+                gyroTracker.skewTolerance = 3;
                 state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
-                        turningPower, state, state+1);
-                telemetry.addData("State:", "%02d", state);
+                        turningPower,state,state+1);
                 break;
             case 4:
-                // go straight to wall
+                // go backward and park
+                gyroTracker.skewTolerance = 0;
+                gyroTracker.breakDistance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, fire2WallDistance, state,state+1);
-                telemetry.addData("State:", "%02d", state);
+                        1.0*cruisingPower, fire2WallDistance, state,state+1);
                 break;
             case 5:
-                // turn
-                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
-                        inPlaceTurnGain,turningPower,state,state+1);
-                telemetry.addData("State:", "%02d", state);
-                break;
+                gyroTracker.skewTolerance = 3;
+                state = gyroTracker.turn(wall2TurnDegree, inPlaceTurnGain,
+                        turningPower,state,state+1);
             case 6:
-                // go straight
-                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
-                        cruisingTurnGain, cruisingPower, wall2BeaconDistance, state,state+1);
-                telemetry.addData("State:", "%02d", state);
+                gyroTracker.skewTolerance = 0;
+                gyroTracker.breakDistance = 0;
+                state = gyroTracker.goStraight (wall2BeaconDistance, cruisingTurnGain,
+                        1.0*cruisingPower, fire2WallDistance, state,state+1);
                 break;
             default:
                 // stop
@@ -123,5 +127,4 @@ public class PlanDRedAutoOp extends VortexAutoOp {
         }
         telemetry.update();
     }
-
 }
