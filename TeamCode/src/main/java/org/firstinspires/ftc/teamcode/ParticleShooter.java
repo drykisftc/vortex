@@ -178,7 +178,7 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 6:
-                if (System.currentTimeMillis() - lastTimeStamp < 200) {
+                if (System.currentTimeMillis() - lastTimeStamp < 800) {
                     pressBall();
                     autoShootEnded = false;
                 } else {

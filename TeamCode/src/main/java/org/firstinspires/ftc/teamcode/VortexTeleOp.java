@@ -75,7 +75,7 @@ class VortexTeleOp extends OpMode{
     private final int leftArmSnapPositionOffset = 50;
     private final int leftArmFirePositionOffset = 4610;
     private final int leftArmMaxOffset = 4610;
-    private int leftArmFiringSafeZoneOffset = 3000;
+    private int leftArmFiringSafeZoneOffset = 2800;
 
     int leftArmHomeParkingPostion = leftArmHomeParkingOffset;
     private int leftArmLoadPosition = leftArmLoadPositionOffset;
