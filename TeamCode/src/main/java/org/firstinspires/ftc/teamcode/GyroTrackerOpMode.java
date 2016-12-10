@@ -57,7 +57,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     int testTurnAngle2 = 90;
 
     // navigation control info
-    double cruisingPower = 0.7;
+    double cruisingPower = 0.5;
     double searchingPower = 0.3;
     double cruisingTurnGain = 0.008;
     double inPlaceTurnGain = 0.008;

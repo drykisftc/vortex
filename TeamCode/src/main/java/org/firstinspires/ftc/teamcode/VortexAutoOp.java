@@ -71,6 +71,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected int beacon2BeaconDistance =4800; //4325
     protected int beacon2ParkingDistance =-5200; //4318 go backwards
 
+    protected double leftArmFastAutoMovePower = 0.45;
+
     protected long lastTimeStamp = 0;
 
     // jam detection
@@ -83,7 +85,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
      */
     @Override
     public void init() {
-        leftArmMovePositionOffset = 500;
 
         super.init();
 
@@ -131,7 +132,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     public void start() {
         super.start();
         particleShooter.start(0);
-        particleShooter.handFirePower = 0.55; // slightly incease power to allow it shoots from a little further
         particleShooter.armPower = leftArmAutoMovePower;
         particleShooter.armStartPosition = leftArmMovePosition;
         beaconPresser.beaconArm.commitCalibration();
@@ -158,7 +158,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 if (System.currentTimeMillis() - lastTimeStamp > 200) {
                     // move and raise arm at same time
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                            leftArmFirePosition, leftArmAutoMovePower);
+                            leftArmFirePosition, leftArmFastAutoMovePower);
                     state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
                             start2FireDistance, state,state+1);
                     particleShooter.reload();
@@ -211,6 +211,10 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
+                if (state == 5 ) {
+                    // reset min turning power to avoid jerky movements
+                    gyroTracker.minTurnPower = 0.01;
+                }
                 break;
             case 5:
                 // go straight until hit first white line
@@ -265,6 +269,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                         inPlaceTurnGain,turningPower,state,state+1);
                 if (state == 10) {
                     lastTimeStamp = System.currentTimeMillis();
+                    gyroTracker.minTurnPower = 0.01;
                 }
 
 

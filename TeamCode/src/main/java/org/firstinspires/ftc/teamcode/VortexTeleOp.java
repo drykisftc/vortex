@@ -147,7 +147,7 @@ class VortexTeleOp extends OpMode{
     HardwareBeaconArm leftBeaconArm = null;
     private boolean leftLoopTrue = false;
     private double leftUpHomePosition = 0.90;
-    private double leftUpStepSize = -0.02;
+    private double leftUpStepSize = -0.015;
     private double leftLowHomePosition = 0.95;
     private double leftLowStepSize = -0.05;
 
@@ -160,7 +160,7 @@ class VortexTeleOp extends OpMode{
     HardwareBeaconArm rightBeaconArm = null;
     private boolean rightLoopTrue = false;
     private double rightUpHomePosition = 0.1;
-    private double rightUpStepSize = 0.02;
+    private double rightUpStepSize = 0.015;
     private double rightLowHomePosition = 0.02;
     private double rightLowStepSize = 0.05;
     /* Important: use the core device discovery tool to set color sensor address to 0x48
@@ -463,7 +463,7 @@ class VortexTeleOp extends OpMode{
     public void elevatorControl () {
         if (gamepad1.dpad_down && leftArmState == FIRE) {
             robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.motorRightArm.setPower(0.5);
+            robot.motorRightArm.setPower(0.05);
         } else if (gamepad1.dpad_up && leftArmState == FIRE) {
             robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.motorRightArm.setPower(-0.5);
