@@ -56,8 +56,8 @@ public class PlanCRedAutoOp extends VortexAutoOp{
     public void start() {
         super.start();
         start2FireDistance = 2900; //2500
-        fire2TurnDegree = -150;
-        fire2WallDistance= -2400; // go backwards
+        fire2TurnDegree = 179;
+        fire2WallDistance= -2300; // go backwards
     }
 
     /*
