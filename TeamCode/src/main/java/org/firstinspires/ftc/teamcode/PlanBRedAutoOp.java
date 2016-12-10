@@ -51,7 +51,7 @@ import com.qualcomm.robotcore.util.Version;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan B: Red", group="Plan B")
+@Autonomous(name="Plan B: Red", group="B Far Side")
 public class PlanBRedAutoOp extends VortexAutoOp{
 
     @Override
@@ -68,7 +68,7 @@ public class PlanBRedAutoOp extends VortexAutoOp{
     public void loop() {
         switch (state) {
             case 0:
-                if (System.currentTimeMillis() - lastTimeStamp > 10000) {
+                if (System.currentTimeMillis() - lastTimeStamp > waitingTime) {
                     state = 1;
                 }
                 break;

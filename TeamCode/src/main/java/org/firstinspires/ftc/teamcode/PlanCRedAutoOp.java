@@ -49,15 +49,16 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan C: Red", group="Plan C")
+@Autonomous(name="Plan C: Red", group="B Far Side")
 public class PlanCRedAutoOp extends VortexAutoOp{
 
     @Override
     public void start() {
         super.start();
-        start2FireDistance = 2900; //2500
+        start2FireDistance = 3300; //2500
         fire2TurnDegree = 179;
         fire2WallDistance= -2300; // go backwards
+        waitingTime = 5000;
     }
 
     /*
@@ -67,7 +68,7 @@ public class PlanCRedAutoOp extends VortexAutoOp{
     public void loop() {
         switch (state) {
             case 0:
-                if (System.currentTimeMillis() - lastTimeStamp > 5000) {
+                if (System.currentTimeMillis() - lastTimeStamp > waitingTime) {
                     state = 1;
                 }
                 break;

@@ -125,30 +125,29 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 1:
-                if (System.currentTimeMillis() - lastTimeStamp < 800) {
+                if (System.currentTimeMillis() - lastTimeStamp < 500) {
                     cock();
-                    calibrateHandByBall();
                 } else {
                     state = 2;
                     reload();
-                    relaxHand();
                     relaxArm();
                     lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
             case 2:
-                if (System.currentTimeMillis() - lastTimeStamp < 500) {
+                if (System.currentTimeMillis() - lastTimeStamp < 800) {
+                    calibrateHandByBall();
                     reload();
                     relaxArm();
-                    VortexUtils.moveMotorByEncoder(motorHand, handFirePosition, handHoldPower);
                 } else {
                     state = 3;
+                    autoShootEnded = false;
                     lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
             case 3:
                 // wait half second to recharge the capacitor in the motor
-                if (System.currentTimeMillis() - lastTimeStamp < 500) {
+                if (System.currentTimeMillis() - lastTimeStamp < 200) {
                     cock();
                 } else {
                     state = 4;
@@ -180,6 +179,7 @@ class ParticleShooter extends RobotExecutor {
                 break;
             case 6:
                 if (System.currentTimeMillis() - lastTimeStamp < 800) {
+                    calibrateHandByBall();
                     cock();
                     autoShootEnded = false;
                 } else {

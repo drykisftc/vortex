@@ -74,6 +74,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected double leftArmFastAutoMovePower = 0.45;
 
     protected long lastTimeStamp = 0;
+    protected long waitingTime = 1000;
 
     // jam detection
     private JammingDetection  jammingDetection = null;
