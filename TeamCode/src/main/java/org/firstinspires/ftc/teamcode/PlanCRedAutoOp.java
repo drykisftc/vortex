@@ -50,14 +50,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  */
 
 @Autonomous(name="Plan C: Red", group="Far Side")
-public class PlanCRedAutoOp extends VortexAutoOp{
+public class PlanCRedAutoOp extends PlanBRedAutoOp{
 
     @Override
     public void start() {
         super.start();
-        start2FireDistance = 3300; //2500
         fire2TurnDegree = 179;
-        fire2WallDistance= -2300; // go backwards
+        fire2WallDistance= 2300;
         startWaitingTime = 10000;
     }
 

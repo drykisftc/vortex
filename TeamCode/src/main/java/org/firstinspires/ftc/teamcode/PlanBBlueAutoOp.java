@@ -55,7 +55,6 @@ public class PlanBBlueAutoOp extends PlanBRedAutoOp{
     @Override
     public void start() {
         super.start();
-        start2FireDistance = 3000; //2500
         fire2WallDistance = 2600;
     }
 }

@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.text.DecimalFormat;
 
-public class WallTracker extends RobotExecutor {
+public class WallTracker extends Tracker {
 
     HardwareWallTracker wallTrackerHW = null;
     ModernRoboticsI2cRangeSensor rangeSensor = null;
@@ -47,7 +47,7 @@ public class WallTracker extends RobotExecutor {
         bufferSize = bufferS;
     }
 
-    public void setWallDistance (double d) {
+    public void setTargetWallDistance (double d) {
         targetDistance = d;
     }
 
@@ -65,6 +65,11 @@ public class WallTracker extends RobotExecutor {
         state =0;
 
         calibrate();
+
+        minTurnPower = 0.02;
+        maxTurnPower = 0.35;
+        skewPowerGain = 1.0/100;
+        skewTolerance = 0;
 
     }
 
@@ -123,10 +128,10 @@ public class WallTracker extends RobotExecutor {
         return d;
     }
 
-    public double getHistoryDistanceAverage(int range) {
+    public double getHistoryDistanceAverage() {
         double bl = 0;
 
-        for (int i = 0; i < range; i++) {
+        for (int i = 0; i < bufferSize; i++) {
             int index = Math.max(0,bufferIndex -i);
             bl += distanceBuffer[index];
         }
@@ -134,10 +139,10 @@ public class WallTracker extends RobotExecutor {
         return bl / bufferSize;
     }
 
-    public double getHistoryPowerAverage(int range) {
+    public double getHistoryPowerAverage() {
         double bl = 0;
 
-        for (int i = 0; i < range; i++) {
+        for (int i = 0; i < bufferSize; i++) {
             int index = Math.max(0,bufferIndex -i);
             bl += powerBuffer[index];
         }
@@ -154,7 +159,7 @@ public class WallTracker extends RobotExecutor {
     public int detectWall (double power) {
 
         // go straight until it find the wall
-        double l = getHistoryDistanceAverage(4);
+        double l = getHistoryDistanceAverage();
 
         report("Wall Distance", df3.format(l) );
 
@@ -176,16 +181,16 @@ public class WallTracker extends RobotExecutor {
      * @param power , main power
      * @param powerDelta, correction power
      * @param distance, target distance
-     * @param signValue, if > 0, wall on the right. < 0 , wall on the left. Weight value as well
+     * @param gain, if > 0, wall on the right. < 0 , wall on the left. Weight value as well
      * @return the state of wall tracker
      */
-    public int followWall(double power, double powerDelta, double distance, double signValue) {
+    public int followWall(double power, double powerDelta, double distance, double gain) {
 
         double l = readDistance();
 
         report("Wall Distance", df3.format(l) );
 
-        double avgD = getHistoryDistanceAverage(4);
+        double avgD = getHistoryDistanceAverage();
         if (avgD > lostDistance) {
             leftWheel.setPower(0);
             rightWheel.setPower(0);
@@ -193,7 +198,8 @@ public class WallTracker extends RobotExecutor {
         }
 
         double delta = Range.clip((l - distance)/lostDistance * power / Math.abs(power), -1, 1);
-        lastDirection = VortexUtils.lookUpTableFunc(delta, dist2PowerLUT)*signValue;
+        lastDirection = computeTurnPower(delta)*gain;
+        //lastDirection = VortexUtils.lookUpTableFunc(delta, dist2PowerLUT)*gain;
         double left  = Range.clip(power + lastDirection + powerDelta, -1, 1);
         double right = Range.clip(power - lastDirection + powerDelta, -1, 1);
         leftWheel.setPower(left);
@@ -206,10 +212,10 @@ public class WallTracker extends RobotExecutor {
     public int searchWall (double power) {
 
         readDistance();
-        double avgD = getHistoryDistanceAverage(4);
+        double avgD = getHistoryDistanceAverage();
         if (avgD > lostDistance) {
             // find  (distance, power) in history, reverse the process
-            double avgP = getHistoryPowerAverage(4);
+            double avgP = getHistoryPowerAverage();
             double left  = Range.clip(power - avgP, -1, 1);
             double right = Range.clip(power + avgP, -1, 1);
             leftWheel.setPower(left);
@@ -223,5 +229,4 @@ public class WallTracker extends RobotExecutor {
             return 1;
         }
     }
-
 }

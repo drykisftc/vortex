@@ -104,10 +104,10 @@ public class GyroTracker extends Tracker {
             reporter.addData("Heading target      =", "%.3f", targetHeading);
             reporter.addData("Heading delta       =", "%.2f", delta);
             reporter.addData("Heading tolerance   =", "%.2f", skewTolerance);
-            reporter.addData("Heading power       =", "%.2f", power);
-            reporter.addData("Heading delta power =", "%.2f", deltaPower);
             reporter.addData("Heading gain        =", "%.2f", skewPowerGain);
             reporter.addData("Minimum turn power  =", "%.2f", minTurnPower);
+            reporter.addData("Heading power       =", "%.2f", power);
+            reporter.addData("Heading turn power  =", "%.2f", deltaPower);
         }
 
         return boolNoTurning;
@@ -156,37 +156,33 @@ public class GyroTracker extends Tracker {
     }
 
     public int goStraight ( double heading, double gain, double power,
-                            int deltaDistance,
+                            int targetDistance,
                             int startState, int endState) {
-        // get motor distance
+
+        // check target distance sign
+        targetDistance = Math.abs(targetDistance);
+
+        // get traveling distance
         int lD = leftWheel.getCurrentPosition();
         int rD = rightWheel.getCurrentPosition();
         int d = Math.min(lD, rD);
-        int travelDistance = d - landMarkPosition;
         skewPowerGain = gain;
+        int travelDistance = d - landMarkPosition;
+        double breakingP = Math.abs(breakPower);
+        if (power < 0) { // if move backward
+            travelDistance *= -1;
+            breakingP *= -1;
+        }
 
         // move
-        if (power >= 0) {
-            // forward
-            if (travelDistance < deltaDistance) {
-                if (deltaDistance - travelDistance < breakDistance) {
-                    maintainHeading(heading, breakPower);
-                    return startState;
-                } else {
-                    maintainHeading(heading, power);
-                    return startState;
-                }
-            }
-        } else {
-            // backward
-            if (travelDistance > deltaDistance) {
-                if (deltaDistance - travelDistance > breakDistance) {
-                    maintainHeading(heading, breakPower);
-                    return startState;
-                } else {
-                    maintainHeading(heading, power);
-                    return startState;
-                }
+        if (travelDistance < targetDistance) {
+            if (targetDistance - travelDistance < Math.abs(breakDistance)) {
+                // slow down when close to target
+                maintainHeading(heading, breakingP);
+                return startState;
+            } else {
+                maintainHeading(heading, power);
+                return startState;
             }
         }
 
@@ -229,6 +225,10 @@ public class GyroTracker extends Tracker {
     public void stopWheels() {
         leftWheel.setPower(0.0);
         rightWheel.setPower(0.0);
+    }
+    public void waggleWheels (double power ) {
+        leftWheel.setPower(power);
+        rightWheel.setPower(-1.0*power);
     }
 
 }

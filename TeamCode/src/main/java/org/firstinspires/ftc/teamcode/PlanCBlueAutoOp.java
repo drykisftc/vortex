@@ -50,12 +50,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  */
 
 @Autonomous(name="Plan C: Blue", group="Far Side")
-public class PlanCBlueAutoOp extends PlanCRedAutoOp{
+public class PlanCBlueAutoOp extends PlanBBlueAutoOp{
 
     @Override
     public void start() {
         super.start();
-        start2FireDistance = 3000; //2500
         fire2TurnDegree = -150;
         fire2WallDistance= -2500; // go backwards
     }

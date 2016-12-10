@@ -11,7 +11,7 @@ class ParticleShooter extends RobotExecutor {
     int armStartPosition = 0;
     int armFiringPosition = 500;
     int armFiringSafeZone = 200;
-    double armPower = 0.35;
+    double armPower = 0.4;
     private int armFiringPositionAdjust = 0;
     private int leftArmPositionTolerance = 10;
 
@@ -280,7 +280,7 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 4:
-                servoCock.setPosition(cockLoadPosition);
+                reload();
                 VortexUtils.moveMotorByEncoder(motorHand, handFirePosition, handBeakPower);
                 fireState = 5;
                 break;
