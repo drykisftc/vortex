@@ -50,7 +50,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  */
 
 @Autonomous(name="Plan H: Blue", group="Plan H")
-public class PlanHBlueAutoOp extends PlanHRedAutoOp{
+public class PlanHBlueAutoOp extends VortexAutoOp{
 
     /*
      * Code to run ONCE when the driver hits PLAY

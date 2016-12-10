@@ -50,11 +50,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  */
 
 @Autonomous(name="Plan F Far", group="Plan F")
-public class PlanFAutoOp extends PlanIAutoOp {
+public class PlanFAutoOp extends PlanMAutoOp {
 
     @Override
-    public void init() {
-        super.init();
+    public void start() {
+        super.start();
         start2FireDistance = 3800; //2500
     }
 }

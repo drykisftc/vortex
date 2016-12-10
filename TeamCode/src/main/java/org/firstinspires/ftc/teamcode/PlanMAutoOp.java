@@ -49,26 +49,49 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan A: Blue", group="Plan A")
-public class PlanABlueAutoOp extends VortexAutoOp{
+@Autonomous(name="Plan F Near", group="Plan F")
+public class PlanMAutoOp extends VortexAutoOp{
 
-    /*
-     * Code to run ONCE when the driver hits PLAY
-     */
+    protected long waitingPeriod =1000;
+
     @Override
     public void start() {
         super.start();
-        beaconPresser.teamColor = 'b';
-        fire2TurnDegree = -75;
-        fire2WallDistance = 3500;
-        wall2TurnDegree = 75;
-        beacon2ParkTurnDegree = -45;
-        wallTracker.wallTrackerHW.moveSonicArmToMaxRight();
+        start2FireDistance = 2525; //2500
     }
 
+    /*
+     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
+     */
     @Override
-    public void initBeaconPresser() {
-        beaconPresser = new BeaconPresser(gyroTracker, rightBeaconArm);
-        beaconPresser.setReporter(telemetry);
+    public void loop() {
+        switch (state) {
+            case 0:
+                if (System.currentTimeMillis() - lastTimeStamp > waitingPeriod) {
+                    state = 1;
+                }
+                break;
+            case 1:
+                // go straight
+                state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
+                        start2FireDistance, state, state + 1);
+                telemetry.addData("State:", "%02d", state);
+                if (state == 2) {
+                    // prepare to shoot
+                    robot.motorLeftWheel.setPower(0.0);
+                    robot.motorRightWheel.setPower(0.0);
+                    particleShooter.start(0);
+                }
+                break;
+            case 2:
+                // shoot particles
+                state = particleShooter.loop(state, state + 1);
+                break;
+            default:
+                // stop
+                telemetry.addData("State:", "End");
+                stop();
+        }
+        telemetry.update();
     }
 }

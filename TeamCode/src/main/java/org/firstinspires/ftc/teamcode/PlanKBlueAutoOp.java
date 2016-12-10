@@ -55,8 +55,8 @@ public class PlanKBlueAutoOp extends PlanKRedAutoOp {
     int leftArmHitBallPosition = 400;
 
     @Override
-    public void init() {
-        super.init();
+    public void start() {
+        super.start();
         fire2TurnDegree = -45;
         wall2TurnDegree = 135;
         beacon2ParkTurnDegree = 45;

@@ -39,55 +39,28 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
  *
  */
 
-@TeleOp(name="TeleOp: beacon presser", group="Testing")
-public class BeaconPresserOpMode extends OpMode {
-
-    /* Declare OpMode members. */
-    HardwareBeaconArm beaconArm  = null;   // Use a Pushbot's hardware
-
-    // arm control information
-    boolean loopTrue = false;
-    double upHomePosition = 0.93;
-    double upStepSize = -0.026;
-    double lowHomePosition = 0.86;
-    double lowStepSize = -0.04;
-
-    /*
-     * Code to run ONCE when the driver hits INIT
-     */
-    @Override
-    public void init() {
-        /* Initialize the hardware variables.
-         * The init() method of the hardware class does all the work here
-         */
-
-        // Send telemetry message to signify robot waiting;
-        telemetry.addData("Say", "Hello BeaconPresserOpMode");    //
-        updateTelemetry(telemetry);
-
-        beaconArm = new HardwareBeaconArm("leftBeaconUpperArm", "leftBeaconLowerArm",
-                "leftBeaconColor", "leftBeaconTouch");
-        beaconArm.init(hardwareMap);
-        beaconArm.start(upHomePosition,lowHomePosition,upStepSize,lowStepSize);
-        beaconArm.retract();
-    }
-
-    /*
-     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
-     */
-    @Override
-    public void init_loop() {
-        beaconArm.calibrate_loop();
-    }
+@TeleOp(name="TeleOp: left beacon presser", group="Testing")
+public class BeaconPresserOpMode extends VortexAutoOp {
 
     /*
      * Code to run ONCE when the driver hits PLAY
      */
     @Override
     public void start() {
-        // compute baseline brightness
-        beaconArm.state = 0;
-        beaconArm.commitCalibration();
+        super.start();
+        beaconPresser.teamColor = 'r';
+        fire2TurnDegree = 75;
+        fire2WallDistance = 5420;
+        wall2TurnDegree = -75;
+        beacon2ParkTurnDegree = 45;
+        wallTracker.wallTrackerHW.moveSonicArmToMaxLeft();
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPostion, leftArmAutoMovePower);
+    }
+
+    @Override
+    public void initBeaconPresser() {
+        beaconPresser = new BeaconPresser(gyroTracker, leftBeaconArm);
+        beaconPresser.setReporter(telemetry);
     }
 
     /*
@@ -97,43 +70,58 @@ public class BeaconPresserOpMode extends OpMode {
     public void loop() {
 
         if (gamepad1.a) {
-            beaconArm.state = 0;
+            beaconPresser.beaconArm.state = 0;
         }
 
         if (gamepad1.b) {
-            beaconArm.state = 1;
+            beaconPresser.beaconArm.state = 1;
         }
 
         if (gamepad1.y) {
-            beaconArm.state = 2;
+            beaconPresser.beaconArm.state = 2;
         }
 
         if (gamepad1.x) {
-            if (loopTrue) {
-                loopTrue = false;
-            } else {
-                loopTrue = true;
-            }
+            beaconPresser.beaconArm.state = 3;
         }
 
-        beaconArm.pressButton_loop (loopTrue);
+        if (gamepad1.left_bumper) {
+            beaconPresser.beaconArm.state = 4;
+            beaconPresser.start(0);
+        }
 
-        telemetry.addData("Upper Arm Pos   ", beaconArm.upperArm.getPosition());
-        telemetry.addData("Lower Arm Pos   ", beaconArm.lowerArm.getPosition());
-        telemetry.addData("Color sensor rgb", "%d,%d,%d", beaconArm.colorSensor.red(),
-                beaconArm.colorSensor.green(), beaconArm.colorSensor.blue());
-        telemetry.addData("Near counts     ", beaconArm.nearCounts);
-        telemetry.addData("Touch sensor on ", "%b", beaconArm.touchSensor.isPressed());
-        telemetry.addData("Touch counts    ", beaconArm.touchCounts);
-        telemetry.addData("State:", "%02d", beaconArm.state);
-    }
+        float gain = 1.0f - gamepad1.left_trigger+0.01f;
 
+        if (beaconPresser.beaconArm.state == 4) {
+            beaconPresser.loop(0, 1);
+        } else {
+            beaconPresser.beaconArm.pressButton_loop(gain);
+        }
 
-    /*
-     * Code to run ONCE after the driver hits STOP
-     */
-    public void stop() {
-
+        telemetry.addData("BeaconPresser State:", "%02d", beaconPresser.beaconArm.state);
+        telemetry.addData("BeaconArm State:    ", beaconPresser.beaconArm.state);
+        telemetry.addData("Speed gain:          ", gain);
+        telemetry.addData("Upper Arm Pos:       ", "%f, (%f,%f)",
+                beaconPresser.beaconArm.upperArm.getPosition(),
+                beaconPresser.beaconArm.upperArmMin,
+                beaconPresser.beaconArm.upperArmMax);
+        telemetry.addData("Lower Arm Pos   ", "%f, (%f,%f)",
+                beaconPresser.beaconArm.lowerArm.getPosition(),
+                beaconPresser.beaconArm.lowerArmMin,
+                beaconPresser.beaconArm.lowerArmMax);
+        telemetry.addData("Upper Arm step size: ", beaconPresser.beaconArm.upperArmStepSize);
+        telemetry.addData("Upper Arm step size: ", beaconPresser.beaconArm.lowerArmStepSize);
+        telemetry.addData("Color sensor rgb     ", "%d,%d,%d",
+                beaconPresser.beaconArm.colorSensor.red(),
+                beaconPresser.beaconArm.colorSensor.green(),
+                beaconPresser.beaconArm.colorSensor.blue());
+        telemetry.addData("Color sensor ambient:", "%d,%d,%d",
+                beaconPresser.beaconArm.ambientRGB.r,
+                beaconPresser.beaconArm.ambientRGB.g,
+                beaconPresser.beaconArm.ambientRGB.b);
+        telemetry.addData("Near counts:        ", beaconPresser.beaconArm.nearCounts);
+        telemetry.addData("Touch sensor on:    ", "%b", beaconPresser.beaconArm.touchSensor.isPressed());
+        telemetry.addData("Touch counts:       ", beaconPresser.beaconArm.touchCounts);
     }
 
 }

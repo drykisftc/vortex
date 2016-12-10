@@ -75,20 +75,20 @@ class VortexTeleOp extends OpMode{
     private final int leftArmSnapPositionOffset = 50;
     private final int leftArmFirePositionOffset = 4610;
     private final int leftArmMaxOffset = 4610;
-    private int leftArmFiringSafeZoneOffset = 3500;
+    private int leftArmFiringSafeZoneOffset = 2800;
 
-    private int leftArmHomeParkingPostion = leftArmHomeParkingOffset;
+    int leftArmHomeParkingPostion = leftArmHomeParkingOffset;
     private int leftArmLoadPosition = leftArmLoadPositionOffset;
     protected int leftArmMovePosition = leftArmMovePositionOffset;
     private int leftArmSnapPosition= leftArmSnapPositionOffset;
-    private int leftArmFirePosition = leftArmFirePositionOffset;
-    private int leftArmFiringSafeZone = leftArmFiringSafeZoneOffset;
+    int leftArmFirePosition = leftArmFirePositionOffset;
+    int leftArmFiringSafeZone = leftArmFiringSafeZoneOffset;
     private int leftArmPeakPosition = leftArmMaxOffset/2;
     private int leftArmMaxRange = leftArmMaxOffset;
 
     private double leftArmJoystickDeadZone = 0.05;
     private double leftArmHoldPower = 0.2;
-    protected double leftArmAutoMovePower = 0.4;
+    protected double leftArmAutoMovePower = 0.35;
     private double leftArmAutoSlowMovePower = 0.1;
     private double leftArmHomingMovePower = -0.2;
     private long leftArmHomingTimestamp =0;
@@ -97,8 +97,6 @@ class VortexTeleOp extends OpMode{
     private int leftArmMinLimitSwitchOnCount =0;
     private int leftArmMaxLimitSwitchOnCount =0;
     private int leftArmLimitSwitchCountThreshold = 8;
-
-    private double leftHandPowerDefaultAttenuate = 0.5;
 
     enum LeftArmState {
         HOME,
@@ -113,10 +111,10 @@ class VortexTeleOp extends OpMode{
 
     int armTargetPosition = 0;
 
-    double [] wheelPowerLUT = {0.0f, 0.05f, 0.12f, 0.14f, 0.16f, 0.18f, 0.20f,
-            0.22f, 0.24f, 0.26f, 0.28f, 0.30f, 0.32f, 0.34f, 0.36f,
-            0.38f, 0.40f, 0.42f, 0.44f, 0.46f, 0.48f, 0.50f, 0.54f, 0.58f, 0.6f,
-            0.62f, 0.66f, 0.70f, 0.74f, 0.78f, 0.82f, 0.86f, 0.90f, 0.94f, 0.98f, 1.00f};
+    double [] wheelPowerLUT = {0.0f, 0.02f, 0.04f, 0.06f, 0.08f, 0.09f, 0.10f, 0.11f, 0.12f,
+            0.13f, 0.14f, 0.15f, 0.16f, 0.17f, 0.18f, 0.19f, 0.20f,
+            0.21f, 0.22f, 0.23f, 0.24f, 0.25f, 0.26f, 0.27f, 0.28, 0.29f, 0.30f,
+            0.32f, 0.34f, 0.36f, 0.38f, 0.40f, 0.42f, 0.46f, 0.50f, 0.6f, 0.7f, 0.8f, 0.9f, 1.00f};
 
     double [] leftArmPowerLUT = { 0.0f, 0.01f, 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f,
             0.08f, 0.09f, 0.10f, 0.11f, 0.12f, 0.13f, 0.14f, 0.15f,
@@ -152,6 +150,7 @@ class VortexTeleOp extends OpMode{
     private double leftUpStepSize = -0.015;
     private double leftLowHomePosition = 0.95;
     private double leftLowStepSize = -0.05;
+
     /* Important: use the core device discovery tool to set color sensor address to 0x40
     Then, use the 7 bit version of it 0x20
      */
@@ -175,10 +174,6 @@ class VortexTeleOp extends OpMode{
     double rightScooperStop = 0.0;
     double rightScooperGo = 1.0;
 
-    // jam detection
-    private int armJamPosition =0;
-    private long armJammedTime =0;
-    private long armJammedTimeLimit = 1000;
     protected int leftArmCurrentPosition = 0;
     /*
      * Code to run ONCE when the driver hits INIT
@@ -198,10 +193,9 @@ class VortexTeleOp extends OpMode{
                 robot.motorLeftHand, robot.servoCock, robot.armStopMax);
         particleShooter.init();
         particleShooter.setReporter(telemetry);
-        particleShooter.armFiringPosition = leftArmFirePosition;
-        particleShooter.armFiringSafeZone = leftArmFiringSafeZone;
-        particleShooter.relax();
+        particleShooter.relaxHand();
         particleShooter.start(0);
+        particleShooter.resetArmJammed();
 
         // wall tracker
         wallTrackerHW = new HardwareWallTracker();
@@ -211,7 +205,6 @@ class VortexTeleOp extends OpMode{
         // arms
         leftArmMinLimitSwitchOnCount =0;
         leftArmHomingTimestamp = System.currentTimeMillis();
-        resetArmJammed();
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("TeleOp", "Hello Vortex");    //
@@ -225,7 +218,7 @@ class VortexTeleOp extends OpMode{
     public void init_loop() {
 
         // homing the left arm. If the touch sensor is on, turn off arm power
-        if ( (!isArmJammed(robot.motorLeftArm.getCurrentPosition()))
+        if ( (!particleShooter.isArmJammed(robot.motorLeftArm.getCurrentPosition()))
                 && leftArmMinLimitSwitchOnCount < leftArmLimitSwitchCountThreshold
                 && System.currentTimeMillis() - leftArmHomingTimestamp < leftArmHomingTime) {
             robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -281,7 +274,9 @@ class VortexTeleOp extends OpMode{
         leftArmMinLimitSwitchOnCount = 0;
         leftArmMaxLimitSwitchOnCount =0;
 
-        resetArmJammed();
+        particleShooter.armFiringPosition = leftArmFirePosition;
+        particleShooter.armFiringSafeZone = leftArmFiringSafeZone;
+        particleShooter.resetArmJammed();
 
         telemetry.update();
     }
@@ -306,6 +301,7 @@ class VortexTeleOp extends OpMode{
         }
 
         leftArmCurrentPosition = robot.motorLeftArm.getCurrentPosition();
+        telemetry.addData("left arm pos ", "%6d vs max %6d", leftArmCurrentPosition, leftArmMaxRange);
 
         wheelControl();
         leftArmControl();
@@ -324,14 +320,14 @@ class VortexTeleOp extends OpMode{
         float left = throttle + direction;
 
         // clip the right/left values so that the values never exceed +/- 1
-        right = Range.clip(right, -1, 1);
-        left = Range.clip(left, -1, 1);
+        right = Range.clip((float)VortexUtils.lookUpTableFunc(right, wheelPowerLUT), -1, 1);
+        left  = Range.clip((float)VortexUtils.lookUpTableFunc(left, wheelPowerLUT), -1, 1);
         robot.motorLeftWheel.setPower(left);
         robot.motorRightWheel.setPower(right);
 
         // Send telemetry message to signify robot running;
-        telemetry.addData("left",  "%.2f", left);
-        telemetry.addData("right", "%.2f", right);
+        telemetry.addData("left  wheel power ",  "%.2f", left);
+        telemetry.addData("right wheel power ", "%.2f", right);
     }
 
     public void leftArmControl() {
@@ -339,15 +335,15 @@ class VortexTeleOp extends OpMode{
         // buttons
         if (gamepad1.a) {
             // go to home position
-            resetArmJammed();
+            particleShooter.resetArmJammed();
             leftArmState = LeftArmState.HOME;
         } else if (gamepad1.b) {
             // go to load position
-            resetArmJammed();
+            particleShooter.resetArmJammed();
             leftArmState = LeftArmState.LOAD;
         } else if (gamepad1.y) {
             // go to shoot position
-            resetArmJammed();
+            particleShooter.resetArmJammed();
             leftArmState = FIRE;
         }
 
@@ -358,7 +354,7 @@ class VortexTeleOp extends OpMode{
             // set to manual mode
             leftArmState = LeftArmState.MANUAL;
             isArmHoldingPositionSet = false;
-            resetArmJammed();
+            particleShooter.resetArmJammed();
 
             // get joystick position
             double power = Range.clip(VortexUtils.lookUpTableFunc(throttle, leftArmPowerLUT), -1, 1);
@@ -366,7 +362,6 @@ class VortexTeleOp extends OpMode{
 
             // move arms
             robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            telemetry.addData("left arm pos", "%6d vs %6d", leftArmCurrentPosition, leftArmMaxRange);
 
             // button x allow arm moving to home, just in case the arm loses encoder home position
             // giving a chance to reset home position
@@ -415,7 +410,7 @@ class VortexTeleOp extends OpMode{
                 case FIRE:
                     // move to fire position
                 {
-                    if (isArmJammed(leftArmCurrentPosition))
+                    if (particleShooter.isArmJammed(leftArmCurrentPosition))
                     {
                         telemetry.addData("left arm jammed", "STOP!!!!!!!!!!!!!! %d", leftArmCurrentPosition);
                         stopLeftArm();
@@ -448,14 +443,14 @@ class VortexTeleOp extends OpMode{
 
     public void leftHandControl() {
 
-        if (gamepad1.right_bumper) {
+        if (gamepad1.right_bumper || gamepad2.left_trigger > 0.7) {
             particleShooter.calibrateHandByBall();
         } else if ( (leftArmState == FIRE
-                && gamepad1.left_bumper) || gamepad2.a){
+                && gamepad1.left_bumper) || gamepad2.right_trigger > 0.7){
             particleShooter.releaseBall();
         } else if (gamepad1.right_trigger > 0.6){
             particleShooter.shoot_loop(true, // fire
-                    leftHandPowerDefaultAttenuate + gamepad1.left_trigger*0.5); // boost power
+                    particleShooter.handFirePower + gamepad1.left_trigger*0.5); // boost power
         } else {
             particleShooter.shoot_loop(false, 0.0); // stop
         }
@@ -466,10 +461,10 @@ class VortexTeleOp extends OpMode{
     }
 
     public void elevatorControl () {
-        if (gamepad1.dpad_up && leftArmState == FIRE) {
+        if (gamepad1.dpad_down && leftArmState == FIRE) {
             robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.motorRightArm.setPower(0.5);
-        } else if (gamepad1.dpad_down && leftArmState == FIRE) {
+            robot.motorRightArm.setPower(0.05);
+        } else if (gamepad1.dpad_up && leftArmState == FIRE) {
             robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.motorRightArm.setPower(-0.5);
         } else {
@@ -504,8 +499,8 @@ class VortexTeleOp extends OpMode{
             leftBeaconArm.state = 0;
             rightBeaconArm.state =0;
         }
-        leftBeaconArm.pressButton_loop (false);
-        rightBeaconArm.pressButton_loop(false);
+        leftBeaconArm.pressButton_loop (1.0);
+        rightBeaconArm.pressButton_loop(1.0);
     }
 
     void scooperControl () {
@@ -530,22 +525,6 @@ class VortexTeleOp extends OpMode{
     void enableRightArm() {
         boolLeftArmEnable = false;
         boolRightArmEnable = true;
-    }
-
-    protected boolean isArmJammed (int position) {
-        if ( armJamPosition != position) {
-            armJammedTime = System.currentTimeMillis();
-            armJamPosition = position;
-            return false;
-        } else if (System.currentTimeMillis()- armJammedTime > armJammedTimeLimit)  {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    protected void resetArmJammed () {
-        armJammedTime = System.currentTimeMillis();
     }
 
     private void initBeaconArms () {
