@@ -133,6 +133,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         particleShooter.start(0);
         particleShooter.handFirePower = 0.55; // slightly incease power to allow it shoots from a little further
         particleShooter.armPower = leftArmAutoMovePower;
+        particleShooter.armStartPosition = leftArmMovePosition;
         beaconPresser.beaconArm.commitCalibration();
         beaconPresser.start(0);
         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
@@ -154,7 +155,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state,state+1);
 
-                if (System.currentTimeMillis() - lastTimeStamp > 300) {
+                if (System.currentTimeMillis() - lastTimeStamp > 200) {
                     // move and raise arm at same time
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
                             leftArmFirePosition, leftArmAutoMovePower);
@@ -262,8 +263,10 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 gyroTracker.skewTolerance = 2;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
-                VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                        leftArmMovePosition, leftArmAutoMovePower);
+                if (state == 10) {
+                    lastTimeStamp = System.currentTimeMillis();
+                }
+
 
                 break;
             case 10:
@@ -271,6 +274,11 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
                         cruisingTurnGain, -1*cruisingPower, beacon2ParkingDistance, state,state+1);
+
+                if (System.currentTimeMillis() - lastTimeStamp > 500) {
+                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                            leftArmMovePosition, leftArmAutoMovePower);
+                }
 
                 break;
             case 11:
