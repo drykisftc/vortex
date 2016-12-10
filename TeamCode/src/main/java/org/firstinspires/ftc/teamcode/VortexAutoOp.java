@@ -70,11 +70,12 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected int beacon2ParkTurnDegree = 45;
     protected int beacon2BeaconDistance =4800; //4325
     protected int beacon2ParkingDistance =-5200; //4318 go backwards
+    protected int jammingBackupDistance = -100;
 
     protected double leftArmFastAutoMovePower = 0.45;
 
     protected long lastTimeStamp = 0;
-    protected long waitingTime = 1000;
+    protected long startWaitingTime = 1000;
 
     // jam detection
     private JammingDetection  jammingDetection = null;
@@ -199,25 +200,32 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 gyroTracker.skewTolerance = 0;
                 gyroTracker.breakDistance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, fire2WallDistance, state,state+1);
+                        cruisingPower, fire2WallDistance, state,state+2); // need to +2 to skip jam backup
 
                 // jamming detection
                 if (jammingDetection.isJammed(Math.min(robot.motorLeftWheel.getCurrentPosition(),
                         robot.motorRightWheel.getCurrentPosition()))) {
+                    gyroTracker.minTurnPower = 0.01;
                     state = 4;
                 }
                 break;
             case 4:
+                // if jammed, back up a little bit
+                gyroTracker.breakDistance = 0;
+                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
+                        -1.0*searchingPower, jammingBackupDistance, state,state+1);
+                break;
+            case 5:
                 // turn -45 degree back
                 gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
-                if (state == 5 ) {
+                if (state == 6 ) {
                     // reset min turning power to avoid jerky movements
                     gyroTracker.minTurnPower = 0.01;
                 }
                 break;
-            case 5:
+            case 6:
                 // go straight until hit first white line
                 gyroTracker.skewTolerance = 0;
                 gyroTracker.breakDistance = 200;
@@ -226,20 +234,20 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
                 // check the ods for white line signal
                 if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
-                    state = 6;
+                    state = 7;
                     gyroTracker.setWheelLandmark();
                     stopWheels();
                     beaconPresser.start(0);
                 }
                 break;
-            case 6:
+            case 7:
                 // touch beacon
                 state = beaconPresser.loop(state, state+1);
-                if (state == 7) {
+                if (state == 8) {
                     gyroTracker.setWheelLandmark();
                 }
                 break;
-            case 7:
+            case 8:
                 // go straight until hit the second white line
                 gyroTracker.skewTolerance = 0;
                 gyroTracker.breakDistance = 200;
@@ -249,47 +257,42 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 // check the ods for white line signal
                 if (gyroTracker.getWheelLandmarkOdometer() > 1000
                 && hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
-                    state = 8;
+                    state = 9;
                     stopWheels();
                     gyroTracker.setWheelLandmark();
                     beaconPresser.start(0);
                 }
                 break;
-            case 8:
+            case 9:
                 // touch beacon
                 state = beaconPresser.loop(state, state+1);
 
-                if (state == 9) {
+                if (state == 10) {
                     gyroTracker.setWheelLandmark();
                 }
                 break;
-            case 9:
+            case 10:
                 // turn 45 degree
                 gyroTracker.skewTolerance = 2;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
-                if (state == 10) {
+                if (state == 11) {
                     lastTimeStamp = System.currentTimeMillis();
                     gyroTracker.minTurnPower = 0.01;
                 }
 
-
                 break;
-            case 10:
+            case 11:
                 // backup straight to central parking
                 gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
-                        cruisingTurnGain, -1*cruisingPower, beacon2ParkingDistance, state,state+1);
+                        cruisingTurnGain, -1*chargingPower, beacon2ParkingDistance, state,state+1);
 
                 if (System.currentTimeMillis() - lastTimeStamp > 500) {
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
                             leftArmMovePosition, leftArmAutoMovePower);
                 }
 
-                break;
-            case 11:
-                // use color strips to help parking
-                state = 12;
                 break;
             default:
                 // stop

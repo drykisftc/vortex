@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -65,7 +64,7 @@ public class PlanARedAutoOp extends VortexAutoOp{
         wall2TurnDegree = -80;
         beacon2ParkTurnDegree = 45;
         wallTracker.wallTrackerHW.moveSonicArmToMaxLeft();
-        waitingTime = 0;
+        startWaitingTime = 0;
     }
 
     @Override

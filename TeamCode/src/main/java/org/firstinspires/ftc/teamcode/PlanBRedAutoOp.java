@@ -33,8 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.util.Version;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -68,7 +66,7 @@ public class PlanBRedAutoOp extends VortexAutoOp{
     public void loop() {
         switch (state) {
             case 0:
-                if (System.currentTimeMillis() - lastTimeStamp > waitingTime) {
+                if (System.currentTimeMillis() - lastTimeStamp > startWaitingTime) {
                     state = 1;
                 }
                 break;
@@ -83,7 +81,7 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
                     particleShooter.armPower = leftArmAutoMovePower;
-                    particleShooter.armStartPosition = leftArmFiringSafeZone;
+                    particleShooter.armStartPosition = leftArmFirePosition;
                 }
                 break;
             case 2:

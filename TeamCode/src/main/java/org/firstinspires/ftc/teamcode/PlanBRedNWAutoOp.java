@@ -55,7 +55,7 @@ public class PlanBRedNWAutoOp extends PlanBRedAutoOp{
     @Override
     public void start() {
         super.start();
-        waitingTime =0;
+        startWaitingTime =0;
     }
 
 }

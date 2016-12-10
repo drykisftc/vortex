@@ -58,7 +58,7 @@ public class PlanCRedAutoOp extends VortexAutoOp{
         start2FireDistance = 3300; //2500
         fire2TurnDegree = 179;
         fire2WallDistance= -2300; // go backwards
-        waitingTime = 5000;
+        startWaitingTime = 10000;
     }
 
     /*
@@ -68,7 +68,7 @@ public class PlanCRedAutoOp extends VortexAutoOp{
     public void loop() {
         switch (state) {
             case 0:
-                if (System.currentTimeMillis() - lastTimeStamp > waitingTime) {
+                if (System.currentTimeMillis() - lastTimeStamp > startWaitingTime) {
                     state = 1;
                 }
                 break;
@@ -89,7 +89,7 @@ public class PlanCRedAutoOp extends VortexAutoOp{
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
                     particleShooter.armPower = leftArmAutoMovePower;
-                    particleShooter.armStartPosition = leftArmFiringSafeZone;
+                    particleShooter.armStartPosition = leftArmMovePosition;
                 }
                 break;
             case 2:

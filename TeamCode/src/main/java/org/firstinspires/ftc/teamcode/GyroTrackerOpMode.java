@@ -57,6 +57,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     int testTurnAngle2 = 90;
 
     // navigation control info
+    double chargingPower = 1.0;
     double cruisingPower = 0.5;
     double searchingPower = 0.3;
     double cruisingTurnGain = 0.008;
@@ -151,7 +152,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
             case 2:
                 // go straight
                 gyroTracker.skewTolerance = 0;
-                state = gyroTracker.goStraight (testTurnAngle1, cruisingTurnGain, cruisingPower, testDistance1,state, state+1);
+                state = gyroTracker.goStraight (testTurnAngle1, cruisingTurnGain, searchingPower, testDistance1,state, state+1);
                 break;
             case 3:
                 // turn 45 degree
@@ -161,7 +162,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
             case 4:
                 // go straight
                 gyroTracker.skewTolerance = 0;
-                state = gyroTracker.goStraight (testTurnAngle1*2, cruisingTurnGain, cruisingPower, testDistance1, state, state+1);
+                state = gyroTracker.goStraight (testTurnAngle1*2, cruisingTurnGain, chargingPower, testDistance1, state, state+1);
                 break;
             case 5:
                 // turn 45 degree

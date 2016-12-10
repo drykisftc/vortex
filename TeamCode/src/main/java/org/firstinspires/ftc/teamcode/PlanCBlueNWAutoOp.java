@@ -55,6 +55,6 @@ public class PlanCBlueNWAutoOp extends PlanCBlueAutoOp{
     @Override
     public void start() {
         super.start();
-        waitingTime = 0;
+        startWaitingTime = 0;
     }
 }
