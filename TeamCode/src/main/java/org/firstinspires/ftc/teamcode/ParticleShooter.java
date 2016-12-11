@@ -297,7 +297,7 @@ class ParticleShooter extends RobotExecutor {
                 if (timeSinceLastFiring > minFireInterval
                         || Math.abs(currentHandP - handFirePosition) <= leftHandFirePositionTolerance) {
                     VortexUtils.moveMotorByEncoder(motorHand, handFirePosition, handHoldPower);
-                    cock();
+                    reload();
                     fireState = 0;
                     handReloaded = true;
                     autoShootEnded = true;

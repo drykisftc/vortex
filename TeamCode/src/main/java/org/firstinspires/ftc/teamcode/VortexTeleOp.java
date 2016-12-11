@@ -451,7 +451,7 @@ class VortexTeleOp extends OpMode{
             robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.motorRightArm.setPower(0.5);
         } else {
-            double throttle = VortexUtils.lookUpTableFunc(gamepad2.right_stick_y, rightArmUpPowerLUT);
+            double throttle = VortexUtils.lookUpTableFunc(-1*gamepad2.right_stick_y, rightArmUpPowerLUT);
             robot.motorRightArm.setPower(Range.clip(throttle, -1.0, 1.0));
         }
     }
