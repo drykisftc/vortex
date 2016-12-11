@@ -208,6 +208,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 if (jammingDetection.isJammed(Math.min(robot.motorLeftWheel.getCurrentPosition(),
                         robot.motorRightWheel.getCurrentPosition()))) {
                     gyroTracker.minTurnPower = 0.01;
+                    stopWheels();
+                    gyroTracker.setWheelLandmark(); // important. otherwise it use last landmark
                     state = 4;
                 }
                 break;
@@ -238,8 +240,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 // check the ods for white line signal
                 if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
                     state = 7;
-                    gyroTracker.setWheelLandmark();
                     stopWheels();
+                    gyroTracker.setWheelLandmark();
                     beaconPresser.start(0);
                 }
                 break;

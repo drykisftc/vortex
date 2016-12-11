@@ -108,6 +108,7 @@ public class GyroTracker extends Tracker {
             reporter.addData("Minimum turn power  =", "%.2f", minTurnPower);
             reporter.addData("Heading power       =", "%.2f", power);
             reporter.addData("Heading turn power  =", "%.2f", deltaPower);
+            reporter.addData("Landmark            =", landMarkPosition);
         }
 
         return boolNoTurning;

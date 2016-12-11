@@ -55,8 +55,10 @@ public class PlanBRedAutoOp extends VortexAutoOp{
     @Override
     public void start() {
         super.start();
-        start2FireDistance = 3500;
+        startWaitingTime = 10000;
+        start2FireDistance = 3400;
         fire2WallDistance = 800;
+        lastTimeStamp = System.currentTimeMillis();
     }
 
     /*

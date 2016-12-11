@@ -134,6 +134,8 @@ public class PlanDRedAutoOp extends VortexAutoOp{
                 if (jammingDetection.isJammed(Math.min(robot.motorLeftWheel.getCurrentPosition(),
                         robot.motorRightWheel.getCurrentPosition()))) {
                     gyroTracker.minTurnPower = 0.01;
+                    stopWheels();
+                    gyroTracker.setWheelLandmark(); // important. otherwise it use last landmark
                     state = 4;
                 }
                 break;
