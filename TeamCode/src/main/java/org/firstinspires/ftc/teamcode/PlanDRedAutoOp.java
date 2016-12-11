@@ -53,6 +53,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 public class PlanDRedAutoOp extends PlanARedAutoOp{
 
     @Override
+    public void start () {
+        super.start();
+        beacon2ParkingDistance = -7500;
+    }
+
+    @Override
     public void loop() {
         telemetry.addData("State:", "%02d", state);
         telemetry.addData("Wall Distance: ", "%02f", wallTracker.wallTrackerHW.getDistance());
