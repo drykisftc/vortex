@@ -50,29 +50,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  */
 
 @Autonomous(name="Plan D: Red", group="Plan D")
-public class PlanDRedAutoOp extends VortexAutoOp{
-    
-    /*
-     * Code to run ONCE when the driver hits PLAY
-     */
-    @Override
-    public void start() {
-        super.start();
-        beaconPresser.teamColor = 'r';
-        fire2TurnDegree = 80;
-        fire2WallDistance = 5400;
-        wall2TurnDegree = -80;
-        beacon2ParkTurnDegree = 45;
-        wallTracker.wallTrackerHW.moveSonicArmToMaxLeft();
-        startWaitingTime = 0;
-        beacon2ParkingDistance = -9000;
-    }
-
-    @Override
-    public void initBeaconPresser() {
-        beaconPresser = new BeaconPresser(gyroTracker, leftBeaconArm);
-        beaconPresser.setReporter(telemetry);
-    }
+public class PlanDRedAutoOp extends PlanARedAutoOp{
 
     @Override
     public void loop() {

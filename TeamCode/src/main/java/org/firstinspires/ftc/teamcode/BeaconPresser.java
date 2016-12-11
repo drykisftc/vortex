@@ -14,7 +14,7 @@ public class BeaconPresser extends RobotExecutor {
     double cruisingPower = 0.5;
     double searchingPower = 0.2;
     double cruisingTurnGain = 0.002;
-    int distanceThreshold = 2;
+    int distanceThreshold = 1;
     char teamColor = 'b';
 
     int pressButtonTimes = 0;
@@ -50,7 +50,7 @@ public class BeaconPresser extends RobotExecutor {
         landMarkAngle = gyroTracker.gyro.getHeading();
         bBeaconPressed = false;
         pressButtonTimes = 0;
-        distanceThreshold = beaconArm.colorSensorAmbient + 2;
+        distanceThreshold = beaconArm.colorSensorAmbient + 1;
     }
 
     public void calibrate () {
