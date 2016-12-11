@@ -49,29 +49,16 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan D: Blue", group="Plan D")
-public class PlanDBlueAutoOp extends PlanDRedAutoOp{
+@Autonomous(name="Plan N: Blue", group="Plan N")
+public class PlanNBlueAutoOp extends PlanNRedAutoOp {
 
-    /*
-     * Code to run ONCE when the driver hits PLAY
-     */
+    int leftArmHitBallPosition = 400;
+
     @Override
     public void start() {
         super.start();
-        beaconPresser.teamColor = 'b';
-        fire2TurnDegree = -75;
-        fire2WallDistance = 3500;
-        wall2TurnDegree = 75;
-        beacon2ParkTurnDegree = -45;
-        wallTracker.wallTrackerHW.moveSonicArmToMaxRight();
-        beacon2ParkingDistance = -9000;
+        fire2TurnDegree = -90;
+        wall2TurnDegree = -45;
     }
-
-    @Override
-    public void initBeaconPresser() {
-        beaconPresser = new BeaconPresser(gyroTracker, rightBeaconArm);
-        beaconPresser.setReporter(telemetry);
-    }
-
 
 }

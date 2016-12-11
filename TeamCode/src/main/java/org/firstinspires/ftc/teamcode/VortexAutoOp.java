@@ -78,7 +78,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected long startWaitingTime = 1000;
 
     // jam detection
-    private JammingDetection  jammingDetection = null;
+    protected JammingDetection  jammingDetection = null;
 
     // to do: add wall tracker
 

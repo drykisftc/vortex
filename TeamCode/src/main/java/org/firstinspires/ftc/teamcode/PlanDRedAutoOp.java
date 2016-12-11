@@ -50,71 +50,173 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  */
 
 @Autonomous(name="Plan D: Red", group="Plan D")
-public class PlanDRedAutoOp extends VortexAutoOp {
-
-    int leftArmHitBallPosition = 400;
-
+public class PlanDRedAutoOp extends VortexAutoOp{
+    
+    /*
+     * Code to run ONCE when the driver hits PLAY
+     */
     @Override
     public void start() {
         super.start();
-        start2FireDistance = 1900; //2500
-        fire2TurnDegree = 90;
-        fire2WallDistance = 1000;
-        wall2TurnDegree = 45;
-        wall2BeaconDistance = 1900;
+        beaconPresser.teamColor = 'r';
+        fire2TurnDegree = 80;
+        fire2WallDistance = 5400;
+        wall2TurnDegree = -80;
+        beacon2ParkTurnDegree = 45;
+        wallTracker.wallTrackerHW.moveSonicArmToMaxLeft();
+        startWaitingTime = 0;
+        beacon2ParkingDistance = -9000;
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
-     */
+    @Override
+    public void initBeaconPresser() {
+        beaconPresser = new BeaconPresser(gyroTracker, leftBeaconArm);
+        beaconPresser.setReporter(telemetry);
+    }
+
     @Override
     public void loop() {
+        telemetry.addData("State:", "%02d", state);
+        telemetry.addData("Wall Distance: ", "%02f", wallTracker.wallTrackerHW.getDistance());
         switch (state) {
             case 0:
-                // wait
-                if (System.currentTimeMillis() - lastTimeStamp > 10000) {
-                    state = 1;
-                }
-                break;
-            case 1:
                 // go straight
+                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state,state+1);
-                telemetry.addData("State:", "%02d", state);
-                if (state == 2) {
+
+                if (System.currentTimeMillis() - lastTimeStamp > 200) {
+                    // move and raise arm at same time
+                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                            leftArmFirePosition, leftArmFastAutoMovePower);
+                    state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
+                            start2FireDistance, state,state+1);
+                    particleShooter.reload();
+                    particleShooter.relaxHand();
+                } else {
+                    // slow start to avoid turning
+                    state = gyroTracker.goStraight (0, cruisingTurnGain, searchingPower,
+                            start2FireDistance, state,state+1);
+                }
+
+                if (state == 1) {
                     // prepare to shoot
                     robot.motorLeftWheel.setPower(0.0);
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
+                    particleShooter.armPower = leftArmAutoMovePower;
+                    particleShooter.armStartPosition = leftArmFiringSafeZone;
                 }
                 break;
-            case 2:
+            case 1:
                 // shoot particles
                 state = particleShooter.loop(state, state+1);
                 break;
-            case 3:
-                // turn 90 degrees
+            case 2:
+                // turn 45 degree
+                gyroTracker.skewTolerance = 3;
                 state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
-                        turningPower, state, state+1);
-                telemetry.addData("State:", "%02d", state);
+                        turningPower,state,state+1);
+
+                if (state == 3) {
+                    // activate jamming detection
+                    jammingDetection.reset();
+                }
+                break;
+            case 3:
+                // go straight until hit the wall
+                gyroTracker.skewTolerance = 0;
+                gyroTracker.breakDistance = 0;
+                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
+                        cruisingPower, fire2WallDistance, state,state+2); // need to +2 to skip jam backup
+
+                // jamming detection
+                if (jammingDetection.isJammed(Math.min(robot.motorLeftWheel.getCurrentPosition(),
+                        robot.motorRightWheel.getCurrentPosition()))) {
+                    gyroTracker.minTurnPower = 0.01;
+                    state = 4;
+                }
                 break;
             case 4:
-                // go straight to wall
+                // if jammed, back up a little bit
+                gyroTracker.breakDistance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, fire2WallDistance, state,state+1);
-                telemetry.addData("State:", "%02d", state);
+                        -1.0*searchingPower, jammingBackupDistance, state,state+1);
                 break;
             case 5:
-                // turn
+                // turn -45 degree back
+                gyroTracker.skewTolerance = 1;
+                gyroTracker.maxTurnPower = 0.2;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
-                telemetry.addData("State:", "%02d", state);
+                if (state == 6 ) {
+                    // reset min turning power to avoid jerky movements
+                    gyroTracker.minTurnPower = 0.01;
+                }
                 break;
             case 6:
-                // go straight
+                // go straight until hit first white line
+                gyroTracker.skewTolerance = 0;
+                gyroTracker.breakDistance = 200;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
-                        cruisingTurnGain, cruisingPower, wall2BeaconDistance, state,state+1);
-                telemetry.addData("State:", "%02d", state);
+                        cruisingTurnGain, searchingPower, wall2BeaconDistance, state,state+1);
+
+                // check the ods for white line signal
+                if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
+                    state = 7;
+                    gyroTracker.setWheelLandmark();
+                    stopWheels();
+                    beaconPresser.start(0);
+                }
+                break;
+            case 7:
+                // touch beacon
+                state = beaconPresser.loop(state, state+1);
+                if (state == 8) {
+                    gyroTracker.setWheelLandmark();
+                    lastTimeStamp = System.currentTimeMillis();
+                }
+                break;
+            case 8:
+                // go straight until hit the second white line
+                gyroTracker.skewTolerance = 0;
+                gyroTracker.breakDistance = 200;
+                if (System.currentTimeMillis() - lastTimeStamp > 800) {
+                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
+                            cruisingTurnGain, searchingPower, beacon2BeaconDistance, state, state + 1);
+                } else {
+                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
+                            cruisingTurnGain, cruisingPower, beacon2BeaconDistance, state, state + 1);
+                }
+
+                // check the ods for white line signal
+                if (gyroTracker.getWheelLandmarkOdometer() > 1000
+                        && hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
+                    state = 9;
+                    stopWheels();
+                    gyroTracker.setWheelLandmark();
+                    beaconPresser.start(0);
+                }
+                break;
+            case 9:
+                // touch beacon
+                state = beaconPresser.loop(state, state+1);
+
+                if (state == 10) {
+                    gyroTracker.setWheelLandmark();
+                }
+                break;
+            case 10:
+                // backup straight to central parking
+                gyroTracker.skewTolerance = 0;
+                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
+                        cruisingTurnGain, -1*chargingPower, beacon2ParkingDistance, state,state+1);
+
+                if (System.currentTimeMillis() - lastTimeStamp > 500) {
+                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                            leftArmMovePosition, leftArmAutoMovePower);
+                }
+
                 break;
             default:
                 // stop
@@ -123,5 +225,4 @@ public class PlanDRedAutoOp extends VortexAutoOp {
         }
         telemetry.update();
     }
-
 }
