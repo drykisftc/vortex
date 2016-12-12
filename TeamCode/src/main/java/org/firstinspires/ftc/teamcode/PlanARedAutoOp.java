@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -50,7 +49,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan A: Red", group="Plan A")
+@Autonomous(name="Plan A: Red", group="Close Side")
 public class PlanARedAutoOp extends VortexAutoOp{
     
     /*
@@ -60,11 +59,12 @@ public class PlanARedAutoOp extends VortexAutoOp{
     public void start() {
         super.start();
         beaconPresser.teamColor = 'r';
-        fire2TurnDegree = 80;
-        fire2WallDistance = 5400;
-        wall2TurnDegree = -80;
+        fire2TurnDegree = 85;
+        fire2WallDistance = 5350;
+        wall2TurnDegree = -85;
         beacon2ParkTurnDegree = 45;
         wallTracker.wallTrackerHW.moveSonicArmToMaxLeft();
+        startWaitingTime = 0;
     }
 
     @Override

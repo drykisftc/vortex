@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.util.Range;
+
 /**
  * Created by hfu on 10/25/16.
  */
@@ -28,7 +30,7 @@ public class Tracker extends RobotExecutor {
                 deltaPower -= minTurnPower;
             }
         }
-        return Math.min(maxTurnPower,deltaPower);
+        return Range.clip(deltaPower, -1*maxTurnPower, maxTurnPower);
     }
 
 }

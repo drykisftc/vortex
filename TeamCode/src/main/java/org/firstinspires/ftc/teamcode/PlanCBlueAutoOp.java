@@ -49,14 +49,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan C: Blue", group="Plan C")
+@Autonomous(name="Plan C: Blue", group="Far Side")
 public class PlanCBlueAutoOp extends PlanCRedAutoOp{
 
     @Override
     public void start() {
         super.start();
-        start2FireDistance = 3000; //2500
-        fire2TurnDegree = -100;
-        fire2WallDistance= -2000; // go backwards
+        fire2TurnDegree = -150;
+        fire2WallDistance= -2500; // go backwards
     }
 }

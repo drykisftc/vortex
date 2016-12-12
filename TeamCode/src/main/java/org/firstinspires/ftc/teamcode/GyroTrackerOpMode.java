@@ -51,14 +51,16 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     int bufferSize= 10;
 
     // navigation path info
-    int testDistance1 = 7500; //2500
-    int testDistance2 = 7500;
+    int testDistance1 = 6000; //2500
+    int testDistance2 = 6000;
     int testTurnAngle1 = 90;
-    int testTurnAngle2 = 90;
+    int testTurnAngle2 = 180;
+    int backDistance = -6000;
 
     // navigation control info
-    double cruisingPower = 0.4;
-    double searchingPower = 0.3;
+    double chargingPower = 1.0;
+    double cruisingPower = 0.5;
+    double searchingPower = 0.2;
     double cruisingTurnGain = 0.008;
     double inPlaceTurnGain = 0.008;
     double turningPower = 0.0; // set to 0.0 to turn in-place
@@ -141,7 +143,8 @@ public class GyroTrackerOpMode extends VortexTeleOp {
             case 0:
                 // go straight
                 gyroTracker.skewTolerance = 0;
-                state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower, testDistance1, state, state+1);
+                state = gyroTracker.goStraight (0, cruisingTurnGain,
+                        cruisingPower, testDistance1, state, state+1);
                 break;
             case 1:
                 // turn 90 degree
@@ -151,7 +154,8 @@ public class GyroTrackerOpMode extends VortexTeleOp {
             case 2:
                 // go straight
                 gyroTracker.skewTolerance = 0;
-                state = gyroTracker.goStraight (testTurnAngle1, cruisingTurnGain, cruisingPower, testDistance1,state, state+1);
+                state = gyroTracker.goStraight (testTurnAngle1, cruisingTurnGain,
+                        searchingPower, testDistance1,state, state+1);
                 break;
             case 3:
                 // turn 45 degree
@@ -161,7 +165,8 @@ public class GyroTrackerOpMode extends VortexTeleOp {
             case 4:
                 // go straight
                 gyroTracker.skewTolerance = 0;
-                state = gyroTracker.goStraight (testTurnAngle1*2, cruisingTurnGain, cruisingPower, testDistance1, state, state+1);
+                state = gyroTracker.goStraight (testTurnAngle1*2, cruisingTurnGain,
+                        chargingPower, testDistance1, state, state+1);
                 break;
             case 5:
                 // turn 45 degree
@@ -171,13 +176,35 @@ public class GyroTrackerOpMode extends VortexTeleOp {
             case 6:
                 // go straight
                 gyroTracker.skewTolerance = 0;
-                state = gyroTracker.goStraight (testTurnAngle1*3, cruisingTurnGain, cruisingPower, testDistance1, state, state+1);
+                state = gyroTracker.goStraight (testTurnAngle1*3, cruisingTurnGain,
+                        cruisingPower, testDistance1, state, state+1);
                 break;
             case 7:
+                // backup
+                gyroTracker.skewTolerance = 0;
+                state = gyroTracker.goStraight (testTurnAngle1*3, cruisingTurnGain,
+                        -1.0*cruisingPower, backDistance, state, state+1);
+                break;
+            case 8:
+                // turn 180 degree
+                gyroTracker.skewTolerance = 2;
+                state = gyroTracker.turn(testTurnAngle1*3+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
+                break;
+            case 9:
+                // backup
+                gyroTracker.skewTolerance = 0;
+                state = gyroTracker.goStraight (testTurnAngle1*3+testTurnAngle2, cruisingTurnGain,
+                        -1.0*cruisingPower, backDistance, state, state+1);
+                break;
+            case 10:
                 // turn 45 degree
                 gyroTracker.skewTolerance = 2;
-                state = gyroTracker.turn(testTurnAngle1*4, inPlaceTurnGain,turningPower,state, state+1);
+                state = gyroTracker.turn(testTurnAngle1*2+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
                 break;
+            case 11:
+                gyroTracker.skewTolerance = 0;
+                state = gyroTracker.goStraight (testTurnAngle1*2+testTurnAngle2, cruisingTurnGain,
+                        cruisingPower, testDistance1, state, state+1);
             default:
                 homeArm();
                 stop();

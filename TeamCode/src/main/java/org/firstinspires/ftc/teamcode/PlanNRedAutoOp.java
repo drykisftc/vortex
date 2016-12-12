@@ -49,15 +49,19 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan C: Red", group="Far Side")
-public class PlanCRedAutoOp extends PlanBRedAutoOp{
+@Autonomous(name="Plan N: Red", group="Plan N")
+public class PlanNRedAutoOp extends VortexAutoOp {
+
+    int leftArmHitBallPosition = 400;
 
     @Override
     public void start() {
         super.start();
-        fire2TurnDegree = 179;
-        fire2WallDistance= 2300;
-        startWaitingTime = 10000;
+        start2FireDistance = 1900; //2500
+        fire2TurnDegree = 90;
+        fire2WallDistance = 1000;
+        wall2TurnDegree = 45;
+        wall2BeaconDistance = 1900;
     }
 
     /*
@@ -67,46 +71,50 @@ public class PlanCRedAutoOp extends PlanBRedAutoOp{
     public void loop() {
         switch (state) {
             case 0:
-                if (System.currentTimeMillis() - lastTimeStamp > startWaitingTime) {
+                // wait
+                if (System.currentTimeMillis() - lastTimeStamp > 10000) {
                     state = 1;
                 }
                 break;
             case 1:
                 // go straight
-                state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
-                        start2FireDistance, state, state + 1);
+                state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
+                        start2FireDistance, state,state+1);
                 telemetry.addData("State:", "%02d", state);
-
-                if (System.currentTimeMillis() - lastTimeStamp > 200) {
-                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                            leftArmFirePosition, leftArmAutoMovePower);
-                }
-
                 if (state == 2) {
                     // prepare to shoot
                     robot.motorLeftWheel.setPower(0.0);
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
-                    particleShooter.armPower = leftArmAutoMovePower;
-                    particleShooter.armStartPosition = leftArmMovePosition;
                 }
                 break;
             case 2:
                 // shoot particles
-                state = particleShooter.loop(state, state + 1);
+                state = particleShooter.loop(state, state+1);
                 break;
             case 3:
-                // turn 45 degree
-                gyroTracker.skewTolerance = 3;
+                // turn 90 degrees
                 state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
-                        turningPower,state,state+1);
+                        turningPower, state, state+1);
+                telemetry.addData("State:", "%02d", state);
                 break;
             case 4:
-                // go backward and park
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 0;
+                // go straight to wall
                 state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
-                        -1.0*cruisingPower, fire2WallDistance, state,state+1);
+                        cruisingPower, fire2WallDistance, state,state+1);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 5:
+                // turn
+                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
+                        inPlaceTurnGain,turningPower,state,state+1);
+                telemetry.addData("State:", "%02d", state);
+                break;
+            case 6:
+                // go straight
+                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
+                        cruisingTurnGain, cruisingPower, wall2BeaconDistance, state,state+1);
+                telemetry.addData("State:", "%02d", state);
                 break;
             default:
                 // stop
@@ -115,4 +123,5 @@ public class PlanCRedAutoOp extends PlanBRedAutoOp{
         }
         telemetry.update();
     }
+
 }

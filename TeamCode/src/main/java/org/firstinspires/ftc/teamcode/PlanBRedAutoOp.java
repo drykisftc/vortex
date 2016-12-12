@@ -33,8 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.util.Version;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -51,13 +49,16 @@ import com.qualcomm.robotcore.util.Version;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan B: Red", group="Plan B")
+@Autonomous(name="Plan B: Red", group="Far Side")
 public class PlanBRedAutoOp extends VortexAutoOp{
 
     @Override
     public void start() {
         super.start();
-        start2FireDistance = 3560; //2500
+        startWaitingTime = 10000;
+        start2FireDistance = 3400;
+        fire2WallDistance = 800;
+        lastTimeStamp = System.currentTimeMillis();
     }
 
     /*
@@ -67,7 +68,7 @@ public class PlanBRedAutoOp extends VortexAutoOp{
     public void loop() {
         switch (state) {
             case 0:
-                if (System.currentTimeMillis() - lastTimeStamp > 10000) {
+                if (System.currentTimeMillis() - lastTimeStamp > startWaitingTime) {
                     state = 1;
                 }
                 break;
@@ -82,13 +83,17 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
                     particleShooter.armPower = leftArmAutoMovePower;
-                    particleShooter.armStartPosition = leftArmFiringSafeZone;
+                    particleShooter.armStartPosition = leftArmFirePosition;
                 }
                 break;
             case 2:
                 // shoot particles
                 state = particleShooter.loop(state, state + 1);
                 break;
+            case 3:
+                // go straight
+                state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
+                        fire2WallDistance, state, state + 1);
             default:
                 // stop
                 telemetry.addData("State:", "End");

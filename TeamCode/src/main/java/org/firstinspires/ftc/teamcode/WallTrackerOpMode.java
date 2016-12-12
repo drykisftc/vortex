@@ -37,8 +37,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 /**
  *
  */
-@Autonomous(name="Auto: right wall tracker", group="Testing")
-@Disabled
+@Autonomous(name="Auto: left wall tracker", group="Testing")
 public class WallTrackerOpMode extends VortexTeleOp {
 
     /* Declare OpMode members. */
@@ -90,6 +89,7 @@ public class WallTrackerOpMode extends VortexTeleOp {
     @Override
     public void start() {
         // compute baseline brightness
+        wallTracker.wallTrackerHW.moveSonicArmToMaxLeft();
         wallTracker.start(0);
     }
 
