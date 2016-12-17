@@ -36,6 +36,11 @@ public class WallTracker extends Tracker {
 
     private static DecimalFormat df3 = new DecimalFormat(".###");
 
+    // jam detection
+    protected JammingDetection  jammingDetection = null;
+    protected double antiJammingPower = 0.3;
+    protected double antiJammingPowerStepSize = 0.01;
+
     public WallTracker(HardwareWallTracker wallTracker,
                        DcMotor leftW,
                        DcMotor rightW,
@@ -45,6 +50,7 @@ public class WallTracker extends Tracker {
         leftWheel = leftW;
         rightWheel = rightW;
         bufferSize = bufferS;
+        jammingDetection = new JammingDetection (1000L);
     }
 
     public void setTargetWallDistance (double d) {
@@ -81,19 +87,32 @@ public class WallTracker extends Tracker {
     public void start(int startState) {
 
         state = startState;
+        jammingDetection.reset();
+
     }
 
-    public void loop (double power, double powerDelta, double direction) {
+    public void loop (double power, double powerDelta, double gain) {
 
+        // jamming detection
+        if (jammingDetection.isJammed(Math.min(leftWheel.getCurrentPosition(),
+                rightWheel.getCurrentPosition()))) {
+            report("Wall Tracker", " Jammed");
+            antiJammingPower *= -1;
+            leftWheel.setPower(antiJammingPower);
+            rightWheel.setPower(-antiJammingPower);
+            return ;
+        }
+
+        // normal activity
         switch (state) {
             case 0:
                 // detect wall
-                state = detectWall(power);
+                state = detectWall(power, powerDelta); // left turn
                 report("Wall Tracker", "state = DETECT");
                 break;
             case 1:
-                // detect wall
-                state = followWall(power, powerDelta,targetDistance, direction);
+                // follow wall
+                state = followWall(power, targetDistance, gain);
                 report("Wal Tracker", "state = FOLLOW");
                 break;
             case 2:
@@ -130,10 +149,24 @@ public class WallTracker extends Tracker {
 
     public double getHistoryDistanceAverage() {
         double bl = 0;
+        double maxV = -1;
+        double minV = 100000;
 
         for (int i = 0; i < bufferSize; i++) {
             int index = Math.max(0,bufferIndex -i);
+            double v = distanceBuffer[index];
+            if ( v > maxV) {
+                maxV = v;
+            }
+            if ( v < minV) {
+                minV = v;
+            }
             bl += distanceBuffer[index];
+        }
+
+        if (bufferSize >=5) {
+            // remove max and min to avoid noise
+            return (bl  - minV - maxV) / (bufferSize - 2);
         }
 
         return bl / bufferSize;
@@ -156,7 +189,7 @@ public class WallTracker extends Tracker {
         }
     }
 
-    public int detectWall (double power) {
+    public int detectWall (double power, double powerDelta) {
 
         // go straight until it find the wall
         double l = getHistoryDistanceAverage();
@@ -166,10 +199,11 @@ public class WallTracker extends Tracker {
         if ( l < targetDistance) {
             leftWheel.setPower(0);
             rightWheel.setPower(0);
+            return 1;
         }
         else {
-            leftWheel.setPower(power);
-            rightWheel.setPower(power);
+            leftWheel.setPower(power+powerDelta);
+            rightWheel.setPower(power-powerDelta);
         }
 
         return 0;
@@ -179,14 +213,13 @@ public class WallTracker extends Tracker {
     /**
      *
      * @param power , main power
-     * @param powerDelta, correction power
      * @param distance, target distance
      * @param gain, if > 0, wall on the right. < 0 , wall on the left. Weight value as well
      * @return the state of wall tracker
      */
-    public int followWall(double power, double powerDelta, double distance, double gain) {
+    public int followWall(double power, double distance, double gain) {
 
-        double l = readDistance();
+        double l = getHistoryDistanceAverage();
 
         report("Wall Distance", df3.format(l) );
 
@@ -200,8 +233,8 @@ public class WallTracker extends Tracker {
         double delta = Range.clip((l - distance)/lostDistance * power / Math.abs(power), -1, 1);
         lastDirection = computeTurnPower(delta)*gain;
         //lastDirection = VortexUtils.lookUpTableFunc(delta, dist2PowerLUT)*gain;
-        double left  = Range.clip(power + lastDirection + powerDelta, -1, 1);
-        double right = Range.clip(power - lastDirection + powerDelta, -1, 1);
+        double left  = Range.clip(power + lastDirection, -1, 1);
+        double right = Range.clip(power - lastDirection, -1, 1);
         leftWheel.setPower(left);
         rightWheel.setPower(right);
 

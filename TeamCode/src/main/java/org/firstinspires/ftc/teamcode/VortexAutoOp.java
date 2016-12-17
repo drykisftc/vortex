@@ -115,7 +115,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     public void initWallTracker() {
         wallTracker = new WallTracker(wallTrackerHW,
                 robot.motorLeftWheel,
-                robot.motorRightWheel, 10);
+                robot.motorRightWheel, 7);
     }
 
     /*

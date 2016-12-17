@@ -31,8 +31,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 /**
  *
@@ -47,9 +45,9 @@ public class WallTrackerOpMode extends VortexTeleOp {
     // state machine
     int state = 0;
 
-    int bufferSize= 10;
+    int bufferSize= 7;
 
-    double signValue = 1.0;
+    double turnGain = 1.0;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -91,16 +89,16 @@ public class WallTrackerOpMode extends VortexTeleOp {
         // compute baseline brightness
         wallTracker.wallTrackerHW.moveSonicArmToMaxLeft();
         wallTracker.start(0);
+
+        // put arm in good position
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
-     */
     @Override
     public void loop() {
         switch (state) {
             case 0:
-                wallTracker.loop(0.4, 0.0,signValue);
+                wallTracker.loop(0.4, 0.0, turnGain);
                 break;
             default:
         }
