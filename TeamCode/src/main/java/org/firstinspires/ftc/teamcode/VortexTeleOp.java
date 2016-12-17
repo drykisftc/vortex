@@ -480,7 +480,7 @@ class VortexTeleOp extends OpMode{
     }
 
     void scooperControl () {
-        if (gamepad1.left_bumper && leftArmState == LOAD) {
+        if (gamepad1.right_bumper && leftArmState == LOAD) {
             robot.servoLeftScooper.setPower(leftScooperGo);
             robot.servoRightScooper.setPower(rightScooperGo);
         } else if (gamepad2.left_bumper) {
