@@ -23,7 +23,7 @@ class ParticleShooter extends RobotExecutor {
     private int handFirePositionOffset = 445; // 20: 1 motor is 560. 16:1 is 445
     private int handFireOvershotOffset = -65; //
     private int handFireEncoderMissOffset = 0; // to compensate steps missed by encoders
-    private int handCalibrationOffset = 15;
+    private int handCalibrationOffset = 20;
     private double handHoldPower = 0.05;
     private double handBeakPower = 0.15;
     private double handCalibrationPower = -0.05;
@@ -125,7 +125,7 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 1:
-                if (System.currentTimeMillis() - lastTimeStamp < 500) {
+                if (System.currentTimeMillis() - lastTimeStamp < 800) {
                     cock();
                 } else {
                     state = 2;
@@ -160,7 +160,9 @@ class ParticleShooter extends RobotExecutor {
                 shoot_loop(true, handFirePower);
                 if (isReadyToShoot()) { // if ready again go next state
                     reload();
-                    VortexUtils.moveMotorByEncoder(motorHand, handFirePosition, handHoldPower);
+                    VortexUtils.moveMotorByEncoder(motorHand,
+                            handFirePosition+handCalibrationOffset, // move hammer a little bit more
+                            handHoldPower);
                     lastTimeStamp = System.currentTimeMillis();
                     state = 5;
                 }
@@ -178,7 +180,7 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 6:
-                if (System.currentTimeMillis() - lastTimeStamp < 400) {
+                if (System.currentTimeMillis() - lastTimeStamp < 800) {
                     cock();
                     autoShootEnded = false;
                 } else {
@@ -187,7 +189,7 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 7:
-                if (System.currentTimeMillis() - lastTimeStamp < 800) {
+                if (System.currentTimeMillis() - lastTimeStamp < 400) {
                     cock();
                     calibrateHandByBall();
                     autoShootEnded = false;
