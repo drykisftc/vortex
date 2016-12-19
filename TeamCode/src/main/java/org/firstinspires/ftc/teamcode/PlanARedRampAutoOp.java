@@ -1,4 +1,6 @@
 /*
+Copyright (c) 2016 Robert Atkinson
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -33,84 +35,30 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 /**
+ * This file provides basic Telop driving for a Pushbot robot.
+ * The code is structured as an Iterative OpMode
  *
+ * This OpMode uses the common Pushbot hardware class to define the devices on the robot.
+ * All device access is managed through the HardwareVortex class.
+ *
+ * This particular OpMode executes a basic Tank Drive Teleop for a PushBot
+ * It raises and lowers the claw using the Gampad Y and A buttons respectively.
+ * It also opens and closes the claws slowly using the left and right Bumper buttons.
+ *
+ * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
+ * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
-@Autonomous(name="Auto: left wall tracker", group="Testing")
-public class WallTrackerOpMode extends VortexTeleOp {
 
-    /* Declare OpMode members. */
-    WallTracker wallTracker = null;
-
-    // state machine
-    int state = 0;
-
-    int bufferSize= 7;
-
-    double cruisePower = 0.35;
-    double turnGain = 1.0;
-
-    /*
-     * Code to run ONCE when the driver hits INIT
-     */
-    @Override
-    public void init() {
-
-        super.init();
-        wallTracker = new WallTracker(wallTrackerHW,
-                robot.motorLeftWheel,
-                robot.motorRightWheel,
-                bufferSize);
-        wallTracker.init();
-        wallTracker.setReporter(telemetry);
-        wallTracker.skewPowerGain = 0.01;
-
-        // Send telemetry message to signify robot waiting;
-        telemetry.addData("Say", "Hello WallTracker");    //
-        updateTelemetry(telemetry);
-    }
-
-    /*
-     * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
-     */
-    @Override
-    public void init_loop() {
-        super.init_loop();
-        // collect baseline brightness
-        wallTracker.calibrate();
-    }
+@Autonomous(name="Plan A: Blue", group="Close Side")
+public class PlanARedRampAutoOp extends PlanARedAutoOp{
 
     /*
      * Code to run ONCE when the driver hits PLAY
      */
     @Override
     public void start() {
-
         super.start();
-        // compute baseline brightness
-        wallTracker.wallTrackerHW.moveSonicArmToMaxLeft();
-        wallTracker.start(0);
-        wallTracker.targetDistance = 15; // cm
-
-        // put arm in good position
-        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
+        beacon2ParkingDistance = -7500;
+        beacon2ParkTurnDegree = 10;
     }
-
-    @Override
-    public void loop() {
-        switch (state) {
-            case 0:
-                wallTracker.loop(cruisePower, 0.0, turnGain);
-                break;
-            default:
-        }
-        updateTelemetry(telemetry);
-    }
-
-    /*
-     * Code to run ONCE after the driver hits STOP
-     */
-    public void stop() {
-        wallTracker.stop();
-    }
-
 }

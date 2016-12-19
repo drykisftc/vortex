@@ -49,13 +49,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan D: Red", group="Plan D")
+@Autonomous(name="Plan D: Red", group="Close Side")
 public class PlanDRedAutoOp extends PlanARedAutoOp{
 
     @Override
     public void start () {
         super.start();
         beacon2ParkingDistance = -7500;
+        beacon2ParkTurnDegree = 5;
     }
 
     @Override

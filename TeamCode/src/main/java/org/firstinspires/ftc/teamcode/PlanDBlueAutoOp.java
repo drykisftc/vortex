@@ -49,7 +49,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan D: Blue", group="Plan D")
+@Autonomous(name="Plan D: Blue", group="Close Side")
 public class PlanDBlueAutoOp extends PlanDRedAutoOp{
 
     /*
@@ -59,10 +59,11 @@ public class PlanDBlueAutoOp extends PlanDRedAutoOp{
     public void start() {
         super.start();
         beaconPresser.teamColor = 'b';
-        fire2TurnDegree = -90;
+        fire2TurnDegree = -85;
         fire2WallDistance = 3500;
-        wall2TurnDegree = 90;
-        beacon2ParkTurnDegree = -45;
+        wall2TurnDegree = 85;
+        beacon2ParkingDistance = -7500;
+        beacon2ParkTurnDegree = -5;
         wallTracker.wallTrackerHW.moveSonicArmToMaxRight();
     }
 

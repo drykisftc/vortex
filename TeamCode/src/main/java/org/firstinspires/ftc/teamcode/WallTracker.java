@@ -20,12 +20,12 @@ public class WallTracker extends Tracker {
     // state machine
     public int state = 0;
 
-    private int bufferSize = 10;
+    private int bufferSize = 6;
     private double[] distanceBuffer = null;
     private double[] powerBuffer = null;
     private int bufferIndex = 0;
 
-    private double targetDistance = 5.0; // unit cm
+    public double targetDistance = 5.0; // unit cm
     private double lastDirection = 0.0d;
     private double lostDistance = 100;
 
@@ -51,6 +51,7 @@ public class WallTracker extends Tracker {
         rightWheel = rightW;
         bufferSize = bufferS;
         jammingDetection = new JammingDetection (1000L);
+        skewPowerGain = 0.05;  // adjust turn sensitivity
     }
 
     public void setTargetWallDistance (double d) {
@@ -191,6 +192,8 @@ public class WallTracker extends Tracker {
 
     public int detectWall (double power, double powerDelta) {
 
+        readDistance();
+
         // go straight until it find the wall
         double l = getHistoryDistanceAverage();
 
@@ -213,30 +216,36 @@ public class WallTracker extends Tracker {
     /**
      *
      * @param power , main power
-     * @param distance, target distance
+     * @param targetDis, target distance
      * @param gain, if > 0, wall on the right. < 0 , wall on the left. Weight value as well
      * @return the state of wall tracker
      */
-    public int followWall(double power, double distance, double gain) {
+    public int followWall(double power, double targetDis, double gain) {
 
-        double l = getHistoryDistanceAverage();
+        if (power == 0) return 1;
 
-        report("Wall Distance", df3.format(l) );
-
+        readDistance();
         double avgD = getHistoryDistanceAverage();
+
+        report("Wall Distance  :", df3.format(avgD) );
+        report("target Distance:", df3.format(targetDistance) );
+
         if (avgD > lostDistance) {
             leftWheel.setPower(0);
             rightWheel.setPower(0);
-            return 2;
+            return 2; // search for wall
         }
 
-        double delta = Range.clip((l - distance)/lostDistance * power / Math.abs(power), -1, 1);
+        double delta = (avgD - targetDis) * power/Math.abs(power);
         lastDirection = computeTurnPower(delta)*gain;
         //lastDirection = VortexUtils.lookUpTableFunc(delta, dist2PowerLUT)*gain;
-        double left  = Range.clip(power + lastDirection, -1, 1);
-        double right = Range.clip(power - lastDirection, -1, 1);
+        double left  = Range.clip(power - lastDirection, -1, 1);
+        double right = Range.clip(power + lastDirection, -1, 1);
         leftWheel.setPower(left);
         rightWheel.setPower(right);
+        report("Left Wheel power:", Double.toString(left));
+        report("Right Wheel power:", Double.toString(right));
+        report("Last Direction", Double.toString(lastDirection));
 
         return 1;
 

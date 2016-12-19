@@ -71,6 +71,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected int beacon2BeaconDistance =4800; //4325
     protected int beacon2ParkingDistance =5700; //4318
     protected int jammingBackupDistance = 100;
+    protected double back2BasePower = -1* chargingPower;
 
     protected double leftArmFastAutoMovePower = 0.45;
 
@@ -297,7 +298,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 // backup straight to central parking
                 gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
-                        cruisingTurnGain, -1*chargingPower, beacon2ParkingDistance, state,state+1);
+                        cruisingTurnGain, back2BasePower, beacon2ParkingDistance, state,state+1);
 
                 if (System.currentTimeMillis() - lastTimeStamp > 500) {
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
