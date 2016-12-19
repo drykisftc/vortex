@@ -60,7 +60,7 @@ public class PlanARedAutoOp extends VortexAutoOp{
         super.start();
         beaconPresser.teamColor = 'r';
         fire2TurnDegree = 85;
-        fire2WallDistance = 5350;
+        fire2WallDistance = 5250;
         wall2TurnDegree = -85;
         beacon2ParkTurnDegree = 45;
         wallTracker.wallTrackerHW.moveSonicArmToMaxLeft();
