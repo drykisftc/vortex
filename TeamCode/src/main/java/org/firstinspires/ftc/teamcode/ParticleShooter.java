@@ -125,7 +125,7 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 1:
-                if (System.currentTimeMillis() - lastTimeStamp < 800) {
+                if (System.currentTimeMillis() - lastTimeStamp < 500) {
                     cock();
                 } else {
                     state = 2;
@@ -171,7 +171,7 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 5:
-                if (System.currentTimeMillis() - lastTimeStamp < 800) {
+                if (System.currentTimeMillis() - lastTimeStamp < 300) {
                     reload();
                     autoShootEnded = false;
                 } else {
@@ -189,9 +189,9 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 7:
-                if (System.currentTimeMillis() - lastTimeStamp < 400) {
+                if (System.currentTimeMillis() - lastTimeStamp < 300) {
                     cock();
-                    calibrateHandByBall();
+                    pressBall();
                     autoShootEnded = false;
                 } else {
                     state = 8;
@@ -202,6 +202,9 @@ class ParticleShooter extends RobotExecutor {
                 // shoot the second particle
                 shoot_loop(true, handFirePower);
                 if (isReadyToShoot()) {
+                    VortexUtils.moveMotorByEncoder(motorHand,
+                            handFirePosition+handCalibrationOffset, // move hammer a little bit more
+                            handHoldPower);
                     VortexUtils.moveMotorByEncoder(motorArm, armStartPosition, armPower);
                     state = 9;
                 }
@@ -336,7 +339,7 @@ class ParticleShooter extends RobotExecutor {
 
     void pressBall() {
         motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorHand.setPower(handCalibrationPower);
+        motorHand.setPower(handBeakPower);
         cock();
     }
 

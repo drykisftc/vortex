@@ -189,7 +189,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 2:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 3;
+                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
                         turningPower,state,state+1);
 
