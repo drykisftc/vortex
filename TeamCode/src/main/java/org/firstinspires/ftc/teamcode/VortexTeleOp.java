@@ -426,16 +426,18 @@ class VortexTeleOp extends OpMode{
 
     public void leftHandControl() {
 
-        if (gamepad1.right_bumper || gamepad2.left_trigger > 0.7) {
+        if ((leftArmState == FIRE && gamepad1.right_bumper) || gamepad2.right_bumper ) {
+            particleShooter.cock();
             particleShooter.calibrateHandByBall();
-        } else if ( (leftArmState == FIRE
-                && gamepad1.left_bumper) || gamepad2.right_trigger > 0.7){
+        } else if ( (leftArmState == FIRE && gamepad1.left_bumper) || gamepad2.left_bumper){
+            particleShooter.reload();
             particleShooter.releaseBall();
         } else if (gamepad1.right_trigger > 0.6){
             particleShooter.shoot_loop(true, // fire
                     particleShooter.handFirePower + gamepad1.left_trigger*0.5); // boost power
         } else {
             particleShooter.shoot_loop(false, 0.0); // stop
+            particleShooter.reload();
         }
 
         if (gamepad1.x) {
@@ -483,9 +485,9 @@ class VortexTeleOp extends OpMode{
         if (gamepad1.right_bumper && leftArmState == LOAD) {
             robot.servoLeftScooper.setPower(leftScooperGo);
             robot.servoRightScooper.setPower(rightScooperGo);
-        } else if (gamepad2.left_bumper) {
+        } else if (gamepad2.left_trigger > 0.7) {
             robot.servoLeftScooper.setPower(leftScooperGo);
-        } else if (gamepad2.right_bumper) {
+        } else if (gamepad2.right_trigger > 0.7) {
             robot.servoRightScooper.setPower(rightScooperGo);
         } else {
             robot.servoLeftScooper.setPower(leftScooperStop);

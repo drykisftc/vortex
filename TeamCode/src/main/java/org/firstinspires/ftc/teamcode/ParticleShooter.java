@@ -27,6 +27,7 @@ class ParticleShooter extends RobotExecutor {
     private double handHoldPower = 0.05;
     private double handBeakPower = 0.15;
     private double handCalibrationPower = -0.05;
+    private double handPressPower = -0.15;
     private int fireCount = 0;
     private long lastFireTimeStamp = 0;
     private long minFireInterval = 1800;
@@ -37,7 +38,7 @@ class ParticleShooter extends RobotExecutor {
     private int leftHandFirePositionTolerance = 1;
 
     // cock servo
-    private double cockLoadPosition = 0.85;
+    private double cockLoadPosition = 0.90;
     private double cockFirePosition = 0.3;
 
     // devices
@@ -161,7 +162,7 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 4:
-                if (System.currentTimeMillis() - lastTimeStamp < 300) {
+                if (System.currentTimeMillis() - lastTimeStamp < 800) {
                     reload();
                     autoShootEnded = false;
                 } else {
@@ -322,14 +323,15 @@ class ParticleShooter extends RobotExecutor {
     }
 
     void calibrateHandByBall() {
-        pressBall();
+        motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorHand.setPower(handCalibrationPower);
         handFirePosition = motorHand.getCurrentPosition()
                 + handCalibrationOffset; // add a little free room to allow next ball fall-in
     }
 
     void pressBall() {
         motorHand.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorHand.setPower(handBeakPower);
+        motorHand.setPower(handPressPower);
         cock();
     }
 
