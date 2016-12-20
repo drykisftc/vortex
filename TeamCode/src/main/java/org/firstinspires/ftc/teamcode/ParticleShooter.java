@@ -125,19 +125,19 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 1:
-                if (System.currentTimeMillis() - lastTimeStamp < 500) {
-                    cock();
+                if (System.currentTimeMillis() - lastTimeStamp < 700) {
+                    reload();
                 } else {
                     state = 2;
-                    reload();
+                    cock();
                     relaxArm();
                     lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
             case 2:
-                if (System.currentTimeMillis() - lastTimeStamp < 800) {
+                if (System.currentTimeMillis() - lastTimeStamp < 500) {
                     calibrateHandByBall();
-                    reload();
+                    cock();
                     relaxArm();
                 } else {
                     state = 3;
@@ -146,16 +146,6 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 3:
-                // wait half second to recharge the capacitor in the motor
-                if (System.currentTimeMillis() - lastTimeStamp < 200) {
-                    cock();
-                } else {
-                    state = 4;
-                    autoShootEnded = false;
-                    lastTimeStamp = System.currentTimeMillis();
-                }
-                break;
-            case 4:
                 // shoot the first particle
                 shoot_loop(true, handFirePower);
                 if (isReadyToShoot()) { // if ready again go next state
@@ -164,15 +154,24 @@ class ParticleShooter extends RobotExecutor {
                             handFirePosition+handCalibrationOffset, // move hammer a little bit more
                             handHoldPower);
                     lastTimeStamp = System.currentTimeMillis();
-                    state = 5;
+                    state = 4;
                 }
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "Fox 1");
                 }
                 break;
-            case 5:
+            case 4:
                 if (System.currentTimeMillis() - lastTimeStamp < 300) {
                     reload();
+                    autoShootEnded = false;
+                } else {
+                    state = 5;
+                    lastTimeStamp = System.currentTimeMillis();
+                }
+                break;
+            case 5:
+                if (System.currentTimeMillis() - lastTimeStamp < 800) {
+                    cock();
                     autoShootEnded = false;
                 } else {
                     state = 6;
@@ -180,8 +179,9 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 6:
-                if (System.currentTimeMillis() - lastTimeStamp < 800) {
+                if (System.currentTimeMillis() - lastTimeStamp < 300) {
                     cock();
+                    pressBall();
                     autoShootEnded = false;
                 } else {
                     state = 7;
@@ -189,16 +189,6 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 7:
-                if (System.currentTimeMillis() - lastTimeStamp < 300) {
-                    cock();
-                    pressBall();
-                    autoShootEnded = false;
-                } else {
-                    state = 8;
-                    lastTimeStamp = System.currentTimeMillis();
-                }
-                break;
-            case 8:
                 // shoot the second particle
                 shoot_loop(true, handFirePower);
                 if (isReadyToShoot()) {
@@ -206,7 +196,7 @@ class ParticleShooter extends RobotExecutor {
                             handFirePosition+handCalibrationOffset, // move hammer a little bit more
                             handHoldPower);
                     VortexUtils.moveMotorByEncoder(motorArm, armStartPosition, armPower);
-                    state = 9;
+                    state = 8;
                 }
                 if (reporter != null) {
                     reporter.addData("Particle shooter ", "Fox 2");
