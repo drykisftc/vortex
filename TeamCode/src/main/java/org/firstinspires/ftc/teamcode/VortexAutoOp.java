@@ -189,7 +189,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 2:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 0;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
                         turningPower,state,state+1);
 
@@ -201,7 +201,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
             case 3:
                 // go straight until hit the wall
                 gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 0;
+                gyroTracker.breakDistance = 200;
                 state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
                         cruisingPower, fire2WallDistance, state,state+2); // need to +2 to skip jam backup
 
