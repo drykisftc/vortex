@@ -166,7 +166,7 @@ public class GyroTracker extends Tracker {
         // get traveling distance
         int lD = leftWheel.getCurrentPosition();
         int rD = rightWheel.getCurrentPosition();
-        int d = Math.min(lD, rD);
+        int d = (lD+rD)/2;
         skewPowerGain = gain;
         int travelDistance = d - landMarkPosition;
         double breakingP = Math.abs(breakPower);
@@ -205,21 +205,21 @@ public class GyroTracker extends Tracker {
         rightWheel.setPower(0.0);
         int lD = leftWheel.getCurrentPosition();
         int rD = rightWheel.getCurrentPosition();
-        landMarkPosition = Math.min(lD, rD);
+        landMarkPosition = (lD+rD)/2;
         return endState;
     }
 
     public int getWheelLandmarkOdometer () {
         int lD = leftWheel.getCurrentPosition();
         int rD = rightWheel.getCurrentPosition();
-        int d = Math.min(lD, rD);
+        int d = (lD+rD)/2;
         return d- landMarkPosition;
     }
 
     public void setWheelLandmark () {
         int lD = leftWheel.getCurrentPosition();
         int rD = rightWheel.getCurrentPosition();
-        int d = Math.min(lD, rD);
+        int d = (lD+rD)/2;
         landMarkPosition = d;
     }
 

@@ -33,11 +33,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-
-/**
- *
- */
-
 @Autonomous(name="Auto: gyro tracker", group="Testing")
 public class GyroTrackerOpMode extends VortexTeleOp {
 
@@ -61,9 +56,10 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     double chargingPower = 1.0;
     double cruisingPower = 0.5;
     double searchingPower = 0.2;
-    double cruisingTurnGain = 0.008;
-    double inPlaceTurnGain = 0.008;
+    double cruisingTurnGain = 0.005;
+    double inPlaceTurnGain = 0.005;
     double turningPower = 0.0; // set to 0.0 to turn in-place
+    double parkTurningPower = -0.06;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -86,7 +82,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
         gyroTracker.init();
         gyroTracker.minTurnPower = 0.01;
         gyroTracker.maxTurnPower = 0.35;
-        gyroTracker.skewPowerGain = 1.0/100; // 180 for track wheels
+        gyroTracker.skewPowerGain = 1.0; // 180 for track wheels
         gyroTracker.skewTolerance = 0;
 
         // Send telemetry message to signify robot waiting;
@@ -205,6 +201,12 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (testTurnAngle1*2+testTurnAngle2, cruisingTurnGain,
                         cruisingPower, testDistance1, state, state+1);
+                break;
+            case 12:
+                // turn 45 degree
+                gyroTracker.skewTolerance = 2;
+                state = gyroTracker.turn(testTurnAngle1*3+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
+                break;
             default:
                 homeArm();
                 stop();

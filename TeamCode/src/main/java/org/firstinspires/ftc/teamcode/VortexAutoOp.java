@@ -64,13 +64,13 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     // navigation settings
     protected int start2FireDistance = 3100; //2500
     protected int fire2TurnDegree = 75;
-    protected int fire2WallDistance = 5500; // 5121
+    protected int fire2WallDistance = 5200; // 5121
     protected int wall2TurnDegree = -75;
     protected int wall2BeaconDistance = 1500; //953 actually
     protected int beacon2ParkTurnDegree = 45;
     protected int beacon2BeaconDistance =4800; //4325
     protected int beacon2ParkingDistance =5700; //4318
-    protected int jammingBackupDistance = 100;
+    protected int jammingBackupDistance = 150;
     protected double back2BasePower = -1* chargingPower;
 
     protected double leftArmFastAutoMovePower = 0.45;
@@ -258,7 +258,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 // go straight until hit the second white line
                 gyroTracker.skewTolerance = 0;
                 gyroTracker.breakDistance = 200;
-                if (System.currentTimeMillis() - lastTimeStamp > 800) {
+                if (System.currentTimeMillis() - lastTimeStamp > 1500) {
                     state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
                             cruisingTurnGain, searchingPower, beacon2BeaconDistance, state, state + 1);
                 } else {
@@ -287,7 +287,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 // turn 45 degree
                 gyroTracker.skewTolerance = 2;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
-                        inPlaceTurnGain,turningPower,state,state+1);
+                        inPlaceTurnGain,parkTurningPower,state,state+1);
                 if (state == 11) {
                     lastTimeStamp = System.currentTimeMillis();
                     gyroTracker.minTurnPower = 0.01;

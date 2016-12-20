@@ -58,7 +58,7 @@ public class PlanABlueRampAutoOp extends PlanABlueAutoOp{
     @Override
     public void start() {
         super.start();
-        beacon2ParkingDistance = -7800;
-        beacon2ParkTurnDegree = -5;
+        beacon2ParkingDistance = -7600;
+        beacon2ParkTurnDegree = -8;
     }
 }
