@@ -64,7 +64,6 @@ public class PlanDBlueAutoOp extends PlanDRedAutoOp{
         wall2TurnDegree = 85;
         beacon2ParkingDistance = -7500;
         beacon2ParkTurnDegree = -5;
-        wallTracker.wallTrackerHW.moveSonicArmToMaxRight();
     }
 
     @Override

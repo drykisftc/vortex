@@ -87,7 +87,6 @@ public class WallTrackerOpMode extends VortexTeleOp {
 
         super.start();
         // compute baseline brightness
-        wallTracker.wallTrackerHW.moveSonicArmToMaxLeft();
         wallTracker.start(0);
         wallTracker.targetDistance = 15; // cm
 

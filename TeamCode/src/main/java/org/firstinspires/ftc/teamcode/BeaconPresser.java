@@ -52,7 +52,7 @@ public class BeaconPresser extends RobotExecutor {
         distanceThreshold = beaconArm.colorSensorAmbient + 1;
     }
 
-    public void calibrate () {
+    public void calibrate_loop () {
         beaconArm.calibrate_loop();
     }
 

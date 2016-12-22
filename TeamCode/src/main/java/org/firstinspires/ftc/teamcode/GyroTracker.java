@@ -223,6 +223,10 @@ public class GyroTracker extends Tracker {
         landMarkPosition = d;
     }
 
+    public int getWheelLandmark () {
+        return landMarkPosition;
+    }
+
     public void stopWheels() {
         leftWheel.setPower(0.0);
         rightWheel.setPower(0.0);

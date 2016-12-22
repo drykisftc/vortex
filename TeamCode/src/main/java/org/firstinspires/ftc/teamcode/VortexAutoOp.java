@@ -71,6 +71,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected int beacon2BeaconDistance =4800; //4325
     protected int beacon2ParkingDistance =5700; //4318
     protected int jammingBackupDistance = 150;
+    protected double sonicWallDistanceLimit = 10.0;
     protected double back2BasePower = -1* chargingPower;
 
     protected double leftArmFastAutoMovePower = 0.45;
@@ -116,7 +117,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     public void initWallTracker() {
         wallTracker = new WallTracker(wallTrackerHW,
                 robot.motorLeftWheel,
-                robot.motorRightWheel, 7);
+                robot.motorRightWheel, 5);
+        wallTracker.init();
     }
 
     /*
@@ -125,7 +127,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     @Override
     public void init_loop() {
         super.init_loop();
-        beaconPresser.calibrate();
+        beaconPresser.calibrate_loop();
+        wallTracker.readDistance();
     }
 
     /*
@@ -152,7 +155,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     @Override
     public void loop() {
         telemetry.addData("State:", "%02d", state);
-        telemetry.addData("Wall Distance: ", "%02f", wallTracker.wallTrackerHW.getDistance());
         switch (state) {
             case 0:
                 // go straight
@@ -199,16 +201,32 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 }
                 break;
             case 3:
+                wallTracker.readDistance();
+
                 // go straight until hit the wall
                 gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 200;
+                gyroTracker.breakDistance = 800;
                 state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
                         cruisingPower, fire2WallDistance, state,state+2); // need to +2 to skip jam backup
 
+                double sonicDistance = wallTracker.getHistoryDistanceAverage();
+                telemetry.addData("Wall Distance: ", "%02f", sonicDistance);
+                int travelDistance = Math.min(robot.motorLeftWheel.getCurrentPosition(),
+                        robot.motorRightWheel.getCurrentPosition());
+                telemetry.addData("Travel Distance: ", travelDistance);
+
+                // wall distance detection
+                if ( (Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.9
+                        && sonicDistance <= sonicWallDistanceLimit))  {
+                    stopWheels();
+                    gyroTracker.setWheelLandmark();
+                    state = 5;
+                }
+
                 // jamming detection
-                if (jammingDetection.isJammed(Math.min(robot.motorLeftWheel.getCurrentPosition(),
-                        robot.motorRightWheel.getCurrentPosition()))) {
+                if (jammingDetection.isJammed(travelDistance)) {
                     gyroTracker.minTurnPower = 0.01;
+                    gyroTracker.breakDistance = 100;
                     stopWheels();
                     gyroTracker.setWheelLandmark(); // important. otherwise it use last landmark
                     state = 4;

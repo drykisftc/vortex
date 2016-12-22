@@ -185,7 +185,6 @@ class VortexTeleOp extends OpMode{
         // wall tracker
         wallTrackerHW = new HardwareWallTracker();
         wallTrackerHW.init(hardwareMap);
-        wallTrackerHW.park();
 
         // arms
         leftArmMinLimitSwitchOnCount =0;
