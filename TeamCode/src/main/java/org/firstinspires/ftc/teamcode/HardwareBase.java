@@ -15,6 +15,7 @@ public class HardwareBase
     /* Initialize standard Hardware interfaces */
     public void init(HardwareMap ahwMap) {
         hwMap = ahwMap;
+
     }
 
     public void reset () {

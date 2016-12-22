@@ -18,9 +18,11 @@ public class HardwareWallTracker extends HardwareBase {
 
         // Initialize base Motor and Servo objects
         super.init(ahwMap);
-
         sonicArm =  hwMap.servo.get("sonicArm");
         sonicRange =  hwMap.get(ModernRoboticsI2cRangeSensor.class, "sonicRange");
+        if (1 == 1){
+
+        }
 
     }
 
