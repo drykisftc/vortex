@@ -379,7 +379,7 @@ class VortexTeleOp extends OpMode{
                     break;
                 case LOAD: {
                     // if trigger snap, move between snap position and load position
-                    double snapTrigger = gamepad1.left_trigger;
+                    double snapTrigger = gamepad1.right_trigger;
                     if (snapTrigger > leftArmJoystickDeadZone) {
                         int target = leftArmLoadPosition
                                 - (int) ((leftArmLoadPosition - leftArmHomePosition) * snapTrigger);
