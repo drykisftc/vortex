@@ -63,6 +63,7 @@ public class DanceAutoOp extends VortexAutoOp{
     double headPower = 0.4;
     double armSpeed = 2.0;
 
+
     @Override
     public void start() {
         super.start();
@@ -76,7 +77,6 @@ public class DanceAutoOp extends VortexAutoOp{
     protected void dancePatternReset () {
         danceState = 0;
         lastTimeStamp = System.currentTimeMillis();
-        state ++;
     }
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
@@ -85,11 +85,14 @@ public class DanceAutoOp extends VortexAutoOp{
     public void loop() {
         telemetry.addData("State:", "%02d", state);
         telemetry.addData("DanceState:", "%02d", danceState);
+        telemetry.addData("Current Time: ", "%02d", System.currentTimeMillis() - lastTimeStamp);
         switch (state) {
             case 0:
                 gyroTracker.skewTolerance = 0;
-                gyroTracker.goStraight (0, cruisingTurnGain, 0.2,
-                    start2FireDistance, state, state+1);
+                if(gyroTracker.goStraight (0, cruisingTurnGain, 0.2,
+                    start2FireDistance, 0, 1) == 1){
+                    start2FireDistance = 0;
+                }
                 VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
                         leftArmFirePosition, 0.25);
                 armB(0.2);
@@ -99,18 +102,18 @@ public class DanceAutoOp extends VortexAutoOp{
                     lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
-//            case 1:
-//                state = beforeShootDance(danceBeats);
-//                if(state == 1) dancePatternReset();
-//                break;
-//            case 2:
-//                state = cowboyDance2(danceBeats);
-//                if(state == 2) dancePatternReset();
-//                break;
-//            case 3:
-//                state = cowboyDance3(danceBeats);
-//                if(state == 3) dancePatternReset();
-//                break;
+            case 1:
+                state = beforeShootDance(danceBeats, 1, 2);
+                if(state == 2) dancePatternReset();
+                break;
+            case 2:
+                state = cowboyDance2(danceBeats, 2, 3);
+                if(state == 3) dancePatternReset();
+                break;
+            case 3:
+                state = cowboyDance3(danceBeats, 3, 4);
+                if(state == 4) dancePatternReset();
+                break;
             default:
                 dancePatternReset();
                 //state = 0; // repeat
@@ -124,10 +127,11 @@ public class DanceAutoOp extends VortexAutoOp{
         // move to empty spot
     }
 
-    public int beforeShootDance (int beatInterval) {
-        telemetry.addData("Cowboy Dance State:", "%02d", danceState);
+    public int beforeShootDance (int beatInterval, int startState, int endState) {
+        telemetry.addData("Pre-shoot State:", "%02d", danceState);
         switch (danceState) {
             case 0:
+                telemetry.addData("STATE", "%02d", danceState);
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval) {
                     armC(1.0);
                 } else {
@@ -135,6 +139,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 }
                 break;
             case 1:
+                telemetry.addData("STATE", "%02d", danceState);
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*2) {
 
                 } else {
@@ -142,6 +147,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 }
                 break;
             case 2:
+                telemetry.addData("STATE", "%02d", danceState);
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*3) {
                     armD(1.0);
                 } else {
@@ -149,12 +155,14 @@ public class DanceAutoOp extends VortexAutoOp{
                 }
                 break;
             case 3:
+                telemetry.addData("STATE", "%02d", danceState);
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*4) {
                 } else {
                     danceState = 4;
                 }
                 break;
             case 4:
+                telemetry.addData("STATE", "%02d", danceState);
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
                     armC(1.0);
                 } else {
@@ -162,6 +170,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 }
                 break;
             case 5:
+                telemetry.addData("STATE", "%02d", danceState);
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
                     armD(1.0);
                 } else {
@@ -169,6 +178,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 }
                 break;
             case 6:
+                telemetry.addData("STATE", "%02d", danceState);
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*7) {
                     armC(1.0);
                 } else {
@@ -176,6 +186,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 }
                 break;
             case 7:
+                telemetry.addData("STATE", "%02d", danceState);
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*8) {
                     armD(1.0);
                 } else {
@@ -183,13 +194,13 @@ public class DanceAutoOp extends VortexAutoOp{
                 }
                 break;
             default:
-                return 1; // done
+                return endState; // done
         }
         telemetry.addData("back to", "state", "0");
-        return 0;
+        return startState;
     }
 
-    public int cowboyDance (int beatInterval) {
+    public int cowboyDance (int beatInterval, int startState, int endState) {
         telemetry.addData("Cowboy Dance State:", "%02d", danceState);
         switch (danceState) {
             case 0:
@@ -255,12 +266,12 @@ public class DanceAutoOp extends VortexAutoOp{
                 }
                 break;
             default:
-                return 1; // done
+                return endState; // done
         }
-        return 0;
+        return startState;
     }
 
-    public int cowboyDance2 (int beatInterval) {
+    public int cowboyDance2 (int beatInterval, int startSate, int endState) {
         telemetry.addData("Cowboy Dance2 State:", "%02d", danceState);
         switch (danceState) {
             case 0:
@@ -332,12 +343,12 @@ public class DanceAutoOp extends VortexAutoOp{
                 }
                 break;
             default:
-                return 2; // done
+                return endState; // done
         }
-        return 1;
+        return endState;
     }
 
-    public int cowboyDance3 (int beatInterval) {
+    public int cowboyDance3 (int beatInterval, int startState, int endState) {
         telemetry.addData("Cowboy Dance3 State:", "%02d", danceState);
         switch (danceState) {
             case 0:
@@ -411,9 +422,9 @@ public class DanceAutoOp extends VortexAutoOp{
                 }
                 break;
             default:
-                return 3; // done
+                return endState; // done
         }
-        return 2;
+        return startState;
     }
 
     // arm dance modes
