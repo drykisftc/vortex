@@ -97,7 +97,7 @@ public class DanceAutoOp extends VortexAutoOp{
                         leftArmFirePosition, 0.25);
                 armB(0.2);
 
-                if (System.currentTimeMillis() - lastTimeStamp > 8000) {
+                if (System.currentTimeMillis() - lastTimeStamp > 8500) {
                     state = 1;
                     lastTimeStamp = System.currentTimeMillis();
                 }
@@ -107,13 +107,16 @@ public class DanceAutoOp extends VortexAutoOp{
                 if(state == 2) dancePatternReset();
                 break;
             case 2:
-                state = cowboyDance2(danceBeats, 2, 3);
+                state = cowboyDance(danceBeats, 2, 3);
                 if(state == 3) dancePatternReset();
                 break;
             case 3:
-                state = cowboyDance3(danceBeats, 3, 4);
+                state = cowboyDance2(danceBeats, 3, 4);
                 if(state == 4) dancePatternReset();
                 break;
+            case 4:
+                state = cowboyDance3(danceBeats, 4,5);
+                if(state == 5) dancePatternReset();
             default:
                 dancePatternReset();
                 //state = 0; // repeat
@@ -123,7 +126,6 @@ public class DanceAutoOp extends VortexAutoOp{
 
     public void findEmptySpot () {
         // make circle to collect data
-
         // move to empty spot
     }
 
@@ -131,66 +133,72 @@ public class DanceAutoOp extends VortexAutoOp{
         telemetry.addData("Pre-shoot State:", "%02d", danceState);
         switch (danceState) {
             case 0:
-                telemetry.addData("STATE", "%02d", danceState);
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval) {
-                    armC(1.0);
-                } else {
+                //delay
+                if (System.currentTimeMillis() - lastTimeStamp < 0) {
+
+                }else{
                     danceState = 1;
                 }
-                break;
             case 1:
-                telemetry.addData("STATE", "%02d", danceState);
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*2) {
-
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval) {
+                    armC(5.0);
                 } else {
                     danceState = 2;
                 }
                 break;
             case 2:
-                telemetry.addData("STATE", "%02d", danceState);
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*3) {
-                    armD(1.0);
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*4) {
+                    armD(5.0);
                 } else {
                     danceState = 3;
                 }
                 break;
             case 3:
-                telemetry.addData("STATE", "%02d", danceState);
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*4) {
+
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
+                    armC(5.0);
                 } else {
                     danceState = 4;
                 }
                 break;
             case 4:
-                telemetry.addData("STATE", "%02d", danceState);
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
-                    armC(1.0);
+
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
+                    armD(5.0);
                 } else {
                     danceState = 5;
                 }
                 break;
             case 5:
-                telemetry.addData("STATE", "%02d", danceState);
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
-                    armD(1.0);
+
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*9) {
+                    armC(5.0);
                 } else {
                     danceState = 6;
                 }
                 break;
             case 6:
-                telemetry.addData("STATE", "%02d", danceState);
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*7) {
-                    armC(1.0);
+
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*10) {
+                    armD(5.0);
                 } else {
                     danceState = 7;
                 }
                 break;
             case 7:
-                telemetry.addData("STATE", "%02d", danceState);
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*8) {
-                    armD(1.0);
+
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*11) {
+                    armC(5.0);
                 } else {
                     danceState = 8;
+                }
+                break;
+            case 8:
+
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*10) {
+                    armD(5.0);
+                } else {
+                    danceState = 9;
                 }
                 break;
             default:
@@ -205,7 +213,7 @@ public class DanceAutoOp extends VortexAutoOp{
         switch (danceState) {
             case 0:
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval) {
-                    armB(2.0);
+                    armC(5.0);
                     headA(headPower);
                 } else {
                     danceState = 1;
@@ -213,7 +221,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 break;
             case 1:
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*2) {
-                    armC(5.0);
+                    armD(5.0);
                 } else {
                     danceState = 2;
                 }
@@ -221,36 +229,36 @@ public class DanceAutoOp extends VortexAutoOp{
             case 2:
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*3) {
                     headC(headPower);
-                    armD(5.0);
+                    armA();
                 } else {
                     danceState = 3;
                 }
                 break;
             case 3:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*4) {
-                    armE();
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
+                    armB(5.0);
                 } else {
                     danceState = 4;
                 }
                 break;
             case 4:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
-                    armF();
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*9) {
+                    armD(5.0);
                     headB(headPower);
                 } else {
                     danceState = 5;
                 }
                 break;
             case 5:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
-                    armG();
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*10) {
+                    armC(5.0);
                     headC(headPower);
                 } else {
                     danceState = 6;
                 }
                 break;
             case 6:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*7) {
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*11) {
                     armH();
                     headB(headPower);
                 } else {
@@ -258,7 +266,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 }
                 break;
             case 7:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*8) {
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*14) {
                     armA();
                     headC(headPower);
                 } else {
@@ -272,6 +280,7 @@ public class DanceAutoOp extends VortexAutoOp{
     }
 
     public int cowboyDance2 (int beatInterval, int startSate, int endState) {
+        dancePatternReset();
         telemetry.addData("Cowboy Dance2 State:", "%02d", danceState);
         switch (danceState) {
             case 0:
@@ -426,8 +435,10 @@ public class DanceAutoOp extends VortexAutoOp{
         }
         return startState;
     }
-
     // arm dance modes
+    /*
+    *********************************************************************************************
+     */
     public void armA () {
         leftBeaconArm.retract();
         rightBeaconArm.retract();
