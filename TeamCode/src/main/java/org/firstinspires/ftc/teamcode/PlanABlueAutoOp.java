@@ -49,7 +49,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan A: Blue", group="Plan A")
+@Autonomous(name="Plan A: Blue", group="Close Side")
 public class PlanABlueAutoOp extends VortexAutoOp{
 
     /*
@@ -59,11 +59,10 @@ public class PlanABlueAutoOp extends VortexAutoOp{
     public void start() {
         super.start();
         beaconPresser.teamColor = 'b';
-        fire2TurnDegree = -75;
-        fire2WallDistance = 4000;
-        wall2TurnDegree = 75;
+        fire2TurnDegree = -88;
+        fire2WallDistance = 3500;
+        wall2TurnDegree = 88;
         beacon2ParkTurnDegree = -45;
-        wallTracker.wallTrackerHW.moveSonicArmToMaxRight();
     }
 
     @Override

@@ -189,7 +189,6 @@ public class VortexMeasureOp extends VortexTeleOp {
         telemetry.addData("Right Arm State:", "%02d", rightBeaconArm.state);
 
         // get range info
-        telemetry.addData("Range arm position   ", "%.2f", wallTrackerHW.sonicArm.getPosition());
         telemetry.addData("Range raw optical    ", "%3d", wallTrackerHW.sonicRange.rawOptical());
         telemetry.addData("Range cm optical     ", "%.2f cm", wallTrackerHW.sonicRange.cmOptical());
         telemetry.addData("Range raw ultrasonic ", "%3d",  wallTrackerHW.sonicRange.rawUltrasonic());

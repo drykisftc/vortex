@@ -49,70 +49,16 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Plan C: Red", group="Far Side")
-public class PlanCRedAutoOp extends PlanBRedAutoOp{
+@Autonomous(name="Plan N: Blue", group="Plan N")
+public class PlanNBlueAutoOp extends PlanNRedAutoOp {
+
+    int leftArmHitBallPosition = 400;
 
     @Override
     public void start() {
         super.start();
-        fire2TurnDegree = 179;
-        fire2WallDistance= 2300;
-        startWaitingTime = 10000;
+        fire2TurnDegree = -90;
+        wall2TurnDegree = -45;
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
-     */
-    @Override
-    public void loop() {
-        switch (state) {
-            case 0:
-                if (System.currentTimeMillis() - lastTimeStamp > startWaitingTime) {
-                    state = 1;
-                }
-                break;
-            case 1:
-                // go straight
-                state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
-                        start2FireDistance, state, state + 1);
-                telemetry.addData("State:", "%02d", state);
-
-                if (System.currentTimeMillis() - lastTimeStamp > 200) {
-                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                            leftArmFirePosition, leftArmAutoMovePower);
-                }
-
-                if (state == 2) {
-                    // prepare to shoot
-                    robot.motorLeftWheel.setPower(0.0);
-                    robot.motorRightWheel.setPower(0.0);
-                    particleShooter.start(0);
-                    particleShooter.armPower = leftArmAutoMovePower;
-                    particleShooter.armStartPosition = leftArmMovePosition;
-                }
-                break;
-            case 2:
-                // shoot particles
-                state = particleShooter.loop(state, state + 1);
-                break;
-            case 3:
-                // turn 45 degree
-                gyroTracker.skewTolerance = 3;
-                state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
-                        turningPower,state,state+1);
-                break;
-            case 4:
-                // go backward and park
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 0;
-                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
-                        -1.0*cruisingPower, fire2WallDistance, state,state+1);
-                break;
-            default:
-                // stop
-                telemetry.addData("State:", "End");
-                stop();
-        }
-        telemetry.update();
-    }
 }

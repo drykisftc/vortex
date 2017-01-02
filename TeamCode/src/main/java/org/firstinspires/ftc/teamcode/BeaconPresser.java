@@ -14,7 +14,7 @@ public class BeaconPresser extends RobotExecutor {
     double cruisingPower = 0.5;
     double searchingPower = 0.2;
     double cruisingTurnGain = 0.002;
-    int distanceThreshold = 2;
+    int distanceThreshold = 1;
     char teamColor = 'b';
 
     int pressButtonTimes = 0;
@@ -29,9 +29,12 @@ public class BeaconPresser extends RobotExecutor {
     double slowSpeedGain = 0.1;
     double fastSpeedGain = 1.0;
 
-    protected long pressTimeLimit = 800; // 3 seconds
+    protected long longPressTimeLimit = 1500; // 1.5 seconds
+    protected long shotPressTimeLimit = 500; // 0.3 seconds
     protected long travelTimeLimit = 10000; // 10 seconds
 
+    protected int waggleDegree = 2;
+    protected double waggleGain = 0.01;
 
     public BeaconPresser(GyroTracker g,
                          HardwareBeaconArm arm){
@@ -46,10 +49,10 @@ public class BeaconPresser extends RobotExecutor {
         landMarkAngle = gyroTracker.gyro.getHeading();
         bBeaconPressed = false;
         pressButtonTimes = 0;
-        distanceThreshold = beaconArm.colorSensorAmbient + 2;
+        distanceThreshold = beaconArm.colorSensorAmbient + 1;
     }
 
-    public void calibrate () {
+    public void calibrate_loop () {
         beaconArm.calibrate_loop();
     }
 
@@ -97,22 +100,45 @@ public class BeaconPresser extends RobotExecutor {
                 break;
             case 3:
                 // touch beacon button
+                // waggle wheels to touch beacon at different angles
+                gyroTracker.skewTolerance = 0;
+                gyroTracker.turn(landMarkAngle+waggleDegree*((pressButtonTimes+2)%3-1), waggleGain,
+                        0.0,state, state);
+
                 if (beaconArm.extendUntilTouch(fastSpeedGain)
-                        || System.currentTimeMillis() - lastTimeStamp > pressTimeLimit){
+                        || System.currentTimeMillis() - lastTimeStamp > longPressTimeLimit){
+                    pressButtonTimes ++;
+                    bBeaconPressed = true;
+                    lastTimeStamp = System.currentTimeMillis();
+                    beaconArm.retract();
                     state = 4;
+                }
+                break;
+            case 4:
+                // waggle wheels to touch beacon at different angles
+                gyroTracker.skewTolerance = 0;
+                gyroTracker.turn(landMarkAngle+waggleDegree*((pressButtonTimes+2)%3-1), waggleGain,
+                        0.0,state, state);
+
+                // touch beacon button
+                if (beaconArm.extendUntilTouch(fastSpeedGain)
+                        || System.currentTimeMillis() - lastTimeStamp > shotPressTimeLimit){
+                    state = 5;
                     pressButtonTimes ++;
                     bBeaconPressed = true;
                     lastTimeStamp = System.currentTimeMillis();
                     beaconArm.retract();
                 }
                 break;
-            case 4:
-                if (System.currentTimeMillis() - lastTimeStamp < pressTimeLimit/3)  {
+            case 5:
+                if (System.currentTimeMillis() - lastTimeStamp < shotPressTimeLimit)  {
                     beaconArm.retract();
                 } else if (pressButtonTimes >= pressButtonTimesLimit) {
-                    state = 5;
+                    state = 6;
                 } else {
-                    state = 3;
+                    state = 4;
+                    lastTimeStamp = System.currentTimeMillis();
+                    waggleDegree *= -1.0; // flip the waggle angle
                 }
                 break;
             default: {

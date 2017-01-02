@@ -31,44 +31,38 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 /**
  *
  */
-@Autonomous(name="Auto: right wall tracker", group="Testing")
-@Disabled
+@Autonomous(name="Auto: left wall tracker", group="Testing")
 public class WallTrackerOpMode extends VortexTeleOp {
 
     /* Declare OpMode members. */
-    HardwareWallTracker walTrackerHW   = null;   // Use a Pushbot's hardware
     WallTracker wallTracker = null;
 
     // state machine
     int state = 0;
 
-    int bufferSize= 10;
+    int bufferSize= 7;
 
-    double signValue = 1.0;
+    double cruisePower = 0.35;
+    double turnGain = 1.0;
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-        /* Initialize the hardware variables.
-         * The init() method of the hardware class does all the work here
-         */
-        wallTrackerHW = new HardwareWallTracker();
-        walTrackerHW.init(hardwareMap);
 
-        wallTracker = new WallTracker(walTrackerHW,
+        super.init();
+        wallTracker = new WallTracker(wallTrackerHW,
                 robot.motorLeftWheel,
                 robot.motorRightWheel,
                 bufferSize);
         wallTracker.init();
         wallTracker.setReporter(telemetry);
+        wallTracker.skewPowerGain = 0.01;
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Say", "Hello WallTracker");    //
@@ -80,6 +74,7 @@ public class WallTrackerOpMode extends VortexTeleOp {
      */
     @Override
     public void init_loop() {
+        super.init_loop();
         // collect baseline brightness
         wallTracker.calibrate();
     }
@@ -89,18 +84,21 @@ public class WallTrackerOpMode extends VortexTeleOp {
      */
     @Override
     public void start() {
+
+        super.start();
         // compute baseline brightness
         wallTracker.start(0);
+        wallTracker.targetDistance = 15; // cm
+
+        // put arm in good position
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
-     */
     @Override
     public void loop() {
         switch (state) {
             case 0:
-                wallTracker.loop(0.4, 0.0,signValue);
+                wallTracker.loop(cruisePower, 0.0, turnGain);
                 break;
             default:
         }

@@ -53,7 +53,6 @@ public class BeaconPresserOpMode extends VortexAutoOp {
         fire2WallDistance = 5420;
         wall2TurnDegree = -75;
         beacon2ParkTurnDegree = 45;
-        wallTracker.wallTrackerHW.moveSonicArmToMaxLeft();
         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPostion, leftArmAutoMovePower);
     }
 

@@ -52,6 +52,8 @@ public class HardwareBeaconArm extends HardwareBase {
 
     protected RGB ambientRGB = new RGB(0,0,0);
 
+    protected int colorDiffThreshold = 1;
+
     HardwareBeaconArm ( String upArmName, String lowArmName,
                         String colorName, String touchName) {
         upperArmName = upArmName;
@@ -195,6 +197,22 @@ public class HardwareBeaconArm extends HardwareBase {
         lowerArm.setPosition(lowerArmHomePosition);
     }
 
+    public void raiseUpperArm() {
+        upperArm.setPosition(upperArmMax);
+    }
+
+    public void lowerUpperArm() {
+        upperArm.setPosition(upperArmHomePosition);
+    }
+
+    public void raiseLowerArm() {
+        lowerArm.setPosition(upperArmMax);
+    }
+
+    public void lowerLowerArm() {
+        lowerArm.setPosition(upperArmHomePosition);
+    }
+
     /**
      *
      * @return less than 0 if red, bigger than 0 if blue
@@ -209,9 +227,9 @@ public class HardwareBeaconArm extends HardwareBase {
      */
     public char getColorBlueOrRed () {
         int d = isBlueOrRed();
-        if ( d > 1) {
+        if ( d >= colorDiffThreshold) {
             return 'b';
-        } else if (d < -1) {
+        } else if (d <= -1*colorDiffThreshold) {
             return 'r';
         } else {
             return 'u';
