@@ -77,6 +77,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected double leftArmFastAutoMovePower = 0.45;
 
     protected long lastTimeStamp = 0;
+
     protected long startWaitingTime = 1000;
 
     // jam detection
@@ -216,7 +217,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 telemetry.addData("Travel Distance: ", travelDistance);
 
                 // wall distance detection
-                if ( (Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.9
+                if ( (Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.6
                         && sonicDistance <= sonicWallDistanceLimit))  {
                     stopWheels();
                     gyroTracker.setWheelLandmark();
@@ -240,7 +241,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 5:
                 // turn -45 degree back
-                gyroTracker.skewTolerance = 1;
+                gyroTracker.skewTolerance = 0;
                 gyroTracker.maxTurnPower = 0.2;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
@@ -303,7 +304,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 10:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 2;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
                         inPlaceTurnGain,parkTurningPower,state,state+1);
                 if (state == 11) {
