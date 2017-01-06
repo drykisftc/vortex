@@ -91,7 +91,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 }
                 VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
                         leftArmFirePosition, 0.25);
-                armB(0.2);
+                armB(0.3);
 
                 if (System.currentTimeMillis() - lastTimeStamp > 8200) {
                     state = 1;
@@ -122,8 +122,116 @@ public class DanceAutoOp extends VortexAutoOp{
                 if(state == 5) dancePatternReset();
                 break;
             case 5:
-                state = cowboyDance3(danceBeats, 5,6);
-                if(state == 6) dancePatternReset();
+                wallTracker.readDistance();
+
+                // go straight until hit the wall
+                gyroTracker.skewTolerance = 0;
+                gyroTracker.breakDistance = 800;
+                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
+                        cruisingPower, fire2WallDistance, state,state+2); // need to +2 to skip jam backup
+
+                double sonicDistance = wallTracker.getHistoryDistanceAverage();
+                telemetry.addData("Wall Distance: ", "%02f", sonicDistance);
+                int travelDistance = Math.min(robot.motorLeftWheel.getCurrentPosition(),
+                        robot.motorRightWheel.getCurrentPosition());
+                telemetry.addData("Travel Distance: ", travelDistance);
+
+                // wall distance detection
+                if ( (Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.6
+                        && sonicDistance <= sonicWallDistanceLimit))  {
+                    stopWheels();
+                    gyroTracker.setWheelLandmark();
+                    state = 7;
+                }
+
+                // jamming detection
+                if (jammingDetection.isJammed(travelDistance)) {
+                    gyroTracker.minTurnPower = 0.01;
+                    gyroTracker.breakDistance = 100;
+                    stopWheels();
+                    gyroTracker.setWheelLandmark();
+                    state = 6;
+                }
+                cowboyDance3(danceBeats, 5,6);
+                if(state == 6||state == 7) dancePatternReset();
+            case 6:
+                // if jammed, back up a little bit
+                gyroTracker.breakDistance = 0;
+                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
+                        -1.0*searchingPower, jammingBackupDistance, state,state+1);
+                break;
+            case 7:
+                // turn -45 degree back
+                gyroTracker.skewTolerance = 0;
+                gyroTracker.maxTurnPower = 0.2;
+                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
+                        inPlaceTurnGain,turningPower,state,state+1);
+                if (state == 6 ) {
+                    // reset min turning power to avoid jerky movements
+                    gyroTracker.minTurnPower = 0.01;
+                }
+                break;
+            case 8:
+                // go straight until hit first white line
+                gyroTracker.skewTolerance = 0;
+                gyroTracker.breakDistance = 200;
+                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
+                        cruisingTurnGain, searchingPower, wall2BeaconDistance, state,state+1);
+
+                // check the ods for white line signal
+                if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
+                    state = 7;
+                    stopWheels();
+                    gyroTracker.setWheelLandmark();
+                    beaconPresser.start(0);
+                }
+                break;
+            case 9:
+                // touch beacon
+                state = beaconPresser.loop(state, state+1);
+                if (state == 8) {
+                    gyroTracker.setWheelLandmark();
+                    lastTimeStamp = System.currentTimeMillis();
+                }
+            case 10:
+                // go straight until hit the second white line
+                gyroTracker.skewTolerance = 0;
+                gyroTracker.breakDistance = 200;
+                if (System.currentTimeMillis() - lastTimeStamp > 1500) {
+                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
+                            cruisingTurnGain, searchingPower, beacon2BeaconDistance, state, state + 1);
+                } else {
+                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
+                            cruisingTurnGain, cruisingPower, beacon2BeaconDistance, state, state + 1);
+                }
+
+                // check the ods for white line signal
+                if (gyroTracker.getWheelLandmarkOdometer() > 1000
+                        && hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
+                    state = 9;
+                    stopWheels();
+                    gyroTracker.setWheelLandmark();
+                    beaconPresser.start(0);
+                }
+                break;
+            case 11:
+                // touch beacon
+                state = beaconPresser.loop(state, state+1);
+
+                if (state == 10) {
+                    gyroTracker.setWheelLandmark();
+                }
+                break;
+            case 12:
+                // turn 45 degree
+                gyroTracker.skewTolerance = 1;
+                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
+                        inPlaceTurnGain,parkTurningPower,state,state+1);
+                if (state == 11) {
+                    lastTimeStamp = System.currentTimeMillis();
+                    gyroTracker.minTurnPower = 0.01;
+                }
+
             default:
                 dancePatternReset();
                 state = 1; // repeat
