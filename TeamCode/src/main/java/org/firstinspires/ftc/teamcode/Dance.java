@@ -51,7 +51,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous(name="Dance", group="zDance")
 public class Dance extends VortexAutoOp{
-
     protected int headPositionA = 2500;
     protected int headPositionB = 2800;
     protected int headPositionC = 3000;
@@ -215,7 +214,7 @@ public class Dance extends VortexAutoOp{
                     headA(headPower);
                 } else {
                     danceState = 1;
-                    lastTimeStamp= lastTimeStamp + 556*2;
+
                 }
                 break;
             case 1:
@@ -224,6 +223,7 @@ public class Dance extends VortexAutoOp{
 
                 } else {
                     danceState = 2;
+                    lastTimeStamp= lastTimeStamp + beatInterval*1;
                 }
                 break;
             case 2:

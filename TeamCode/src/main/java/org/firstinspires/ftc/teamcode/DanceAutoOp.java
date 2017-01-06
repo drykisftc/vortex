@@ -32,10 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.adafruit.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.SyncdDevice;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -52,9 +49,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="DanceAuto", group="zDance")
+@Autonomous(name="DanceAutoOp", group="zDance")
 public class DanceAutoOp extends VortexAutoOp{
-
     protected int headPositionA = 2500;
     protected int headPositionB = 2800;
     protected int headPositionC = 3000;
@@ -90,7 +86,7 @@ public class DanceAutoOp extends VortexAutoOp{
             case 0:
                 gyroTracker.skewTolerance = 0;
                 if(gyroTracker.goStraight (0, cruisingTurnGain, 0.2,
-                    start2FireDistance, 0, 1) == 1){
+                        start2FireDistance, 0, 1) == 1){
                     start2FireDistance = 0;
                 }
                 VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
@@ -104,19 +100,30 @@ public class DanceAutoOp extends VortexAutoOp{
                 break;
             case 1:
                 state = beforeShootDance(danceBeats, 1, 2);
-                if(state == 2) dancePatternReset();
+                if(state == 2) {
+                    dancePatternReset();
+                    particleShooter.start(0);
+                    particleShooter.armPower = leftArmAutoMovePower;
+                    particleShooter.armStartPosition = leftArmFiringSafeZone;
+                }
                 break;
             case 2:
-                state = cowboyDance(danceBeats, 2, 3);
-                if(state == 3) dancePatternReset();
-                break;
-            case 3:
-                state = cowboyDance2(danceBeats, 3, 4);
+                //shoot
+                particleShooter.loop(state, state+1);
+                state = cowboyDance(danceBeats, 2, 4);
                 if(state == 4) dancePatternReset();
                 break;
+            case 3:
             case 4:
-                state = cowboyDance3(danceBeats, 4,5);
+                gyroTracker.skewTolerance = 1;
+                gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
+                        turningPower,state,state+1);
+                state = cowboyDance2(danceBeats, 4, 5);
                 if(state == 5) dancePatternReset();
+                break;
+            case 5:
+                state = cowboyDance3(danceBeats, 5,6);
+                if(state == 6) dancePatternReset();
             default:
                 dancePatternReset();
                 state = 1; // repeat
@@ -215,10 +222,10 @@ public class DanceAutoOp extends VortexAutoOp{
             case 0:
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval) {
                     armA();
-                    headA(headPower);
+                    //headA(headPower);
                 } else {
                     danceState = 1;
-                    lastTimeStamp= lastTimeStamp + 556*2;
+
                 }
                 break;
             case 1:
@@ -231,7 +238,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 break;
             case 2:
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
-                    headC(headPower);
+                    //headC(headPower);
                     armA();
                 } else {
                     danceState = 3;
@@ -247,7 +254,7 @@ public class DanceAutoOp extends VortexAutoOp{
             case 4:
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*8) {
                     armB(5.0);
-                    headB(headPower);
+                    //headB(headPower);
                 } else {
                     lastTimeStamp+= 556*0;
                     danceState = 5;
@@ -256,7 +263,7 @@ public class DanceAutoOp extends VortexAutoOp{
             case 5:
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*9) {
                     armC(5.0);
-                    headC(headPower);
+                    //headC(headPower);
                 } else {
                     danceState = 6;
                 }
@@ -264,7 +271,7 @@ public class DanceAutoOp extends VortexAutoOp{
             case 6:
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*11) {
                     armH();
-                    headB(headPower);
+                    //headB(headPower);
                 } else {
                     danceState = 7;
                 }
@@ -272,7 +279,7 @@ public class DanceAutoOp extends VortexAutoOp{
             case 7:
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*12) {
                     armA();
-                    headC(headPower);
+                    //headC(headPower);
                 } else {
                     danceState = 8;
                 }
@@ -290,7 +297,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval) {
                     armB(5.0);
                     headA(headPower);
-                    wheelB(0.0,15);
+                    //wheelB(0.0,15);
                 } else {
                     danceState = 1;
                 }
@@ -306,7 +313,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*3) {
                     headC(headPower);
                     armD(5.0);
-                    wheelB(0.0,-15);
+                    //wheelB(0.0,-15);
                 } else {
                     danceState = 3;
                 }
@@ -322,7 +329,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
                     armC(5.0);
                     headB(headPower);
-                    wheelB(0.0,15);
+                    //wheelB(0.0,15);
                 } else {
                     danceState = 5;
                 }
@@ -331,7 +338,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
                     armD(5.0);
                     headC(headPower);
-                    wheelB(0.0,-15);
+                    //wheelB(0.0,-15);
                 } else {
                     danceState = 6;
                 }
@@ -340,7 +347,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*7) {
                     armC(5.0);
                     headB(headPower);
-                    wheelB(0.0,15);
+                    //wheelB(0.0,15);
                 } else {
                     danceState = 7;
                 }
@@ -349,7 +356,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*8) {
                     armD(5.0);
                     headC(headPower);
-                    wheelB(0.0,-15);
+                    //wheelB(0.0,-15);
                 } else {
                     danceState = 8;
                 }
@@ -367,7 +374,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval) {
                     armB(5.0);
                     headA(headPower);
-                    wheelB(0.0,15);
+                    //wheelB(0.0,15);
                 } else {
                     danceState = 1;
                 }
@@ -375,7 +382,7 @@ public class DanceAutoOp extends VortexAutoOp{
             case 1:
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*2) {
                     armC(5.0);
-                    wheelB(0.0,50);
+                    //wheelB(0.0,50);
                 } else {
                     danceState = 2;
                 }
@@ -384,7 +391,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*3) {
                     headC(headPower);
                     armD(5.0);
-                    wheelB(0.0,90);
+                    //wheelB(0.0,90);
                 } else {
                     danceState = 3;
                 }
@@ -392,7 +399,7 @@ public class DanceAutoOp extends VortexAutoOp{
             case 3:
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*4) {
                     armE();
-                    wheelB(0.0,135);
+                    //wheelB(0.0,135);
                 } else {
                     danceState = 4;
                 }
@@ -401,7 +408,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
                     armG();
                     headB(headPower);
-                    wheelB(0.0,180);
+                    //wheelB(0.0,180);
                 } else {
                     danceState = 5;
                 }
@@ -410,7 +417,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
                     armH();
                     headC(headPower);
-                    wheelB(0.0,240);
+                    //wheelB(0.0,240);
                 } else {
                     danceState = 6;
                 }
@@ -419,7 +426,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*7) {
                     armG();
                     headB(headPower);
-                    wheelB(0.0,290);
+                    //wheelB(0.0,290);
                 } else {
                     danceState = 7;
                 }
@@ -428,7 +435,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*8) {
                     armH();
                     headC(headPower);
-                    wheelB(0.0,0);
+                    //wheelB(0.0,0);
                 } else {
                     danceState = 8;
                 }
