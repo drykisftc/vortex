@@ -95,6 +95,8 @@ class VortexTeleOp extends OpMode{
     private int leftArmMaxLimitSwitchOnCount =0;
     private int leftArmLimitSwitchCountThreshold = 8;
 
+    private double rightArmHoldPower = 1.0;
+
     enum LeftArmState {
         HOME,
         LOAD,
@@ -129,6 +131,8 @@ class VortexTeleOp extends OpMode{
             0.44f, 0.45f, 0.46f, 0.47f, 0.48f, 0.49f, 0.5f, 0.55f,
             0.6f, 0.65f, 0.7f, 0.8f, 0.9f, 1.0f};
 
+    double [] rightArmDowPowerLUT = { 0.0f, 0.02f, 0.04f, 0.06f, 0.08f, 0.10f, 0.12f, 0.14f};
+
     // left arm control information
     HardwareBeaconArm leftBeaconArm = null;
     private double leftUpHomePosition = 0.90;
@@ -160,6 +164,7 @@ class VortexTeleOp extends OpMode{
     double rightScooperGo = 1.0;
 
     protected int leftArmCurrentPosition = 0;
+    protected int rightArmCurrentPosition = 0;
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -256,6 +261,8 @@ class VortexTeleOp extends OpMode{
         leftArmMinLimitSwitchOnCount = 0;
         leftArmMaxLimitSwitchOnCount =0;
 
+        rightArmCurrentPosition = robot.motorRightArm.getCurrentPosition();
+
         particleShooter.armFiringPosition = leftArmFirePosition;
         particleShooter.armFiringSafeZone = leftArmFiringSafeZone;
         particleShooter.resetArmJammed();
@@ -268,23 +275,6 @@ class VortexTeleOp extends OpMode{
      */
     @Override
     public void loop() {
-
-        // query sensors
-        if (robot.armStopMin.isPressed()) {
-            leftArmMinLimitSwitchOnCount ++;
-        } else {
-            leftArmMinLimitSwitchOnCount = 0;
-        }
-
-        if (robot.armStopMax.isPressed()) {
-            leftArmMaxLimitSwitchOnCount ++;
-        } else {
-            leftArmMaxLimitSwitchOnCount = 0;
-        }
-
-        leftArmCurrentPosition = robot.motorLeftArm.getCurrentPosition();
-        telemetry.addData("left arm pos ", "%6d vs max %6d", leftArmCurrentPosition, leftArmMaxRange);
-
         wheelControl();
         leftArmControl();
         leftHandControl();
@@ -313,6 +303,23 @@ class VortexTeleOp extends OpMode{
     }
 
     public void leftArmControl() {
+
+        // query sensors
+        if (robot.armStopMin.isPressed()) {
+            leftArmMinLimitSwitchOnCount ++;
+        } else {
+            leftArmMinLimitSwitchOnCount = 0;
+        }
+
+        if (robot.armStopMax.isPressed()) {
+            leftArmMaxLimitSwitchOnCount ++;
+        } else {
+            leftArmMaxLimitSwitchOnCount = 0;
+        }
+
+        // arm position
+        leftArmCurrentPosition = robot.motorLeftArm.getCurrentPosition();
+        telemetry.addData("left arm pos  ", "%6d vs max %6d", leftArmCurrentPosition, leftArmMaxRange);
 
         // buttons
         if (gamepad1.a) {
@@ -445,16 +452,30 @@ class VortexTeleOp extends OpMode{
     }
 
     public void elevatorControl () {
+
         if (gamepad1.dpad_down && leftArmState == FIRE) {
             robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.motorRightArm.setPower(-0.01);
+            rightArmCurrentPosition = robot.motorRightArm.getCurrentPosition();
         } else if (gamepad1.dpad_up && leftArmState == FIRE) {
             robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.motorRightArm.setPower(0.5);
+            rightArmCurrentPosition = robot.motorRightArm.getCurrentPosition();
         } else {
-            double throttle = VortexUtils.lookUpTableFunc(-1*gamepad2.right_stick_y, rightArmUpPowerLUT);
-            robot.motorRightArm.setPower(Range.clip(throttle, -1.0, 1.0));
+            if ( gamepad2.right_stick_y < -0.02 ) {
+                double throttle = VortexUtils.lookUpTableFunc(gamepad2.right_stick_y, rightArmUpPowerLUT);
+                robot.motorRightArm.setPower(Range.clip(throttle, -1.0, 1.0));
+                rightArmCurrentPosition = robot.motorRightArm.getCurrentPosition();
+            } else if ( gamepad2.right_stick_y > 0.02 ) {
+                double throttle = VortexUtils.lookUpTableFunc(gamepad2.right_stick_y, rightArmDowPowerLUT);
+                robot.motorRightArm.setPower(Range.clip(throttle, -1.0, 1.0));
+                rightArmCurrentPosition = robot.motorRightArm.getCurrentPosition();
+            } else {
+                // hold position
+                VortexUtils.moveMotorByEncoder(robot.motorRightArm, rightArmCurrentPosition, rightArmHoldPower);
+            }
         }
+        telemetry.addData("right arm pos ", "%6d", rightArmCurrentPosition);
     }
 
     public void rightHandControl () {
@@ -484,9 +505,9 @@ class VortexTeleOp extends OpMode{
         if (gamepad1.right_bumper && leftArmState == LOAD) {
             robot.servoLeftScooper.setPower(leftScooperGo);
             robot.servoRightScooper.setPower(rightScooperGo);
-        } else if (gamepad2.left_trigger > 0.7) {
+        } else if (gamepad2.left_trigger > 0.5) {
             robot.servoLeftScooper.setPower(leftScooperGo);
-        } else if (gamepad2.right_trigger > 0.7) {
+        } else if (gamepad2.right_trigger > 0.5) {
             robot.servoRightScooper.setPower(rightScooperGo);
         } else {
             robot.servoLeftScooper.setPower(leftScooperStop);
