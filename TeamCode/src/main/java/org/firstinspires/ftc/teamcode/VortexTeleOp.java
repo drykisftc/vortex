@@ -35,6 +35,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
 import static org.firstinspires.ftc.teamcode.VortexTeleOp.LeftArmState.FIRE;
@@ -135,9 +136,9 @@ class VortexTeleOp extends OpMode{
 
     // left arm control information
     HardwareBeaconArm leftBeaconArm = null;
-    private double leftUpHomePosition = 0.90;
+    private double leftUpHomePosition = 0.96;
     private double leftUpStepSize = -0.025;
-    private double leftLowHomePosition = 0.95;
+    private double leftLowHomePosition = 0.93;
     private double leftLowStepSize = -0.05;
 
     /* Important: use the core device discovery tool to set color sensor address to 0x40
@@ -150,7 +151,7 @@ class VortexTeleOp extends OpMode{
     private boolean rightLoopTrue = false;
     private double rightUpHomePosition = 0.1;
     private double rightUpStepSize = 0.025;
-    private double rightLowHomePosition = 0.02;
+    private double rightLowHomePosition = 0.01;
     private double rightLowStepSize = 0.05;
     /* Important: use the core device discovery tool to set color sensor address to 0x48
     Then, use the 7 bit version of it 0x24
@@ -194,6 +195,10 @@ class VortexTeleOp extends OpMode{
         // arms
         leftArmMinLimitSwitchOnCount =0;
         leftArmHomingTimestamp = System.currentTimeMillis();
+
+        // scoopers
+        robot.servoLeftScooper.setPower(leftScooperStop);
+        robot.servoRightScooper.setPower(rightScooperStop);
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("TeleOp", "Hello Vortex");    //
@@ -455,7 +460,7 @@ class VortexTeleOp extends OpMode{
 
         if (gamepad1.dpad_down && leftArmState == FIRE) {
             robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.motorRightArm.setPower(-0.01);
+            robot.motorRightArm.setPower(-0.05);
             rightArmCurrentPosition = robot.motorRightArm.getCurrentPosition();
         } else if (gamepad1.dpad_up && leftArmState == FIRE) {
             robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
