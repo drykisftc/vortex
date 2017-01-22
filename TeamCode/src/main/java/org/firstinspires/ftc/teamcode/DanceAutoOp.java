@@ -168,6 +168,7 @@ public class DanceAutoOp extends VortexAutoOp{
                 }
                 cowboyDance3(danceBeats, 5,6);
                 if(state == 6||state == 7) dancePatternReset();
+                break;
             case 6:
                 // if jammed, back up a little bit
                 gyroTracker.breakDistance = 0;
@@ -208,6 +209,7 @@ public class DanceAutoOp extends VortexAutoOp{
                     gyroTracker.setWheelLandmark();
                     lastTimeStamp = System.currentTimeMillis();
                 }
+                break;
             case 10:
                 // go straight until hit the second white line
                 gyroTracker.skewTolerance = 0;
@@ -247,7 +249,7 @@ public class DanceAutoOp extends VortexAutoOp{
                     gyroTracker.minTurnPower = 0.01;
                 }
 
-
+                break;
             default:
                 dancePatternReset();
                 //state = 0; // repeat
