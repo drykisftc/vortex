@@ -16,7 +16,7 @@ class ParticleShooter extends RobotExecutor {
     private int leftArmPositionTolerance = 10;
 
     // hand
-    double handFirePower = 0.5;
+    double handFirePower = 0.6;
     private int fireState = 0;
     private int handHomePosition = 0;
     private int handFirePosition = 0;
