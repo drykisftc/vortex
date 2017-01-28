@@ -14,7 +14,7 @@ public class HardwareBeaconArm extends HardwareBase {
 
     Servo upperArm = null;
     String upperArmName = "upperArm";
-    double upperArmHomePosition = 0.0;
+    double upperArmHomePosition = 0.05;
     double upperArmStepSize = 0.01;
     double upperArmMax = 0.99;
     double upperArmMin = 0.45;
@@ -22,7 +22,7 @@ public class HardwareBeaconArm extends HardwareBase {
 
     Servo lowerArm = null;
     String lowerArmName = "lowerArm";
-    double lowerArmHomePosition = 1.0;
+    double lowerArmHomePosition = 0.95;
     double lowerArmStepSize = 0.01;
     double lowerArmMax = 0.99;
     double lowerArmMin = 0.01;

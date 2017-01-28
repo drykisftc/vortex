@@ -58,8 +58,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected HardwareLineTracker hardwareLineTracker = null;
     protected WallTracker wallTracker = null;
 
-    protected double groundBrightness = 0.0;
-    protected double minLineBrightness = 0.02;
+    protected double groundBrightness = 0.2;
+    protected double minLineBrightness = 0.04;
 
     // navigation settings
     protected int start2FireDistance = 3100; //2500
