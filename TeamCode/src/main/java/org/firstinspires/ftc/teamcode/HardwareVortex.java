@@ -85,7 +85,7 @@ public class HardwareVortex extends HardwareBase
 
         motorLeftArm   = hwMap.dcMotor.get("leftArm");
         motorRightArm  = hwMap.dcMotor.get("rightArm");
-        motorLeftArm.setDirection(DcMotor.Direction.FORWARD);
+        motorLeftArm.setDirection(DcMotor.Direction.REVERSE);
         motorRightArm.setDirection(DcMotor.Direction.REVERSE);
         motorLeftArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorRightArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

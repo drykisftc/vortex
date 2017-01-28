@@ -38,8 +38,8 @@ class ParticleShooter extends RobotExecutor {
     private int leftHandFirePositionTolerance = 1;
 
     // cock servo
-    private double cockLoadPosition = 0.90;
-    private double cockFirePosition = 0.3;
+    private double cockLoadPosition = 0.50;
+    private double cockFirePosition = 0.01;
 
     // devices
     private DcMotor motorArm;
