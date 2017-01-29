@@ -154,7 +154,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                         searchingPower, testDistance1,state, state+1);
                 break;
             case 3:
-                // turn 45 degree
+                // turn 90 degree
                 gyroTracker.skewTolerance = 2;
                 state = gyroTracker.turn(testTurnAngle1*2, inPlaceTurnGain,turningPower,state, state+1);
                 break;

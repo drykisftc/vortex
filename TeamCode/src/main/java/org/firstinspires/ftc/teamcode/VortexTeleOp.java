@@ -93,13 +93,13 @@ class VortexTeleOp extends OpMode{
     private double leftArmAutoSlowMovePower = 0.1;
     private double leftArmHomingMovePower = -0.2;
     private long leftArmHomingTimestamp =0;
-    private long leftArmHomingTime =5000;
+    private long leftArmHomingTime =8000;
 
     private int leftArmMinLimitSwitchOnCount =0;
     private int leftArmMaxLimitSwitchOnCount =0;
     private int leftArmLimitSwitchCountThreshold = 8;
 
-    private double rightArmHoldPower = 1.0;
+    private double rightArmHoldPower = 0.7;
 
     enum LeftArmState {
         HOME,
@@ -133,7 +133,7 @@ class VortexTeleOp extends OpMode{
             0.19f, 0.21f, 0.23f, 0.25f, 0.27f, 0.29f, 0.30f, 0.32f,
             0.35f, 0.37f, 0.40f, 0.43f, 0.47f, 0.50f, 0.53f, 0.56f, 0.59f,
             0.44f, 0.45f, 0.46f, 0.47f, 0.48f, 0.49f, 0.5f, 0.55f,
-            0.6f, 0.65f, 0.7f, 0.8f, 0.9f, 1.0f};
+            0.6f, 0.65f, 0.7f, 0.8f};
 
     double [] rightArmDowPowerLUT = { 0.0f, 0.02f, 0.04f, 0.07f, 0.10f, 0.13f, 0.16f, 0.19f, 0.22f, 0.26f, 0.3f};
 
