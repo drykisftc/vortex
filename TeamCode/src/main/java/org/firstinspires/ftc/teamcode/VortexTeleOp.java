@@ -38,6 +38,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
+import java.io.StringWriter;
+import java.io.PrintWriter;
+
 import static org.firstinspires.ftc.teamcode.VortexTeleOp.LeftArmState.FIRE;
 import static org.firstinspires.ftc.teamcode.VortexTeleOp.LeftArmState.LOAD;
 
@@ -138,7 +141,7 @@ class VortexTeleOp extends OpMode{
     HardwareBeaconArm leftBeaconArm = null;
     private double leftUpHomePosition = 0.96;
     private double leftUpStepSize = -0.025;
-    private double leftLowHomePosition = 0.93;
+    private double leftLowHomePosition = 0.92;
     private double leftLowStepSize = -0.05;
 
     /* Important: use the core device discovery tool to set color sensor address to 0x40
@@ -151,7 +154,7 @@ class VortexTeleOp extends OpMode{
     private boolean rightLoopTrue = false;
     private double rightUpHomePosition = 0.1;
     private double rightUpStepSize = 0.025;
-    private double rightLowHomePosition = 0.01;
+    private double rightLowHomePosition = 0.02;
     private double rightLowStepSize = 0.05;
     /* Important: use the core device discovery tool to set color sensor address to 0x48
     Then, use the 7 bit version of it 0x24
@@ -280,13 +283,24 @@ class VortexTeleOp extends OpMode{
      */
     @Override
     public void loop() {
-        wheelControl();
-        leftArmControl();
-        leftHandControl();
-        elevatorControl();
-        beaconArmControl();
-        scooperControl();
-        telemetry.update();
+        try {
+            wheelControl();
+            leftArmControl();
+            leftHandControl();
+            elevatorControl();
+            beaconArmControl();
+            scooperControl();
+            telemetry.update();
+        } catch (Exception e ) {
+            telemetry.addData("Exception: ", reportException(e));
+        }
+    }
+
+    public String reportException (Exception e) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        return sw.toString();
     }
 
     public void wheelControl() {
@@ -464,7 +478,7 @@ class VortexTeleOp extends OpMode{
             rightArmCurrentPosition = robot.motorRightArm.getCurrentPosition();
         } else if (gamepad1.dpad_down && leftArmState == FIRE) {
             robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.motorRightArm.setPower(0.2);
+            robot.motorRightArm.setPower(0.15);
             rightArmCurrentPosition = robot.motorRightArm.getCurrentPosition();
         } else {
             if ( gamepad2.right_stick_y < -0.02 ) {
