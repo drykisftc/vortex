@@ -111,12 +111,12 @@ class VortexTeleOp extends OpMode{
 
     int armTargetPosition = 0;
 
-    double [] wheelPowerLUT = {0.0f, 0.02f, 0.03f, 0.035f, 0.04f, 0.045f, 0.05f, 0.055f,
+    double [] wheelPowerLUT = {0.00f, 0.005f, 0.01f, 0.015f, 0.02f, 0.025f, 0.03f, 0.035f, 0.04f, 0.045f, 0.05f, 0.055f,
             0.06f, 0.065f, 0.07f, 0.075f, 0.08f, 0.085f, 0.09f, 0.095f, 0.10f, 0.105f, 0.11f,
             0.115f, 0.12f, 0.125f, 0.13f, 0.135f, 0.14f, 0.145f, 0.15f, 0.155f, 0.16f, 0.165f,
             0.17f, 0.175f, 0.18f, 0.185f, 0.19f, 0.195f, 0.20f, 0.205f,
-            0.21f, 0.22f, 0.23f, 0.24f, 0.25f, 0.26f, 0.27f, 0.28, 0.29f, 0.30f,
-            0.32f, 0.34f, 0.36f, 0.38f, 0.40f, 0.42f, 0.46f, 0.50f, 0.6f, 0.7f, 0.8f, 0.9f, 1.00f};
+            0.21f, 0.215f, 0.22f, 0.225f, 0.23f, 0.235f, 0.24f, 0.245, 0.25f, 0.265f,
+            0.28f, 0.30f, 0.33f, 0.36f, 0.39f, 0.42f, 0.46f, 0.50f, 0.6f, 0.7f, 0.8f, 0.9f, 1.00f};
 
     double [] leftArmPowerLUT = { 0.0f, 0.01f, 0.02f, 0.03f, 0.04f, 0.05f, 0.06f, 0.07f,
             0.08f, 0.09f, 0.10f, 0.11f, 0.12f, 0.13f, 0.14f, 0.15f,
@@ -132,7 +132,7 @@ class VortexTeleOp extends OpMode{
             0.44f, 0.45f, 0.46f, 0.47f, 0.48f, 0.49f, 0.5f, 0.55f,
             0.6f, 0.65f, 0.7f, 0.8f, 0.9f, 1.0f};
 
-    double [] rightArmDowPowerLUT = { 0.0f, 0.02f, 0.04f, 0.07f, 0.10f, 0.13f, 0.16f, 0.2f};
+    double [] rightArmDowPowerLUT = { 0.0f, 0.02f, 0.04f, 0.07f, 0.10f, 0.13f, 0.16f, 0.19f, 0.22f, 0.26f, 0.3f};
 
     // left arm control information
     HardwareBeaconArm leftBeaconArm = null;
@@ -460,11 +460,11 @@ class VortexTeleOp extends OpMode{
 
         if (gamepad1.dpad_up && leftArmState == FIRE) {
             robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.motorRightArm.setPower(-0.2);
+            robot.motorRightArm.setPower(-0.6);
             rightArmCurrentPosition = robot.motorRightArm.getCurrentPosition();
         } else if (gamepad1.dpad_down && leftArmState == FIRE) {
             robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.motorRightArm.setPower(0.5);
+            robot.motorRightArm.setPower(0.2);
             rightArmCurrentPosition = robot.motorRightArm.getCurrentPosition();
         } else {
             if ( gamepad2.right_stick_y < -0.02 ) {
