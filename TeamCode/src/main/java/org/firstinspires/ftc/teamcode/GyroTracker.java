@@ -33,6 +33,9 @@ public class GyroTracker extends Tracker {
     private int landMarkPosition = 0;
     private int landMarkAngle = 0;
 
+    private int headingHits  = 0;
+    private int headingHitsLimit = 2;
+
     public GyroTracker(ModernRoboticsI2cGyro g,
                        DcMotor leftW,
                        DcMotor rightW,
@@ -91,8 +94,14 @@ public class GyroTracker extends Tracker {
         leftWheel.setPower(Range.clip(power - deltaPower, -1, 1));
         rightWheel.setPower(Range.clip(power + deltaPower, -1, 1));
 
-        // move motor
+        //  complete state checking
         if ( deltaPower  ==  0.0) {
+            headingHits++;
+        } else {
+            headingHits = 0;
+        }
+
+        if (headingHits > headingHitsLimit) {
             boolNoTurning = true;
         }
 
