@@ -119,8 +119,6 @@ public class BeaconPresserOpMode extends VortexAutoOp {
                 beaconPresser.beaconArm.ambientRGB.g,
                 beaconPresser.beaconArm.ambientRGB.b);
         telemetry.addData("Near counts:        ", beaconPresser.beaconArm.nearCounts);
-        telemetry.addData("Touch sensor on:    ", "%b", beaconPresser.beaconArm.touchSensor.isPressed());
-        telemetry.addData("Touch counts:       ", beaconPresser.beaconArm.touchCounts);
     }
 
 }

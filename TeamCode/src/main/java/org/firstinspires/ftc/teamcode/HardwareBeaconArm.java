@@ -36,8 +36,6 @@ public class HardwareBeaconArm extends HardwareBase {
     final protected int calibrationCountLimit = 10000;
     int colorSensorForegroundThreshold = 0;
 
-    TouchSensor touchSensor = null;
-    String touchSensorName = "beaconArmTouch";
     protected int touchCounts = 0;
     protected int touchCountLimit = 4;
 
@@ -54,22 +52,18 @@ public class HardwareBeaconArm extends HardwareBase {
 
     protected int colorDiffThreshold = 1;
 
-    HardwareBeaconArm ( String upArmName, String lowArmName,
-                        String colorName, String touchName) {
+    HardwareBeaconArm ( String upArmName, String lowArmName, String colorName) {
         upperArmName = upArmName;
         lowerArmName = lowArmName;
         colorSensorName = colorName;
-        touchSensorName = touchName;
     }
 
     HardwareBeaconArm ( String upArmName, String lowArmName,
-                        String colorName, int colorSensorAddr,
-                        String touchName) {
+                        String colorName, int colorSensorAddr) {
         upperArmName = upArmName;
         lowerArmName = lowArmName;
         colorSensorName = colorName;
         colorSensorAddress = colorSensorAddr;
-        touchSensorName = touchName;
     }
 
     public void init(HardwareMap ahwMap) {
@@ -80,7 +74,6 @@ public class HardwareBeaconArm extends HardwareBase {
         lowerArm = hwMap.servo.get(lowerArmName);
         colorSensor = hwMap.colorSensor.get(colorSensorName);
         colorSensor.setI2cAddress(I2cAddr.create7bit(colorSensorAddress));
-        touchSensor = hwMap.touchSensor.get(touchSensorName);
 
         colorSensor.enableLed(false);
 
@@ -94,8 +87,8 @@ public class HardwareBeaconArm extends HardwareBase {
                        double upStepSize, double lowStepSize) {
         upperArmHomePosition = upperHome;
         upperArmStepSize = upStepSize;
-        upperArmMin = Range.clip(Math.min(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.80), 0.0, 1.0);
-        upperArmMax = Range.clip(Math.max(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.80), 0.0, 1.0); // trick to flip sign
+        upperArmMin = Range.clip(Math.min(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.60), 0.0, 1.0);
+        upperArmMax = Range.clip(Math.max(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.60), 0.0, 1.0); // trick to flip sign
 
         lowerArmHomePosition = lowerHome;
         lowerArmStepSize = lowStepSize;
@@ -135,29 +128,6 @@ public class HardwareBeaconArm extends HardwareBase {
             return false;
         }
         return true;
-    }
-
-    /**
-     * @return false if not touch yet
-     */
-    public boolean extendUntilTouch (double speedGain) {
-
-        boolean bT = false ;
-
-        if (touchSensor.isPressed()) {
-            touchCounts ++ ;
-        } else {
-            touchCounts =0;
-        }
-
-        if (touchCounts >= touchCountLimit) {
-            bT = true;
-            touchCounts = touchCountLimit;
-        } else {
-            extend(speedGain);
-        }
-
-        return bT;
     }
 
     public void hoverNear(int target, double speedGain) {
@@ -297,9 +267,6 @@ public class HardwareBeaconArm extends HardwareBase {
                 break;
             case 1:
                 if (extendUntilNearLoop(colorSensorForegroundThreshold, speedGain)) ;
-                break;
-            case 2:
-                extendUntilTouch(speedGain);
                 break;
             case 3:
                 hoverNear(colorSensorForegroundThreshold, speedGain);

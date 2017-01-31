@@ -62,9 +62,9 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected double minLineBrightness = 0.02;
 
     // navigation settings
-    protected int start2FireDistance = 3100; //2500
+    protected int start2FireDistance = 3800; //2500
     protected int fire2TurnDegree = 75;
-    protected int fire2WallDistance = 5200; // 5121
+    protected int fire2WallDistance = 4500; // 5121
     protected int wall2TurnDegree = -75;
     protected int wall2BeaconDistance = 1500; //953 actually
     protected int beacon2ParkTurnDegree = 45;
@@ -130,6 +130,12 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         super.init_loop();
         beaconPresser.calibrate_loop();
         wallTracker.readDistance();
+        if (gamepad1.b) {
+            particleShooter.autoShootCountLimit = 3;
+        } else if (gamepad1.a) {
+            particleShooter.autoShootCountLimit = 1;
+        }
+        telemetry.addData("Number of balls to shoot: ", particleShooter.autoShootCountLimit);
     }
 
     /*
@@ -142,6 +148,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         particleShooter.start(0);
         particleShooter.armPower = leftArmAutoMovePower;
         particleShooter.armStartPosition = leftArmMovePosition;
+        particleShooter.handFirePower = 0.7;
         particleShooter.reload();
         beaconPresser.beaconArm.commitCalibration();
         beaconPresser.start(0);
@@ -240,8 +247,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                         -1.0*searchingPower, jammingBackupDistance, state,state+1);
                 break;
             case 5:
-                // turn -45 degree back
-                gyroTracker.skewTolerance = 0;
+                // turn -90 degree back
+                gyroTracker.skewTolerance = 1;
                 gyroTracker.maxTurnPower = 0.2;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
@@ -277,7 +284,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 // go straight until hit the second white line
                 gyroTracker.skewTolerance = 0;
                 gyroTracker.breakDistance = 200;
-                if (System.currentTimeMillis() - lastTimeStamp > 1500) {
+                if (System.currentTimeMillis() - lastTimeStamp > 1800) {
                     state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
                             cruisingTurnGain, searchingPower, beacon2BeaconDistance, state, state + 1);
                 } else {

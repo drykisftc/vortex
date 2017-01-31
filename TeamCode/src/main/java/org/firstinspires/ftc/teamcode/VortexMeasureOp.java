@@ -173,7 +173,6 @@ public class VortexMeasureOp extends VortexTeleOp {
         telemetry.addData("Left Color sensor background rgb", "%d,%d,%d", leftBeaconArm.ambientRGB.r,
                 leftBeaconArm.ambientRGB.g, leftBeaconArm.ambientRGB.b);
         telemetry.addData("Left Near counts     ", leftBeaconArm.nearCounts);
-        telemetry.addData("Left Touch sensor on ", "%b", leftBeaconArm.touchSensor.isPressed());
         telemetry.addData("Left Touch counts    ", leftBeaconArm.touchCounts);
         telemetry.addData("Left Arm State:", "%02d", leftBeaconArm.state);
 
@@ -184,7 +183,6 @@ public class VortexMeasureOp extends VortexTeleOp {
         telemetry.addData("Right Color sensor rgb", "%d,%d,%d", rightBeaconArm.ambientRGB.r,
                 rightBeaconArm.ambientRGB.g, rightBeaconArm.ambientRGB.b);
         telemetry.addData("Right Near counts     ", rightBeaconArm.nearCounts);
-        telemetry.addData("Right Touch sensor on ", "%b", rightBeaconArm.touchSensor.isPressed());
         telemetry.addData("Right Touch counts    ", rightBeaconArm.touchCounts);
         telemetry.addData("Right Arm State:", "%02d", rightBeaconArm.state);
 

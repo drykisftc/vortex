@@ -140,9 +140,9 @@ class VortexTeleOp extends OpMode{
     // left arm control information
     HardwareBeaconArm leftBeaconArm = null;
     private double leftUpHomePosition = 0.96;
-    private double leftUpStepSize = -0.025;
+    private double leftUpStepSize = -0.04;
     private double leftLowHomePosition = 0.92;
-    private double leftLowStepSize = -0.05;
+    private double leftLowStepSize = -0.08;
 
     /* Important: use the core device discovery tool to set color sensor address to 0x40
     Then, use the 7 bit version of it 0x20
@@ -151,11 +151,10 @@ class VortexTeleOp extends OpMode{
 
     // right arm control information
     HardwareBeaconArm rightBeaconArm = null;
-    private boolean rightLoopTrue = false;
     private double rightUpHomePosition = 0.1;
-    private double rightUpStepSize = 0.025;
+    private double rightUpStepSize = 0.04;
     private double rightLowHomePosition = 0.02;
-    private double rightLowStepSize = 0.05;
+    private double rightLowStepSize = 0.08;
     /* Important: use the core device discovery tool to set color sensor address to 0x48
     Then, use the 7 bit version of it 0x24
      */
@@ -550,13 +549,13 @@ class VortexTeleOp extends OpMode{
 
     private void initBeaconArms () {
         leftBeaconArm = new HardwareBeaconArm("leftBeaconUpperArm", "leftBeaconLowerArm",
-                "leftBeaconColor", leftBeaconColorSensorAddr, "leftBeaconTouch");
+                "leftBeaconColor", leftBeaconColorSensorAddr);
         leftBeaconArm.init(hardwareMap);
         leftBeaconArm.start(leftUpHomePosition,leftLowHomePosition,leftUpStepSize,leftLowStepSize);
         leftBeaconArm.retract();
 
         rightBeaconArm = new HardwareBeaconArm("rightBeaconUpperArm", "rightBeaconLowerArm",
-                "rightBeaconColor",rightBeaconColorSensorAddr, "rightBeaconTouch");
+                "rightBeaconColor",rightBeaconColorSensorAddr);
         rightBeaconArm.init(hardwareMap);
         rightBeaconArm.start(rightUpHomePosition,rightLowHomePosition,rightUpStepSize,rightLowStepSize);
         rightBeaconArm.retract();

@@ -62,7 +62,7 @@ public class WallTrackerOpMode extends VortexTeleOp {
                 bufferSize);
         wallTracker.init();
         wallTracker.setReporter(telemetry);
-        wallTracker.skewPowerGain = 0.01;
+        wallTracker.skewPowerGain = 1.0/180;
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Say", "Hello WallTracker");    //

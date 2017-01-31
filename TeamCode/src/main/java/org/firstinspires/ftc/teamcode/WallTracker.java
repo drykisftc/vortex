@@ -51,7 +51,7 @@ public class WallTracker extends Tracker {
         distanceBuffer = new double[bufferSize];
         powerBuffer = new double[bufferSize];
         jammingDetection = new JammingDetection (1000L);
-        skewPowerGain = 0.05;  // adjust turn sensitivity
+        skewPowerGain = 1.0/180;  // adjust turn sensitivity
     }
 
     public void setTargetWallDistance (double d) {
@@ -72,7 +72,7 @@ public class WallTracker extends Tracker {
 
         minTurnPower = 0.02;
         maxTurnPower = 0.35;
-        skewPowerGain = 1.0/100;
+        skewPowerGain = 1.0/180;
         skewTolerance = 0;
 
     }

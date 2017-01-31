@@ -55,8 +55,8 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     // navigation control info
     double chargingPower = 0.9;
     double cruisingPower = 0.45;
-    double searchingPower = 0.15;
-    double cruisingTurnGain = 0.01;
+    double searchingPower = 0.2;
+    double cruisingTurnGain = 1.0/180;
     double inPlaceTurnGain = 0.005;
     double turningPower = 0.0; // set to 0.0 to turn in-place
     double parkTurningPower = -0.1;
@@ -82,7 +82,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
         gyroTracker.init();
         gyroTracker.minTurnPower = 0.01;
         gyroTracker.maxTurnPower = 0.35;
-        gyroTracker.skewPowerGain = 1.0; // 180 for track wheels
+        gyroTracker.skewPowerGain = 1.0/180; // 180 for track wheels
         gyroTracker.skewTolerance = 0;
 
         // Send telemetry message to signify robot waiting;

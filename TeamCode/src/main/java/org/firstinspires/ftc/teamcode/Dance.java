@@ -445,18 +445,18 @@ public class Dance extends VortexAutoOp{
     }
 
     public void armB (double speed) {
-        leftBeaconArm.extendUntilTouch(speed);
-        rightBeaconArm.extendUntilTouch(speed);
+        leftBeaconArm.extend(speed);
+        rightBeaconArm.extend(speed);
     }
 
     public void armC (double speed) {
-        leftBeaconArm.extendUntilTouch(speed);
+        leftBeaconArm.extend(speed);
         rightBeaconArm.retract();
     }
 
     public void armD (double speed) {
         leftBeaconArm.retract();
-        rightBeaconArm.extendUntilTouch(speed);
+        rightBeaconArm.extend(speed);
     }
 
     public void armE () {

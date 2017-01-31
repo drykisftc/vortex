@@ -11,7 +11,7 @@ public class Tracker extends RobotExecutor {
     // change this value for different robot to compensate the friction
     double minTurnPower = 0.02;
     double maxTurnPower = 0.5;
-    double skewPowerGain = 1.0/100; // 180 for track wheels
+    double skewPowerGain = 1.0/180; // 180 for track wheels
 
     double skewTolerance = 0;
     int settleCount =0;
