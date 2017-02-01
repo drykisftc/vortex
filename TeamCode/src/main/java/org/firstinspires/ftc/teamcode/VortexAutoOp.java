@@ -167,7 +167,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
             case 0:
                 // go straight
                 gyroTracker.skewTolerance = 0;
-                state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
+                gyroTracker.breakDistance = 1000;
+                state = gyroTracker.goStraight (0, cruisingTurnGain, searchingPower,
                         start2FireDistance, state,state+1);
 
                 if (System.currentTimeMillis() - lastTimeStamp > 200) {
@@ -213,9 +214,14 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
                 // go straight until hit the wall
                 gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 800;
-                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, fire2WallDistance, state,state+2); // need to +2 to skip jam backup
+                gyroTracker.breakDistance = 1000;
+                if (System.currentTimeMillis() - lastTimeStamp < 200) {
+                    state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
+                            searchingPower, fire2WallDistance, state, state + 2); // need to +2 to skip jam backup
+                } else {
+                    state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
+                            cruisingPower, fire2WallDistance, state, state + 2); // need to +2 to skip jam backup
+                }
 
                 double sonicDistance = wallTracker.getHistoryDistanceAverage();
                 telemetry.addData("Wall Distance: ", "%02f", sonicDistance);
@@ -259,7 +265,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 6:
                 // go straight until hit first white line
-                gyroTracker.skewTolerance = 0;
+                gyroTracker.skewTolerance = 1;
                 gyroTracker.breakDistance = 200;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
                         cruisingTurnGain, searchingPower, wall2BeaconDistance, state,state+1);
@@ -282,9 +288,9 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 8:
                 // go straight until hit the second white line
-                gyroTracker.skewTolerance = 0;
+                gyroTracker.skewTolerance = 1;
                 gyroTracker.breakDistance = 200;
-                if (System.currentTimeMillis() - lastTimeStamp > 1800) {
+                if (System.currentTimeMillis() - lastTimeStamp > 1400) {
                     state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
                             cruisingTurnGain, searchingPower, beacon2BeaconDistance, state, state + 1);
                 } else {
@@ -323,6 +329,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
             case 11:
                 // backup straight to central parking
                 gyroTracker.skewTolerance = 0;
+                gyroTracker.breakDistance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
                         cruisingTurnGain, back2BasePower, beacon2ParkingDistance, state,state+1);
 

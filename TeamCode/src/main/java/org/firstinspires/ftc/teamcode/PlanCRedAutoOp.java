@@ -73,6 +73,7 @@ public class PlanCRedAutoOp extends PlanBRedAutoOp{
                 break;
             case 1:
                 // go straight
+                gyroTracker.breakDistance = 1000;
                 state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state, state + 1);
                 telemetry.addData("State:", "%02d", state);

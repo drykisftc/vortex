@@ -56,7 +56,7 @@ public class PlanBRedAutoOp extends VortexAutoOp{
     public void start() {
         super.start();
         startWaitingTime = 10000;
-        start2FireDistance = 4000;
+        start2FireDistance = 3800;
         fire2WallDistance = 800;
         lastTimeStamp = System.currentTimeMillis();
     }
@@ -74,6 +74,7 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                 break;
             case 1:
                 // go straight
+                gyroTracker.breakDistance = 1000;
                 state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state, state + 1);
                 telemetry.addData("State:", "%02d", state);
