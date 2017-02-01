@@ -57,7 +57,7 @@ public class PlanMAutoOp extends VortexAutoOp{
     @Override
     public void start() {
         super.start();
-        start2FireDistance = 2525; //2500
+        start2FireDistance = 3800; //2500
     }
 
     /*

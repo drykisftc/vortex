@@ -161,10 +161,10 @@ class VortexTeleOp extends OpMode{
     private int    rightBeaconColorSensorAddr = 0x24; //
 
     // scooper control
-    double leftScooperStop = 0.0;
-    double leftScooperGo = -1.0;
-    double rightScooperStop = 0.0;
-    double rightScooperGo = 1.0;
+    double leftScooperStop = 0.0d;
+    double leftScooperGo = -1.0d;
+    double rightScooperStop = 0.0d;
+    double rightScooperGo = 1.0d;
 
     protected int leftArmCurrentPosition = 0;
     protected int rightArmCurrentPosition = 0;

@@ -64,10 +64,11 @@ public class HardwareVortex extends HardwareBase
         super.init(ahwMap);
 
         servoCock = hwMap.servo.get("cock");
-        servoLeftScooper = hwMap.crservo.get("leftScooper");
+
         servoRightScooper = hwMap.crservo.get("rightScooper");
-        servoLeftScooper.setPower(0);
-        servoRightScooper.setPower(0);
+        servoRightScooper.setPower(0.0d);
+        servoLeftScooper = hwMap.crservo.get("leftScooper");
+        servoLeftScooper.setPower(0.0d);
 
         armStopMin = hwMap.touchSensor.get("armStopMin");
         armStopMax = hwMap.touchSensor.get("armStopMax");

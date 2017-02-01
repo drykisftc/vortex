@@ -101,7 +101,7 @@ public class GyroTracker extends Tracker {
             headingHits = 0;
         }
 
-        if (headingHits > headingHitsLimit) {
+        if (headingHits >= headingHitsLimit) {
             boolNoTurning = true;
         }
 

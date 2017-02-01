@@ -16,16 +16,18 @@ class ParticleShooter extends RobotExecutor {
     private int leftArmPositionTolerance = 10;
 
     // hand
-    double handFirePower = 0.65;
+    double handFirePower = 0.7;
     private int fireState = 0;
     private int handHomePosition = 0;
     private int handFirePosition = 0;
     private int handFirePositionOffset = 445; // 20: 1 motor is 560. 16:1 is 445
-    private int handFireOvershotOffset = -65; //
+    private int handFireOvershotOffset = -80; //
+    private int handFireBreakingOffset = 30;
+    private int handFireBreakingOffset2 = 10;
     private int handFireEncoderMissOffset = 0; // to compensate steps missed by encoders
-    private int handCalibrationOffset = 50;
+    private int handCalibrationOffset = 35;
     private double handHoldPower = 0.05;
-    private double handBeakPower = 0.15;
+    private double handBeakPower = 0.25;
     private double handCalibrationPower = -0.05;
     private double handPressPower = -0.15;
     private int fireCount = 0;
@@ -35,7 +37,7 @@ class ParticleShooter extends RobotExecutor {
     private long pressBallInterval = 300;
     private boolean handReloaded = true;
     private boolean autoShootEnded = true;
-    private int leftHandFirePositionTolerance = 1;
+    private int leftHandFirePositionTolerance = 5;
 
     // cock servo
     private double cockLoadPosition = 0.50;
@@ -165,15 +167,12 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 4:
-                if (Math.abs(motorHand.getCurrentPosition()- handFirePosition) > 10
+                if (currentHandP-handFirePosition-handFireBreakingOffset > 0
                         && System.currentTimeMillis() - lastTimeStamp < 1800) {
                     cock();
-                    VortexUtils.moveMotorByEncoder(motorHand,
-                            handFirePosition,
-                            handHoldPower); // increase power to hold position
-                    relaxArm();
                 } else {
                     reload();
+                    relaxArm();
                     if (autoShootCount < autoShootCountLimit) {
                         state = 1;
                     } else {
@@ -184,7 +183,7 @@ class ParticleShooter extends RobotExecutor {
                 break;
             case 5:
                 VortexUtils.moveMotorByEncoder(motorHand,
-                        handFirePosition+handCalibrationOffset, // move hammer a little bit more
+                        handFirePosition,
                         handHoldPower);
                 VortexUtils.moveMotorByEncoder(motorArm, armStartPosition, armPower);
                 state = 6;
@@ -262,12 +261,15 @@ class ParticleShooter extends RobotExecutor {
                 break;
             case 4:
                 reload();
-                VortexUtils.moveMotorByEncoder(motorHand, handFirePosition, handBeakPower);
+                // move short to prevent hammer jamming the ball, break point 1
+                VortexUtils.moveMotorByEncoder(motorHand, handFirePosition+handFireBreakingOffset, handBeakPower);
                 fireState = 5;
                 break;
             case 5:
                 reporter.addData("Particle shooter", "Fox %d Reload......", fireCount);
-                if (Math.abs(currentHandP - handFirePosition) <= leftHandFirePositionTolerance) {
+                if ((currentHandP - handFirePosition- handFireBreakingOffset) < 0) {
+                    // break point 2
+                    VortexUtils.moveMotorByEncoder(motorHand, handFirePosition+handFireBreakingOffset2, handHoldPower);
                     handReloaded = true;
                     fireState = 6;
                 } else if (timeSinceLastFiring > minReloadInterval) {
@@ -276,7 +278,7 @@ class ParticleShooter extends RobotExecutor {
             case 6:
             default:
                 if (timeSinceLastFiring > minFireInterval
-                        || Math.abs(currentHandP - handFirePosition) <= leftHandFirePositionTolerance) {
+                        || Math.abs(currentHandP-handFirePosition-handFireBreakingOffset2) < leftHandFirePositionTolerance ) {
                     VortexUtils.moveMotorByEncoder(motorHand, handFirePosition, handHoldPower);
                     reload();
                     fireState = 0;
