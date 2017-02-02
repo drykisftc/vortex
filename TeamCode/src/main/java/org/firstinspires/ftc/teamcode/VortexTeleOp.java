@@ -198,10 +198,6 @@ class VortexTeleOp extends OpMode{
         leftArmMinLimitSwitchOnCount =0;
         leftArmHomingTimestamp = System.currentTimeMillis();
 
-        // scoopers
-        robot.servoLeftScooper.setPower(leftScooperStop);
-        robot.servoRightScooper.setPower(rightScooperStop);
-
         // Send telemetry message to signify robot waiting;
         telemetry.addData("TeleOp", "Hello Vortex");    //
         updateTelemetry(telemetry);
