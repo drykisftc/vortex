@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -50,13 +51,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  */
 
 @Autonomous(name="Plan B: Red", group="Far Side")
+@Disabled
 public class PlanBRedAutoOp extends VortexAutoOp{
 
     @Override
     public void start() {
         super.start();
         startWaitingTime = 10000;
-        start2FireDistance = 3800;
+        start2FireDistance = 3700;
         fire2WallDistance = 800;
         lastTimeStamp = System.currentTimeMillis();
     }

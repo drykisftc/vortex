@@ -53,7 +53,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     int backDistance = -6000;
 
     // navigation control info
-    double chargingPower = 0.9;
+    double chargingPower = 0.99;
     double cruisingPower = 0.65;
     double searchingPower = 0.18;
     double cruisingTurnGain = 1.0/180;

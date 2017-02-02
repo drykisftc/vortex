@@ -166,7 +166,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
             case 0:
                 // go straight
                 gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 1000;
+                gyroTracker.breakDistance = 800;
                 state = gyroTracker.goStraight (0, cruisingTurnGain, searchingPower,
                         start2FireDistance, state,state+1);
 
@@ -213,14 +213,9 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
                 // go straight until hit the wall
                 gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 1000;
-                if (System.currentTimeMillis() - lastTimeStamp < 200) {
-                    state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
-                            searchingPower, fire2WallDistance, state, state + 2); // need to +2 to skip jam backup
-                } else {
-                    state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
-                            cruisingPower, fire2WallDistance, state, state + 2); // need to +2 to skip jam backup
-                }
+                gyroTracker.breakDistance = 1600;
+                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
+                        cruisingPower, fire2WallDistance, state, state + 2); // need to +2 to skip jam backup
 
                 double sonicDistance = wallTracker.getHistoryDistanceAverage();
                 telemetry.addData("Wall Distance: ", "%02f", sonicDistance);
@@ -329,8 +324,13 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 // backup straight to central parking
                 gyroTracker.skewTolerance = 0;
                 gyroTracker.breakDistance = 0;
-                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
-                        cruisingTurnGain, back2BasePower, beacon2ParkingDistance, state,state+1);
+                if (System.currentTimeMillis() - lastTimeStamp < 200) {
+                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
+                            cruisingTurnGain, back2BasePower * 0.5, beacon2ParkingDistance, state, state + 1);
+                } else {
+                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
+                            cruisingTurnGain, back2BasePower, beacon2ParkingDistance, state, state + 1);
+                }
 
                 if (System.currentTimeMillis() - lastTimeStamp > 500) {
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm,

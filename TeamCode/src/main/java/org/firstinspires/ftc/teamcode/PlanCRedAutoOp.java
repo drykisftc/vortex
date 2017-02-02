@@ -58,6 +58,7 @@ public class PlanCRedAutoOp extends PlanBRedAutoOp{
         fire2TurnDegree = 179;
         fire2WallDistance= 2300;
         startWaitingTime = 10000;
+        cruisingPower = 0.5;
     }
 
     /*
