@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -51,13 +50,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
  */
 
 @Autonomous(name="Plan B NW: Red", group="Far Side")
-@Disabled
-public class PlanBRedNWAutoOp extends PlanBRedAutoOp{
+public class PlanBRedNWAutoOp extends PlanBRedAutoOp {
 
     @Override
     public void start() {
         super.start();
-        startWaitingTime =0;
+        startWaitingTime = 0;
     }
-
 }

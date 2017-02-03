@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * This file provides basic Telop driving for a Pushbot robot.
@@ -51,16 +50,18 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
  */
 
 @Autonomous(name="Plan B: Red", group="Far Side")
-@Disabled
 public class PlanBRedAutoOp extends VortexAutoOp{
 
     @Override
     public void start() {
         super.start();
+        start2FireDistance = 3600;
+        fire2TurnDegree = 179;
+        fire2WallDistance= 2300;
+        cruisingPower = 0.5;
         startWaitingTime = 10000;
-        start2FireDistance = 3700;
-        fire2WallDistance = 800;
         lastTimeStamp = System.currentTimeMillis();
+        particleShooter.handFirePower = 0.6;
     }
 
     /*
@@ -80,13 +81,19 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                 state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state, state + 1);
                 telemetry.addData("State:", "%02d", state);
+
+                if (System.currentTimeMillis() - lastTimeStamp > 200) {
+                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                            leftArmFirePosition, leftArmAutoMovePower);
+                }
+
                 if (state == 2) {
                     // prepare to shoot
                     robot.motorLeftWheel.setPower(0.0);
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
                     particleShooter.armPower = leftArmAutoMovePower;
-                    particleShooter.armStartPosition = leftArmFirePosition;
+                    particleShooter.armStartPosition = leftArmMovePosition;
                 }
                 break;
             case 2:
@@ -94,9 +101,18 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                 state = particleShooter.loop(state, state + 1);
                 break;
             case 3:
-                // go straight
-                state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
-                        fire2WallDistance, state, state + 1);
+                // turn 45 degree
+                gyroTracker.skewTolerance = 3;
+                state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
+                        turningPower,state,state+1);
+                break;
+            case 4:
+                // go backward and park
+                gyroTracker.skewTolerance = 0;
+                gyroTracker.breakDistance = 0;
+                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
+                        -1.0*cruisingPower, fire2WallDistance, state,state+1);
+                break;
             default:
                 // stop
                 telemetry.addData("State:", "End");

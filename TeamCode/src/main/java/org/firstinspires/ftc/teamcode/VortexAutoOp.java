@@ -130,10 +130,14 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         super.init_loop();
         beaconPresser.calibrate_loop();
         wallTracker.readDistance();
-        if (gamepad1.b) {
-            particleShooter.autoShootCountLimit = 3;
-        } else if (gamepad1.a) {
+        if (gamepad1.a) {
             particleShooter.autoShootCountLimit = 1;
+        } else if (gamepad1.b) {
+            particleShooter.autoShootCountLimit = 2;
+        } else if (gamepad1.y) {
+            particleShooter.autoShootCountLimit = 3;
+        } else if (gamepad1.x) {
+            particleShooter.autoShootCountLimit = 0;
         }
         telemetry.addData("Number of balls to shoot: ", particleShooter.autoShootCountLimit);
     }
