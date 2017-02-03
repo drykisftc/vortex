@@ -144,9 +144,11 @@ public class GyroTracker extends Tracker {
             if (deltaChange < minTurnSpeed) {
                 // robot could not turn, boost min turn power to over come the friction
                 minTurnPower += minAnglePowerStepSize;
+                maxTurnPower += minAnglePowerStepSize;
             } else if (flipCount >= flipCountLimit ) {
                 // robot always over-compensated, tune down the min turn power
-                minTurnPower -= minAnglePowerStepSize;
+                minTurnPower = Math.max(0.0, minTurnPower-minAnglePowerStepSize);
+                maxTurnPower = Math.max(0.0, maxTurnPower-minAnglePowerStepSize);
             }
         }
     }

@@ -144,7 +144,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     @Override
     public void start() {
         super.start();
-        gyroTracker.maxTurnPower = 0.35;
         particleShooter.start(0);
         particleShooter.armPower = leftArmAutoMovePower;
         particleShooter.armStartPosition = leftArmMovePosition;
@@ -190,7 +189,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
                     particleShooter.armPower = leftArmAutoMovePower;
-                    particleShooter.armStartPosition = leftArmFiringSafeZone;
+                    particleShooter.armStartPosition = leftArmFiringSafeZone-700;
                 }
                 break;
             case 1:
@@ -249,12 +248,13 @@ public class VortexAutoOp extends GyroTrackerOpMode{
             case 5:
                 // turn -90 degree back
                 gyroTracker.skewTolerance = 1;
-                gyroTracker.maxTurnPower = 0.2;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
                 if (state == 6 ) {
                     // reset min turning power to avoid jerky movements
                     gyroTracker.minTurnPower = 0.01;
+                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                            leftArmFiringSafeZone, leftArmAutoMovePower);
                 }
                 break;
             case 6:
@@ -318,7 +318,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     lastTimeStamp = System.currentTimeMillis();
                     gyroTracker.minTurnPower = 0.01;
                 }
-
                 break;
             case 11:
                 // backup straight to central parking
@@ -336,7 +335,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
                             leftArmMovePosition, leftArmAutoMovePower);
                 }
-
                 break;
             default:
                 // stop
