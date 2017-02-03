@@ -467,20 +467,24 @@ public class Dance extends VortexAutoOp{
     }
 
     public void armF () {
-        leftBeaconArm.lowerUpperArm();
+        leftBeaconArm.raiseUpperArm();
         leftBeaconArm.raiseLowerArm();
-        rightBeaconArm.lowerUpperArm();
+        rightBeaconArm.raiseUpperArm();
         rightBeaconArm.raiseLowerArm();
     }
 
     public void armG () {
         leftBeaconArm.raiseUpperArm();
         rightBeaconArm.lowerLowerArm();
+        leftBeaconArm.raiseLowerArm();
+        rightBeaconArm.raiseLowerArm();
     }
 
     public void armH () {
         leftBeaconArm.lowerLowerArm();
+        leftBeaconArm.lowerUpperArm();
         rightBeaconArm.raiseUpperArm();
+        rightBeaconArm.raiseLowerArm();
     }
 
     // wheel dance modes
