@@ -110,6 +110,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
         state = 0;
 
+        // load configuration
+
     }
 
     public void initBeaconPresser() {
@@ -132,16 +134,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         super.init_loop();
         beaconPresser.calibrate_loop();
         wallTracker.readDistance();
-        if (gamepad1.a) {
-            particleShooter.autoShootCountLimit = 1;
-        } else if (gamepad1.b) {
-            particleShooter.autoShootCountLimit = 2;
-        } else if (gamepad1.y) {
-            particleShooter.autoShootCountLimit = 3;
-        } else if (gamepad1.x) {
-            particleShooter.autoShootCountLimit = 0;
-        }
-        telemetry.addData("Number of balls to shoot: ", particleShooter.autoShootCountLimit);
+        adjustConfigurationViaGamePad();
     }
 
     /*
@@ -376,4 +369,47 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         super.stop();
     }
 
+    protected void adjustConfigurationViaGamePad () {
+        // adjust the number of balls to shoot
+        if (gamepad1.b) {
+            particleShooter.autoShootCountLimit += 1;
+        } else if (gamepad1.a) {
+            particleShooter.autoShootCountLimit -= 1;
+            if (particleShooter.autoShootCountLimit<0) {
+                particleShooter.autoShootCountLimit =0;
+            }
+        }
+        telemetry.addData("Number of balls to shoot (a+/b-): ", particleShooter.autoShootCountLimit);
+
+        // adjust autonomous turning power
+        if (gamepad1.dpad_up) {
+            gyroTracker.minTurnPower += 0.0001;
+        } else if (gamepad1.dpad_down) {
+            gyroTracker.minTurnPower -= 0.0001;
+        }
+        telemetry.addData("Min turn power (pad up+/down-): ", gyroTracker.minTurnPower);
+
+        if (gamepad1.dpad_left) {
+            gyroTracker.maxTurnPower += 0.0001;
+        } else if (gamepad1.dpad_right) {
+            gyroTracker.maxTurnPower -= 0.0001;
+        }
+        telemetry.addData("Max turn power: (pad left+/right-)", gyroTracker.maxTurnPower);
+
+        // adjust waiting time
+        if (gamepad1.left_bumper) {
+            startWaitingTime += 10;
+        } else if (gamepad1.right_bumper) {
+            startWaitingTime -=10;
+        }
+        telemetry.addData("Start waiting time in ms (bumper left+/right-): ", startWaitingTime);
+
+        // configurations
+        if ( gamepad1.x) {
+            // save configuration
+        } else if (gamepad1.y) {
+            // load configuration
+        }
+        telemetry.addData("Save configuration press y.", "Reset to default press x");
+    }
 }
