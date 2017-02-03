@@ -71,7 +71,7 @@ public class WallTracker extends Tracker {
         calibrate();
 
         minTurnPower = 0.02;
-        maxTurnPower = 0.35;
+        maxTurnPower = 0.2;
         skewPowerGain = 1.0/180;
         skewTolerance = 0;
 

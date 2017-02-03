@@ -81,7 +81,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
         gyroTracker.setReporter(telemetry);
         gyroTracker.init();
         gyroTracker.minTurnPower = 0.01;
-        gyroTracker.maxTurnPower = 0.35;
+        gyroTracker.maxTurnPower = 0.2;
         gyroTracker.skewPowerGain = 1.0/180; // 180 for track wheels
         gyroTracker.skewTolerance = 0;
 
@@ -144,7 +144,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 break;
             case 1:
                 // turn 90 degree
-                gyroTracker.skewTolerance = 2;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(testTurnAngle1, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 2:
@@ -155,7 +155,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 break;
             case 3:
                 // turn 90 degree
-                gyroTracker.skewTolerance = 2;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(testTurnAngle1*2, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 4:
@@ -166,7 +166,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 break;
             case 5:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 2;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(testTurnAngle1*3, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 6:
@@ -183,7 +183,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 break;
             case 8:
                 // turn 180 degree
-                gyroTracker.skewTolerance = 2;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(testTurnAngle1*3+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 9:
@@ -194,7 +194,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 break;
             case 10:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 2;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(testTurnAngle1*2+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 11:
@@ -204,7 +204,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 break;
             case 12:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 2;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(testTurnAngle1*3+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             default:
