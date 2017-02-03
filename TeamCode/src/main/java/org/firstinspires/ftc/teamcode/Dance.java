@@ -49,7 +49,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Dance", group="Dance")
+@Autonomous(name="Dance:Eye of the Tiger", group="Dance")
 public class Dance extends VortexAutoOp{
     protected int headPositionA = 2500;
     protected int headPositionB = 2800;
