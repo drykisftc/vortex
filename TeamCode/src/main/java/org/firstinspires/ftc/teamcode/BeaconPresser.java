@@ -31,7 +31,7 @@ public class BeaconPresser extends RobotExecutor {
 
     protected long longPressTimeLimit = 1500; // 1.5 seconds
     protected long shotPressTimeLimit = 500; // 0.3 seconds
-    protected long travelTimeLimit = 10000; // 10 seconds
+    protected long travelTimeLimit = 4000; // 4 seconds
 
     protected int waggleDegree = 2;
     protected double waggleGain = 0.01;

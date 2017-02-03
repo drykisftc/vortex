@@ -83,6 +83,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     // jam detection
     protected JammingDetection  jammingDetection = null;
 
+    protected boolean whiteLineFound = false;
+
     // to do: add wall tracker
 
     /*
@@ -156,6 +158,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         beaconPresser.start(0);
         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
         lastTimeStamp = System.currentTimeMillis();
+        whiteLineFound= false;
         state = 0;
     }
 
@@ -254,11 +257,22 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
+
+                if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
+                    whiteLineFound = true;
+                }
+
                 if (state == 6 ) {
                     // reset min turning power to avoid jerky movements
                     gyroTracker.minTurnPower = 0.01;
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
                             leftArmFiringSafeZone, leftArmAutoMovePower);
+                    if (whiteLineFound) {
+                        state = 7; // skip find white line step
+                        stopWheels();
+                        gyroTracker.setWheelLandmark();
+                        beaconPresser.start(0);
+                    }
                 }
                 break;
             case 6:
