@@ -134,12 +134,9 @@ public class Dance extends VortexAutoOp{
         switch (danceState) {
             case 0:
                 danceState = 3;
+                break;
             case 1:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval) {
-                    armC(5.0);
-                } else {
-                    danceState = 2;
-                }
+                danceState = 3;
                 break;
             case 2:
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*3) {
