@@ -53,6 +53,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
  */
 
 @Autonomous(name="Dance: Eye of the Tiger", group="Dance")
+@Disabled
 public class DanceAutoOp extends VortexAutoOp{
 
     protected int headPositionA = 2500;

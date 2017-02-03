@@ -49,7 +49,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Dance Awkward", group="Dance")
+@Autonomous(name="Dance", group="Dance")
 public class Dance extends VortexAutoOp{
     protected int headPositionA = 2500;
     protected int headPositionB = 2800;
@@ -475,14 +475,12 @@ public class Dance extends VortexAutoOp{
 
     public void armG () {
         leftBeaconArm.raiseUpperArm();
-        leftBeaconArm.raiseLowerArm();
-        rightBeaconArm.retract();
+        rightBeaconArm.lowerLowerArm();
     }
 
     public void armH () {
-        leftBeaconArm.retract();
+        leftBeaconArm.lowerLowerArm();
         rightBeaconArm.raiseUpperArm();
-        rightBeaconArm.raiseLowerArm();
     }
 
     // wheel dance modes
