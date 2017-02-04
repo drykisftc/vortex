@@ -162,7 +162,7 @@ class VortexTeleOp extends OpMode{
 
     // scooper control
     double leftScooperStop = 0.0d;
-    double leftScooperGo = -1.0d;
+    double leftScooperGo = 1.0d;
     double rightScooperStop = 0.0d;
     double rightScooperGo = 1.0d;
 

@@ -133,7 +133,6 @@ public class PlanDRedAutoOp extends PlanARedAutoOp{
             case 5:
                 // turn -45 degree back
                 gyroTracker.skewTolerance = 1;
-                gyroTracker.maxTurnPower = 0.2;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
                 if (state == 6 ) {

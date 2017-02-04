@@ -62,7 +62,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected double minLineBrightness = 0.02;
 
     // navigation settings
-    protected int start2FireDistance = 3600; //2500
+    protected int start2FireDistance = 3500; //2500
     protected int fire2TurnDegree = 75;
     protected int fire2WallDistance = 4500; // 5121
     protected int wall2TurnDegree = -75;
@@ -75,6 +75,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected double back2BasePower = -1* chargingPower;
 
     protected double leftArmFastAutoMovePower = 0.45;
+    protected double numberBallsShoot = 0.0;
 
     protected long lastTimeStamp = 0;
 
@@ -372,13 +373,14 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected void adjustConfigurationViaGamePad () {
         // adjust the number of balls to shoot
         if (gamepad1.b) {
-            particleShooter.autoShootCountLimit += 1;
+            numberBallsShoot -= 0.01;
         } else if (gamepad1.a) {
-            particleShooter.autoShootCountLimit -= 1;
-            if (particleShooter.autoShootCountLimit<0) {
-                particleShooter.autoShootCountLimit =0;
+            numberBallsShoot += 0.01;
+            if (numberBallsShoot < 0.0) {
+                numberBallsShoot = 0;
             }
         }
+        particleShooter.autoShootCountLimit = (int) numberBallsShoot;
         telemetry.addData("Number of balls to shoot (a+/b-): ", particleShooter.autoShootCountLimit);
 
         // adjust autonomous turning power
