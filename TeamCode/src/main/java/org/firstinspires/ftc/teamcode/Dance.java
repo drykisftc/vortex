@@ -49,7 +49,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Dance:Eye of the Tiger", group="Dance")
+@Autonomous(name="Dance: Eye of Tiger", group="zDance")
 public class Dance extends VortexAutoOp{
     protected int headPositionA = 2500;
     protected int headPositionB = 2800;
@@ -81,7 +81,7 @@ public class Dance extends VortexAutoOp{
     public void loop() {
         telemetry.addData("State:", "%02d", state);
         telemetry.addData("DanceState:", "%02d", danceState);
-        telemetry.addData("Current Time: ", "%02d", System.currentTimeMillis() - lastTimeStamp);
+        telemetry.addData("Current Time: ", System.currentTimeMillis() - lastTimeStamp);
         switch (state) {
             case 0:
                 gyroTracker.skewTolerance = 0;
@@ -113,9 +113,13 @@ public class Dance extends VortexAutoOp{
             case 4:
                 state = cowboyDance3(danceBeats, 4,5);
                 if(state == 5) dancePatternReset();
+                break;
+            case 5:
+                state = looper(danceBeats,5,2); // repeat to 2
+                if(state == 2) dancePatternReset();
+                break;
             default:
                 dancePatternReset();
-                state = 1; // repeat
                 break;
         }
     }
@@ -125,7 +129,60 @@ public class Dance extends VortexAutoOp{
 
         // move to empty spot
     }
+    public int looper (int beatInterval, int startState, int endState) {
+        telemetry.addData("looper State:", "%02d", danceState);
+        switch (danceState) {
+            case 0:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval) {
+                    armC(5.0);
+                } else {
+                    danceState = 1;
+                }
+                break;
+            case 1:
 
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*2) {
+                    armD(5.0);
+                } else {
+                    danceState = 2;
+                }
+                break;
+            case 2:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
+                    armC(5.0);
+                } else {
+                    danceState = 3;
+                }
+                break;
+            case 3:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
+                    armD(5.0);
+                } else {
+                    danceState = 4;
+                }
+                break;
+            case 4:
+
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*7) {
+                    armC(5.0);
+                } else {
+                    danceState = 5;
+                }
+                break;
+            case 5:
+
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*10) {
+                    armD(5.0);
+                } else {
+                    danceState = 6;
+                }
+                break;
+            default:
+                return endState; // done
+        }
+        telemetry.addData("back to", "state", "0");
+        return startState;
+    }
     public int beforeShootDance (int beatInterval, int startState, int endState) {
         telemetry.addData("Pre-shoot State:", "%02d", danceState);
         switch (danceState) {
@@ -151,7 +208,6 @@ public class Dance extends VortexAutoOp{
                 }
                 break;
             case 3:
-
                 if (System.currentTimeMillis() - lastTimeStamp < beatInterval*4) {
                     armC(5.0);
                 } else {
@@ -201,7 +257,6 @@ public class Dance extends VortexAutoOp{
             default:
                 return endState; // done
         }
-        telemetry.addData("back to", "state", "0");
         return startState;
     }
 
@@ -223,7 +278,6 @@ public class Dance extends VortexAutoOp{
 
                 } else {
                     danceState = 2;
-                    lastTimeStamp= lastTimeStamp + beatInterval*1;
                 }
                 break;
             case 2:
@@ -246,7 +300,6 @@ public class Dance extends VortexAutoOp{
                     armB(5.0);
                     headB(headPower);
                 } else {
-                    lastTimeStamp+= 556*0;
                     danceState = 5;
                 }
                 break;
@@ -293,14 +346,14 @@ public class Dance extends VortexAutoOp{
                 }
                 break;
             case 1:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*2) {
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*3) {
                     armC(5.0);
                 } else {
                     danceState = 2;
                 }
                 break;
             case 2:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*3) {
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*4) {
                     headC(headPower);
                     armD(5.0);
                     wheelB(0.0,-15);
@@ -309,14 +362,14 @@ public class Dance extends VortexAutoOp{
                 }
                 break;
             case 3:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*4) {
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
                     armE();
                 } else {
                     danceState = 4;
                 }
                 break;
             case 4:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*8) {
                     armC(5.0);
                     headB(headPower);
                     wheelB(0.0,15);
@@ -325,7 +378,7 @@ public class Dance extends VortexAutoOp{
                 }
                 break;
             case 5:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*10) {
                     armD(5.0);
                     headC(headPower);
                     wheelB(0.0,-15);
@@ -334,7 +387,7 @@ public class Dance extends VortexAutoOp{
                 }
                 break;
             case 6:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*7) {
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*11) {
                     armC(5.0);
                     headB(headPower);
                     wheelB(0.0,15);
@@ -343,7 +396,7 @@ public class Dance extends VortexAutoOp{
                 }
                 break;
             case 7:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*8) {
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*12) {
                     armD(5.0);
                     headC(headPower);
                     wheelB(0.0,-15);
@@ -387,7 +440,7 @@ public class Dance extends VortexAutoOp{
                 }
                 break;
             case 3:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*4) {
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
                     armE();
                     wheelB(0.0,135);
                 } else {
@@ -395,7 +448,7 @@ public class Dance extends VortexAutoOp{
                 }
                 break;
             case 4:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
                     armG();
                     headB(headPower);
                     wheelB(0.0,180);
@@ -404,7 +457,7 @@ public class Dance extends VortexAutoOp{
                 }
                 break;
             case 5:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*7) {
                     armH();
                     headC(headPower);
                     wheelB(0.0,240);
@@ -413,7 +466,7 @@ public class Dance extends VortexAutoOp{
                 }
                 break;
             case 6:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*7) {
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*10) {
                     armG();
                     headB(headPower);
                     wheelB(0.0,290);
@@ -422,7 +475,7 @@ public class Dance extends VortexAutoOp{
                 }
                 break;
             case 7:
-                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*8) {
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*12) {
                     armH();
                     headC(headPower);
                     wheelB(0.0,0);
@@ -467,20 +520,24 @@ public class Dance extends VortexAutoOp{
     }
 
     public void armF () {
-        leftBeaconArm.lowerUpperArm();
+        leftBeaconArm.raiseUpperArm();
         leftBeaconArm.raiseLowerArm();
-        rightBeaconArm.lowerUpperArm();
+        rightBeaconArm.raiseUpperArm();
         rightBeaconArm.raiseLowerArm();
     }
 
     public void armG () {
         leftBeaconArm.raiseUpperArm();
         rightBeaconArm.lowerLowerArm();
+        leftBeaconArm.raiseLowerArm();
+        rightBeaconArm.raiseLowerArm();
     }
 
     public void armH () {
         leftBeaconArm.lowerLowerArm();
+        leftBeaconArm.lowerUpperArm();
         rightBeaconArm.raiseUpperArm();
+        rightBeaconArm.raiseLowerArm();
     }
 
     // wheel dance modes
