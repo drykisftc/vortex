@@ -488,7 +488,7 @@ public class DanceAutoOp extends VortexAutoOp{
 
     public void wheelB (double turnPower, int heading) {
         gyroTracker.skewTolerance = 1;
-        gyroTracker.maxTurnPower = 0.2;
+        gyroTracker.maxTurnPower = 0.15;
         state = gyroTracker.turn(heading,
                 inPlaceTurnGain,turnPower,0,0);
     }

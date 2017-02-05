@@ -87,8 +87,8 @@ public class HardwareBeaconArm extends HardwareBase {
                        double upStepSize, double lowStepSize) {
         upperArmHomePosition = upperHome;
         upperArmStepSize = upStepSize;
-        upperArmMin = Range.clip(Math.min(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.60), 0.0, 1.0);
-        upperArmMax = Range.clip(Math.max(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.60), 0.0, 1.0); // trick to flip sign
+        upperArmMin = Range.clip(Math.min(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.55), 0.0, 1.0);
+        upperArmMax = Range.clip(Math.max(upperHome,upperHome + upStepSize/Math.abs(upStepSize)* 0.55), 0.0, 1.0); // trick to flip sign
 
         lowerArmHomePosition = lowerHome;
         lowerArmStepSize = lowStepSize;
