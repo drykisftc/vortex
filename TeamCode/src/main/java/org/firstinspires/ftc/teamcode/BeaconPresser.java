@@ -26,8 +26,8 @@ public class BeaconPresser extends RobotExecutor {
     int teamColorCount = 0;
     int teamColorCountThreshold = 3;
 
-    double slowSpeedGain = 0.1;
-    double fastSpeedGain = 1.0;
+    double slowSpeedGain = 0.2;
+    double fastSpeedGain = 3.0;
 
     protected long longPressTimeLimit = 1500; // 1.5 seconds
     protected long shotPressTimeLimit = 500; // 0.3 seconds
