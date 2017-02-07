@@ -80,10 +80,8 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 bufferSize);
         gyroTracker.setReporter(telemetry);
         gyroTracker.init();
-        gyroTracker.minTurnPower = 0.01;
-        gyroTracker.maxTurnPower = 0.15;
         gyroTracker.skewPowerGain = 1.0/180; // 180 for track wheels
-        gyroTracker.skewTolerance = 0;
+        gyroTracker.skewTolerance = 1;
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("GyroTracker", "Init");    //
@@ -138,7 +136,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
         switch (state) {
             case 0:
                 // go straight
-                gyroTracker.skewTolerance = 0;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.goStraight (0, cruisingTurnGain,
                         cruisingPower, testDistance1, state, state+1);
                 break;
@@ -149,19 +147,19 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 break;
             case 2:
                 // go straight
-                gyroTracker.skewTolerance = 0;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.goStraight (testTurnAngle1, cruisingTurnGain,
                         searchingPower, testDistance1,state, state+1);
                 break;
             case 3:
                 // turn 90 degree
                 gyroTracker.skewTolerance = 1;
-                state = gyroTracker.turn(testTurnAngle1*2, inPlaceTurnGain,turningPower,state, state+1);
+                state = gyroTracker.turn(testTurnAngle1+testTurnAngle1, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 4:
                 // go straight
-                gyroTracker.skewTolerance = 0;
-                state = gyroTracker.goStraight (testTurnAngle1*2, cruisingTurnGain,
+                gyroTracker.skewTolerance = 1;
+                state = gyroTracker.goStraight (testTurnAngle1+testTurnAngle1, cruisingTurnGain,
                         chargingPower, testDistance1, state, state+1);
                 break;
             case 5:
@@ -171,13 +169,13 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 break;
             case 6:
                 // go straight
-                gyroTracker.skewTolerance = 0;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.goStraight (testTurnAngle1*3, cruisingTurnGain,
                         cruisingPower, testDistance1, state, state+1);
                 break;
             case 7:
                 // backup
-                gyroTracker.skewTolerance = 0;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.goStraight (testTurnAngle1*3, cruisingTurnGain,
                         -1.0*cruisingPower, backDistance, state, state+1);
                 break;
@@ -188,7 +186,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 break;
             case 9:
                 // backup
-                gyroTracker.skewTolerance = 0;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.goStraight (testTurnAngle1*3+testTurnAngle2, cruisingTurnGain,
                         -1.0*cruisingPower, backDistance, state, state+1);
                 break;
@@ -198,7 +196,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 state = gyroTracker.turn(testTurnAngle1*2+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 11:
-                gyroTracker.skewTolerance = 0;
+                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.goStraight (testTurnAngle1*2+testTurnAngle2, cruisingTurnGain,
                         cruisingPower, testDistance1, state, state+1);
                 break;

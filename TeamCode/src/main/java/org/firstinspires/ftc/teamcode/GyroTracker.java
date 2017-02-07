@@ -33,9 +33,6 @@ public class GyroTracker extends Tracker {
     private int landMarkPosition = 0;
     private int landMarkAngle = 0;
 
-    private int headingHits  = 0;
-    private int headingHitsLimit = 2;
-
     public GyroTracker(ModernRoboticsI2cGyro g,
                        DcMotor leftW,
                        DcMotor rightW,
@@ -96,12 +93,6 @@ public class GyroTracker extends Tracker {
 
         //  complete state checking
         if ( deltaPower  ==  0.0) {
-            headingHits++;
-        } else {
-            headingHits = 0;
-        }
-
-        if (headingHits >= headingHitsLimit) {
             boolNoTurning = true;
         }
 
@@ -148,7 +139,8 @@ public class GyroTracker extends Tracker {
             } else if (flipCount >= flipCountLimit ) {
                 // robot always over-compensated, tune down the min turn power
                 minTurnPower = Math.max(0.0, minTurnPower-minAnglePowerStepSize);
-                maxTurnPower = Math.max(0.0, maxTurnPower-minAnglePowerStepSize);
+            } else if (deltaChange > maxTurnSpeed) {
+                maxTurnPower = Math.max(minTurnPower+0.01, maxTurnPower-minAnglePowerStepSize);
             }
         }
     }

@@ -9,7 +9,7 @@ public class BeaconPresser extends RobotExecutor {
 
     // navigation info
     protected int lineToBeaconDistance = 400; //509
-    protected int beaconPressDistance = 2500;
+    protected int beaconPressDistance = 1000;
     protected int button1ToButton2Distance = 486;
     double cruisingPower = 0.5;
     double searchingPower = 0.2;
@@ -18,7 +18,7 @@ public class BeaconPresser extends RobotExecutor {
     char teamColor = 'b';
 
     int pressButtonTimes = 0;
-    int pressButtonTimesLimit = 1;
+    int pressButtonTimesLimit = 2;
 
     // bookkeeping
     int landMarkAngle = 0;
@@ -33,7 +33,7 @@ public class BeaconPresser extends RobotExecutor {
     protected long shotPressTimeLimit = 500; // 0.3 seconds
     protected long travelTimeLimit = 4000; // 4 seconds
 
-    protected int waggleDegree = 2;
+    protected int waggleDegree = 0;
     protected double waggleGain = 0.01;
 
     public BeaconPresser(GyroTracker g,
@@ -102,22 +102,24 @@ public class BeaconPresser extends RobotExecutor {
                 // touch beacon button
                 // waggle wheels to touch beacon at different angles
                 gyroTracker.skewTolerance = 0;
-                gyroTracker.turn(landMarkAngle+waggleDegree*((pressButtonTimes+2)%3-1), waggleGain,
-                        0.0,state, state);
+                gyroTracker.turn(landMarkAngle+waggleDegree*((pressButtonTimes+2)%3-1), waggleGain, 0.0,state, state);
                 beaconArm.extend(fastSpeedGain);
                 if (System.currentTimeMillis() - lastTimeStamp > longPressTimeLimit){
                     pressButtonTimes ++;
                     bBeaconPressed = true;
                     lastTimeStamp = System.currentTimeMillis();
                     beaconArm.retract();
-                    state = 4;
+                    if (pressButtonTimes >= pressButtonTimesLimit) {
+                        state = 5;
+                    } else {
+                        state = 4;
+                    }
                 }
                 break;
             case 4:
                 // waggle wheels to touch beacon at different angles
                 gyroTracker.skewTolerance = 0;
-                gyroTracker.turn(landMarkAngle+waggleDegree*((pressButtonTimes+2)%3-1), waggleGain,
-                        0.0,state, state);
+                gyroTracker.turn(landMarkAngle+waggleDegree*((pressButtonTimes+2)%3-1), waggleGain, 0.0,state, state);
 
                 // touch beacon button
                 beaconArm.extend(fastSpeedGain);

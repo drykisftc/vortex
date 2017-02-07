@@ -61,7 +61,7 @@ public class PlanBRedAutoOp extends VortexAutoOp{
         cruisingPower = 0.5;
         startWaitingTime = 10000;
         lastTimeStamp = System.currentTimeMillis();
-        particleShooter.handFirePower = 0.6;
+        particleShooter.handFirePower = 0.55;
     }
 
     /*

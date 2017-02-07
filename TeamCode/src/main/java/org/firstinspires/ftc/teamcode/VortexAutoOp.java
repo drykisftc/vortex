@@ -72,10 +72,12 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected int beacon2ParkingDistance =5700; //4318
     protected int jammingBackupDistance = 150;
     protected double sonicWallDistanceLimit = 5.0;
+    protected double sonicBallDistanceLimit = 5.0;
     protected double back2BasePower = -1* chargingPower;
 
     protected double leftArmFastAutoMovePower = 0.45;
-    protected double numberBallsShoot = 0.0;
+    protected double numberBallsShoot = 2.0;
+    protected double numberTimePressBeacon= 2.0;
 
     protected long lastTimeStamp = 0;
 
@@ -147,6 +149,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         particleShooter.start(0);
         particleShooter.armPower = leftArmAutoMovePower;
         particleShooter.armStartPosition = leftArmMovePosition;
+        particleShooter.handFirePower = 0.55;
         particleShooter.reload();
         beaconPresser.beaconArm.commitCalibration();
         beaconPresser.start(0);
@@ -183,6 +186,12 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     state = gyroTracker.goStraight (0, cruisingTurnGain, searchingPower,
                             start2FireDistance, state,state+1);
                 }
+
+                // almost touch the ball
+                //                wallTracker.readDistance();
+                //                if (wallTracker.getHistoryDistanceAverage() < sonicBallDistanceLimit) {
+                //                    state = 1;
+                //                }
 
                 if (state == 1) {
                     // prepare to shoot
@@ -296,7 +305,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 // go straight until hit the second white line
                 gyroTracker.skewTolerance = 1;
                 gyroTracker.breakDistance = 200;
-                if (System.currentTimeMillis() - lastTimeStamp > 1200) {
+                int chargeDistance = gyroTracker.getWheelLandmarkOdometer();
+                if (chargeDistance > 2500 || System.currentTimeMillis() - lastTimeStamp > 1000) {
                     state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
                             cruisingTurnGain, searchingPower, beacon2BeaconDistance, state, state + 1);
                 } else {
@@ -305,7 +315,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 }
 
                 // check the ods for white line signal
-                if (gyroTracker.getWheelLandmarkOdometer() > 1000
+                if ( chargeDistance > 1000
                 && hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
                     state = 9;
                     stopWheels();
@@ -373,15 +383,15 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected void adjustConfigurationViaGamePad () {
         // adjust the number of balls to shoot
         if (gamepad1.b) {
-            numberBallsShoot -= 0.01;
-        } else if (gamepad1.a) {
             numberBallsShoot += 0.01;
+        } else if (gamepad1.a) {
+            numberBallsShoot -= 0.01;
             if (numberBallsShoot < 0.0) {
                 numberBallsShoot = 0;
             }
         }
         particleShooter.autoShootCountLimit = (int) numberBallsShoot;
-        telemetry.addData("Number of balls to shoot (a+/b-): ", particleShooter.autoShootCountLimit);
+        telemetry.addData("Number of balls to shoot (a-/b+): ", particleShooter.autoShootCountLimit);
 
         // adjust autonomous turning power
         if (gamepad1.dpad_up) {
@@ -406,12 +416,16 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         }
         telemetry.addData("Start waiting time in ms (bumper left+/right-): ", startWaitingTime);
 
-        // configurations
-        if ( gamepad1.x) {
-            // save configuration
+        // number of time beacon to press
+        if (gamepad1.x) {
+            numberTimePressBeacon -= 0.01;
         } else if (gamepad1.y) {
-            // load configuration
+            numberTimePressBeacon += 0.01;
+            if (numberTimePressBeacon < 0.0) {
+                numberTimePressBeacon = 0.0;
+            }
         }
-        telemetry.addData("Save configuration press y.", "Reset to default press x");
+        beaconPresser.pressButtonTimesLimit = (int) numberTimePressBeacon;
+        telemetry.addData("Number of times to press beacon (x-/y+): ", beaconPresser.pressButtonTimesLimit);
     }
 }
