@@ -81,7 +81,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
         gyroTracker.setReporter(telemetry);
         gyroTracker.init();
         gyroTracker.minTurnPower = 0.01;
-        gyroTracker.maxTurnPower = 0.2;
+        gyroTracker.maxTurnPower = 0.15;
         gyroTracker.skewPowerGain = 1.0/180; // 180 for track wheels
         gyroTracker.skewTolerance = 0;
 
