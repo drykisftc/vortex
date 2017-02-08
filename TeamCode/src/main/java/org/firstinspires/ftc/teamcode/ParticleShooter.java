@@ -115,11 +115,7 @@ class ParticleShooter extends RobotExecutor {
             case 0:
                 // move arm to firing position
                 reload();
-                if (System.currentTimeMillis() - lastTimeStamp < 200) {
-                    VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition, armPower * 0.5);
-                } else {
-                    VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition, armPower);
-                }
+                VortexUtils.moveMotorByEncoder(motorArm, armFiringPosition, armPower);
                 if (hasReachedPosition(armFiringPosition)) {
                     state = 1;
                 }
@@ -133,7 +129,7 @@ class ParticleShooter extends RobotExecutor {
                 }
                 break;
             case 1:
-                if (System.currentTimeMillis() - lastTimeStamp < 400) {
+                if (System.currentTimeMillis() - lastTimeStamp < 300) {
                     reload();
                 } else {
                     state = 2;

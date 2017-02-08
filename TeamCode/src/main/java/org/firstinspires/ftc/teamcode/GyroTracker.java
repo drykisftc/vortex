@@ -80,11 +80,12 @@ public class GyroTracker extends Tracker {
      */
     public boolean maintainHeading(double target, double power) {
 
-        targetHeading = VortexUtils.normalizeHeading(target);
+        //targetHeading = VortexUtils.normalizeHeading(target);
+        targetHeading = target;
 
         boolean boolNoTurning = false;
         int heading = gyro.getHeading();
-        double delta = VortexUtils.getAngleError(targetHeading, heading);
+        double delta = VortexUtils.getAngleError(target, heading);
 
         // compute power delta
         double deltaPower = computeTurnPower(delta);

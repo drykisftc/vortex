@@ -46,11 +46,11 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     int bufferSize= 10;
 
     // navigation path info
-    int testDistance1 = 6000; //2500
-    int testDistance2 = 6000;
-    int testTurnAngle1 = 90;
-    int testTurnAngle2 = 180;
-    int backDistance = -6000;
+    final int testDistance1 = 6000; //2500
+    final int testDistance2 = 6000;
+    final int testTurnAngle1 = 90;
+    final int testTurnAngle2 = 180;
+    final int backDistance = -6000;
 
     // navigation control info
     double chargingPower = 0.99;
@@ -136,73 +136,60 @@ public class GyroTrackerOpMode extends VortexTeleOp {
         switch (state) {
             case 0:
                 // go straight
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.goStraight (0, cruisingTurnGain,
                         cruisingPower, testDistance1, state, state+1);
                 break;
             case 1:
                 // turn 90 degree
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(testTurnAngle1, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 2:
                 // go straight
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.goStraight (testTurnAngle1, cruisingTurnGain,
                         searchingPower, testDistance1,state, state+1);
                 break;
             case 3:
                 // turn 90 degree
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(testTurnAngle1+testTurnAngle1, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 4:
                 // go straight
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.goStraight (testTurnAngle1+testTurnAngle1, cruisingTurnGain,
                         chargingPower, testDistance1, state, state+1);
                 break;
             case 5:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(testTurnAngle1*3, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 6:
                 // go straight
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.goStraight (testTurnAngle1*3, cruisingTurnGain,
                         cruisingPower, testDistance1, state, state+1);
                 break;
             case 7:
                 // backup
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.goStraight (testTurnAngle1*3, cruisingTurnGain,
                         -1.0*cruisingPower, backDistance, state, state+1);
                 break;
             case 8:
                 // turn 180 degree
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(testTurnAngle1*3+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 9:
                 // backup
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.goStraight (testTurnAngle1*3+testTurnAngle2, cruisingTurnGain,
                         -1.0*cruisingPower, backDistance, state, state+1);
                 break;
             case 10:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(testTurnAngle1*2+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 11:
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.goStraight (testTurnAngle1*2+testTurnAngle2, cruisingTurnGain,
                         cruisingPower, testDistance1, state, state+1);
                 break;
             case 12:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(testTurnAngle1*3+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             default:

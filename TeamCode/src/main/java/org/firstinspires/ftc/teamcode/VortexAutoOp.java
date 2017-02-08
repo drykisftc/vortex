@@ -62,7 +62,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected double minLineBrightness = 0.02;
 
     // navigation settings
-    protected int start2FireDistance = 3500; //2500
+    protected int start2FireDistance = 2500; //2500
     protected int fire2TurnDegree = 75;
     protected int fire2WallDistance = 4600; // 5121
     protected int wall2TurnDegree = -75;
@@ -168,15 +168,16 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         switch (state) {
             case 0:
                 // go straight
-                gyroTracker.skewTolerance = 0;
                 gyroTracker.breakDistance = 800;
                 state = gyroTracker.goStraight (0, cruisingTurnGain, searchingPower,
                         start2FireDistance, state,state+1);
 
+                // move arm
+                VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                        leftArmFirePosition, leftArmFastAutoMovePower);
+
                 if (System.currentTimeMillis() - lastTimeStamp > 200) {
                     // move and raise arm at same time
-                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                            leftArmFirePosition, leftArmFastAutoMovePower);
                     state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
                             start2FireDistance, state,state+1);
                     particleShooter.reload();
@@ -208,7 +209,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 2:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
                         turningPower,state,state+1);
 
@@ -221,7 +221,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 wallTracker.readDistance();
 
                 // go straight until hit the wall
-                gyroTracker.skewTolerance = 0;
                 gyroTracker.breakDistance = 1600;
                 state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
                         cruisingPower, fire2WallDistance, state, state + 2); // need to +2 to skip jam backup
@@ -251,13 +250,11 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 4:
                 // if jammed, back up a little bit
-                gyroTracker.breakDistance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
                         -1.0*searchingPower, jammingBackupDistance, state,state+1);
                 break;
             case 5:
                 // turn -90 degree back
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
 
@@ -280,7 +277,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 6:
                 // go straight until hit first white line
-                gyroTracker.skewTolerance = 1;
                 gyroTracker.breakDistance = 200;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
                         cruisingTurnGain, searchingPower, wall2BeaconDistance, state,state+1);
@@ -303,7 +299,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 8:
                 // go straight until hit the second white line
-                gyroTracker.skewTolerance = 1;
                 gyroTracker.breakDistance = 200;
                 int chargeDistance = gyroTracker.getWheelLandmarkOdometer();
                 if (chargeDistance > 2500 || System.currentTimeMillis() - lastTimeStamp > 1000) {
@@ -333,7 +328,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 10:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 1;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
                         inPlaceTurnGain,parkTurningPower,state,state+1);
                 if (state == 11) {
@@ -343,7 +337,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 11:
                 // backup straight to central parking
-                gyroTracker.skewTolerance = 0;
                 gyroTracker.breakDistance = 0;
                 if (System.currentTimeMillis() - lastTimeStamp < 200) {
                     state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
@@ -391,7 +384,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
             }
         }
         particleShooter.autoShootCountLimit = (int) numberBallsShoot;
-        telemetry.addData("Number of balls to shoot (a-/b+): ", particleShooter.autoShootCountLimit);
+        telemetry.addData("Num of balls to shoot (a-/b+)    :", particleShooter.autoShootCountLimit);
 
         // adjust autonomous turning power
         if (gamepad1.dpad_up) {
@@ -399,14 +392,14 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         } else if (gamepad1.dpad_down) {
             gyroTracker.minTurnPower -= 0.0001;
         }
-        telemetry.addData("Min turn power (pad up+/down-): ", gyroTracker.minTurnPower);
+        telemetry.addData("Min turn power (pad up+/down-)   :", gyroTracker.minTurnPower);
 
         if (gamepad1.dpad_left) {
             gyroTracker.maxTurnPower += 0.0001;
         } else if (gamepad1.dpad_right) {
             gyroTracker.maxTurnPower -= 0.0001;
         }
-        telemetry.addData("Max turn power: (pad left+/right-)", gyroTracker.maxTurnPower);
+        telemetry.addData("Max turn power (pad left+/right-):", gyroTracker.maxTurnPower);
 
         // adjust waiting time
         if (gamepad1.left_bumper) {
@@ -414,7 +407,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         } else if (gamepad1.right_bumper) {
             startWaitingTime -=10;
         }
-        telemetry.addData("Start waiting time in ms (bumper left+/right-): ", startWaitingTime);
+        telemetry.addData("Waiting ms (bumper left+/right-) :", startWaitingTime);
 
         // number of time beacon to press
         if (gamepad1.x) {
@@ -426,6 +419,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
             }
         }
         beaconPresser.pressButtonTimesLimit = (int) numberTimePressBeacon;
-        telemetry.addData("Number of times to press beacon (x-/y+): ", beaconPresser.pressButtonTimesLimit);
+        telemetry.addData("Press beacon times (x-/y+)       :", beaconPresser.pressButtonTimesLimit);
     }
 }
