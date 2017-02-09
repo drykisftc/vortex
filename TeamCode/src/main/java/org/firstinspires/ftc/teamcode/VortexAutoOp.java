@@ -75,7 +75,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected double sonicBallDistanceLimit = 5.0;
     protected double back2BasePower = -1* chargingPower;
 
-    protected double leftArmFastAutoMovePower = 0.45;
+    protected double leftArmFastAutoMovePower = 0.40;
     protected double numberBallsShoot = 2.0;
     protected double numberTimePressBeacon= 2.0;
 
@@ -87,6 +87,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected JammingDetection  jammingDetection = null;
 
     protected boolean whiteLineFound = false;
+
+    protected boolean pickUpBalls = true;
 
     // to do: add wall tracker
 
@@ -276,6 +278,10 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 }
                 break;
             case 6:
+                if (pickUpBalls) {
+                    robot.servoLeftScooper.setPower(leftScooperGo);
+                    robot.servoRightScooper.setPower(rightScooperGo);
+                }
                 // go straight until hit first white line
                 gyroTracker.breakDistance = 200;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
@@ -330,9 +336,13 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 // turn 45 degree
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
                         inPlaceTurnGain,parkTurningPower,state,state+1);
+                if (pickUpBalls == true) {
+                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                            leftArmHomeParkingPostion, leftArmAutoMovePower);
+                }
                 if (state == 11) {
+                    gyroTracker.setWheelLandmark();
                     lastTimeStamp = System.currentTimeMillis();
-                    gyroTracker.minTurnPower = 0.01;
                 }
                 break;
             case 11:
@@ -342,6 +352,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
                             cruisingTurnGain, back2BasePower * 0.5, beacon2ParkingDistance, state, state + 1);
                 } else {
+                    robot.servoLeftScooper.setPower(leftScooperStop);
+                    robot.servoRightScooper.setPower(rightScooperStop);
                     state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
                             cruisingTurnGain, back2BasePower, beacon2ParkingDistance, state, state + 1);
                 }
@@ -391,6 +403,9 @@ public class VortexAutoOp extends GyroTrackerOpMode{
             gyroTracker.minTurnPower += 0.0001;
         } else if (gamepad1.dpad_down) {
             gyroTracker.minTurnPower -= 0.0001;
+            if (gyroTracker.minTurnPower < 0.0 ) {
+                gyroTracker.minTurnPower = 0.0;
+            }
         }
         telemetry.addData("Min turn power (pad up+/down-)   :", gyroTracker.minTurnPower);
 
@@ -398,6 +413,9 @@ public class VortexAutoOp extends GyroTrackerOpMode{
             gyroTracker.maxTurnPower += 0.0001;
         } else if (gamepad1.dpad_right) {
             gyroTracker.maxTurnPower -= 0.0001;
+            if (gyroTracker.maxTurnPower < gyroTracker.minTurnPower) {
+                gyroTracker.maxTurnPower = gyroTracker.minTurnPower + 0.01;
+            }
         }
         telemetry.addData("Max turn power (pad left+/right-):", gyroTracker.maxTurnPower);
 
@@ -406,19 +424,31 @@ public class VortexAutoOp extends GyroTrackerOpMode{
             startWaitingTime += 10;
         } else if (gamepad1.right_bumper) {
             startWaitingTime -=10;
+            if (startWaitingTime < 0 ) {
+                startWaitingTime = 0;
+            }
         }
         telemetry.addData("Waiting ms (bumper left+/right-) :", startWaitingTime);
 
-        // number of time beacon to press
+        // enable/disable ball picking
         if (gamepad1.x) {
-            numberTimePressBeacon -= 0.01;
+            pickUpBalls = true;
         } else if (gamepad1.y) {
+            pickUpBalls = false;
+        }
+        telemetry.addData("Enable ball picking (x+/y-)    :", pickUpBalls);
+
+        // number of time beacon to press
+        if (gamepad2.a) {
             numberTimePressBeacon += 0.01;
+        } else if (gamepad2.b) {
+            numberTimePressBeacon -= 0.01;
             if (numberTimePressBeacon < 0.0) {
                 numberTimePressBeacon = 0.0;
             }
         }
         beaconPresser.pressButtonTimesLimit = (int) numberTimePressBeacon;
-        telemetry.addData("Press beacon times (x-/y+)       :", beaconPresser.pressButtonTimesLimit);
+        telemetry.addData("Press beacon times (a2+/b2-)       :", beaconPresser.pressButtonTimesLimit);
+
     }
 }

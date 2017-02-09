@@ -55,7 +55,9 @@ public class PlanBBlueAutoOp extends PlanBRedAutoOp {
     @Override
     public void start() {
         super.start();
-        fire2TurnDegree = -150;
+        fire2TurnDegree = -90;
+        wall2TurnDegree = -60;
         fire2WallDistance= -2500; // go backwards
+        particleShooter.handFirePower = 0.65;
     }
 }

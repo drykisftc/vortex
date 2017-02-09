@@ -190,7 +190,12 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 break;
             case 12:
                 // turn 45 degree
-                state = gyroTracker.turn(testTurnAngle1*3+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
+                gyroTracker.turn(testTurnAngle1*3+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
+
+                // unless button b is press. it is used to test gyro drifting. Robt should not rotate after the turn is done.
+                if (gamepad1.b) {
+                    state +=1;
+                }
                 break;
             default:
                 homeArm();

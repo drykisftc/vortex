@@ -55,13 +55,14 @@ public class PlanBRedAutoOp extends VortexAutoOp{
     @Override
     public void start() {
         super.start();
-        start2FireDistance = 3000;
-        fire2TurnDegree = 179;
-        fire2WallDistance= 2300;
+        start2FireDistance = 2900;
+        fire2TurnDegree = 160;
+        wall2TurnDegree = 19;
+        fire2WallDistance= 2600;
         cruisingPower = 0.5;
         startWaitingTime = 10000;
         lastTimeStamp = System.currentTimeMillis();
-        particleShooter.handFirePower = 0.55;
+        particleShooter.handFirePower = 0.65;
     }
 
     /*
@@ -93,7 +94,7 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
                     particleShooter.armPower = leftArmAutoMovePower;
-                    particleShooter.armStartPosition = leftArmMovePosition;
+                    particleShooter.armStartPosition = leftArmFirePosition;
                 }
                 break;
             case 2:
@@ -106,6 +107,13 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                         turningPower,state,state+1);
                 break;
             case 4:
+                // turn 45 degree
+                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree, inPlaceTurnGain,
+                        turningPower,state,state+1);
+                VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                        leftArmMovePosition, leftArmAutoMovePower);
+                break;
+            case 5:
                 // go backward and park
                 gyroTracker.breakDistance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,

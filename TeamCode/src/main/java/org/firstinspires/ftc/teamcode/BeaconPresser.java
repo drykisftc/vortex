@@ -30,7 +30,7 @@ public class BeaconPresser extends RobotExecutor {
     double fastSpeedGain = 5.0;
 
     protected long longPressTimeLimit = 1000; // 1.5 seconds
-    protected long shotPressTimeLimit = 800; // 0.3 seconds
+    protected long shotPressTimeLimit = 200; // 0.3 seconds
     protected long travelTimeLimit = 4000; // 4 seconds
 
     protected int waggleDegree = 0;
@@ -130,7 +130,7 @@ public class BeaconPresser extends RobotExecutor {
                 }
                 break;
             case 5:
-                if (System.currentTimeMillis() - lastTimeStamp < shotPressTimeLimit)  {
+                if (System.currentTimeMillis() - lastTimeStamp < shotPressTimeLimit*2)  {
                     beaconArm.extend(fastSpeedGain);
                 } else if (pressButtonTimes >= pressButtonTimesLimit) {
                     state = 6;
