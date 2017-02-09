@@ -175,8 +175,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                         start2FireDistance, state,state+1);
 
                 // move arm
-                VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                        leftArmFirePosition, leftArmFastAutoMovePower);
+                particleShooter.moveArmToFirePosition();
 
                 if (System.currentTimeMillis() - lastTimeStamp > 200) {
                     // move and raise arm at same time
@@ -337,8 +336,17 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
                         inPlaceTurnGain,parkTurningPower,state,state+1);
                 if (pickUpBalls == true) {
-                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                            leftArmHomeParkingPostion, leftArmAutoMovePower);
+                    if (robot.armStopMin.isPressed()) {
+                        leftArmMinLimitSwitchOnCount ++;
+                    } else {
+                        leftArmMinLimitSwitchOnCount = 0;
+                    }
+                    if (leftArmMinLimitSwitchOnCount > leftArmLimitSwitchCountThreshold) {
+                        particleShooter.relaxArm();
+                    } else {
+                        VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                                leftArmHomeParkingPostion, leftArmAutoMovePower);
+                    }
                 }
                 if (state == 11) {
                     gyroTracker.setWheelLandmark();

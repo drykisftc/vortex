@@ -71,8 +71,7 @@ public class PlanDRedAutoOp extends PlanARedAutoOp{
 
                 if (System.currentTimeMillis() - lastTimeStamp > 200) {
                     // move and raise arm at same time
-                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                            leftArmFirePosition, leftArmFastAutoMovePower);
+                    particleShooter.moveArmToFirePosition();
                     state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
                             start2FireDistance, state,state+1);
                     particleShooter.reload();

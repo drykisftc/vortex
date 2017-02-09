@@ -85,6 +85,7 @@ public class PlanERedAutoOp extends VortexAutoOp{
                 break;
             case 1:
                 // go straight
+                particleShooter.moveArmToFirePosition();
                 state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state, state + 1);
                 telemetry.addData("State:", "%02d", state);

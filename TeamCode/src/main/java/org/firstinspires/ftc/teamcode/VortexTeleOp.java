@@ -95,9 +95,9 @@ class VortexTeleOp extends OpMode{
     private long leftArmHomingTimestamp =0;
     private long leftArmHomingTime =8000;
 
-    private int leftArmMinLimitSwitchOnCount =0;
-    private int leftArmMaxLimitSwitchOnCount =0;
-    private int leftArmLimitSwitchCountThreshold = 8;
+    protected int leftArmMinLimitSwitchOnCount =0;
+    protected int leftArmMaxLimitSwitchOnCount =0;
+    protected int leftArmLimitSwitchCountThreshold = 5;
 
     private double rightArmHoldPower = 0.7;
 

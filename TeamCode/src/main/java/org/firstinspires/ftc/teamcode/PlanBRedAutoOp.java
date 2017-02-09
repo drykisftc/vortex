@@ -84,8 +84,7 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                 telemetry.addData("State:", "%02d", state);
 
                 if (System.currentTimeMillis() - lastTimeStamp > 200) {
-                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                            leftArmFirePosition, leftArmAutoMovePower);
+                    particleShooter.moveArmToFirePosition();
                 }
 
                 if (state == 2) {

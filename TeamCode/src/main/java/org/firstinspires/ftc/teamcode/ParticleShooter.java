@@ -52,7 +52,7 @@ class ParticleShooter extends RobotExecutor {
     private long lastTimeStamp = 0;
 
     private int limitSwitchCount = 0;
-    private int limitSwitchCountThreshold = 10;
+    private int limitSwitchCountThreshold = 4;
 
     private int autoShootCount = 0;
     public int autoShootCountLimit = 2;
@@ -300,7 +300,7 @@ class ParticleShooter extends RobotExecutor {
         return Math.abs(motorArm.getCurrentPosition() - targetPos) < leftArmPositionTolerance;
     }
 
-    private boolean isLimitSwitchOn() {
+    boolean isLimitSwitchOn() {
         if (limitSwitch.isPressed()) {
             limitSwitchCount++;
         } else {
@@ -351,12 +351,22 @@ class ParticleShooter extends RobotExecutor {
         return Math.abs(motorHand.getCurrentPosition() - handFirePosition) < leftArmPositionTolerance;
     }
 
-    protected void resetArmJammed() {
+    void resetArmJammed() {
         jammingDetection.reset();
     }
 
-    protected boolean isArmJammed(int position) {
+    boolean isArmJammed(int position) {
         return jammingDetection.isJammed(position);
+    }
+
+    public void moveArmToFirePosition () {
+        if (isArmJammed(motorArm.getCurrentPosition())
+                || isLimitSwitchOn()) {
+            relaxArm();
+        } else {
+            VortexUtils.moveMotorByEncoder(motorArm,
+                    armFiringPosition, armPower);
+        }
     }
 
 }
