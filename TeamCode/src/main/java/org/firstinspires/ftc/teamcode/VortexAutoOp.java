@@ -255,13 +255,14 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                         -1.0*searchingPower, jammingBackupDistance, state,state+1);
                 break;
             case 5:
-                // turn -90 degree back
-                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree-5,
-                        inPlaceTurnGain,turningPower,state,state+1);
 
                 if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
                     whiteLineFound = true;
                 }
+
+                // turn -90 degree back
+                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree-5,
+                        inPlaceTurnGain,turningPower,state,state+1);
 
                 if (state == 6 ) {
                     // reset min turning power to avoid jerky movements
@@ -277,11 +278,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 }
                 break;
             case 6:
-                // go straight until hit first white line
-                gyroTracker.breakDistance = 200;
-                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
-                        cruisingTurnGain, searchingPower, wall2BeaconDistance, state,state+1);
-
                 // check the ods for white line signal
                 if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
                     state = 7;
@@ -289,6 +285,11 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     gyroTracker.setWheelLandmark();
                     beaconPresser.start(0);
                 }
+                // go straight until hit first white line
+                gyroTracker.breakDistance = 200;
+                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
+                        cruisingTurnGain, searchingPower, wall2BeaconDistance, state,state+1);
+
                 break;
             case 7:
                 // touch beacon
@@ -299,14 +300,19 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 }
                 break;
             case 8:
-                if (pickUpBalls) {
-                    robot.servoLeftScooper.setPower(leftScooperGo);
-                    robot.servoRightScooper.setPower(rightScooperGo);
-                }
-
                 // go straight until hit the second white line
                 gyroTracker.breakDistance = 200;
                 int chargeDistance = gyroTracker.getWheelLandmarkOdometer();
+
+                // check the ods for white line signal
+                if ( chargeDistance > 1000
+                        && hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
+                    state = 9;
+                    stopWheels();
+                    gyroTracker.setWheelLandmark();
+                    beaconPresser.start(0);
+                }
+
                 if (chargeDistance > 2500 || System.currentTimeMillis() - lastTimeStamp > 1000) {
                     state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
                             cruisingTurnGain, searchingPower, beacon2BeaconDistance, state, state + 1);
@@ -315,14 +321,11 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                             cruisingTurnGain, cruisingPower, beacon2BeaconDistance, state, state + 1);
                 }
 
-                // check the ods for white line signal
-                if ( chargeDistance > 1000
-                && hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
-                    state = 9;
-                    stopWheels();
-                    gyroTracker.setWheelLandmark();
-                    beaconPresser.start(0);
+                if (pickUpBalls) {
+                    robot.servoLeftScooper.setPower(leftScooperGo);
+                    robot.servoRightScooper.setPower(rightScooperGo);
                 }
+
                 break;
             case 9:
                 // touch beacon
