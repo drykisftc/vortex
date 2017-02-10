@@ -256,7 +256,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 5:
                 // turn -90 degree back
-                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
+                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree-5,
                         inPlaceTurnGain,turningPower,state,state+1);
 
                 if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
@@ -277,10 +277,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 }
                 break;
             case 6:
-                if (pickUpBalls) {
-                    robot.servoLeftScooper.setPower(leftScooperGo);
-                    robot.servoRightScooper.setPower(rightScooperGo);
-                }
                 // go straight until hit first white line
                 gyroTracker.breakDistance = 200;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
@@ -303,6 +299,11 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 }
                 break;
             case 8:
+                if (pickUpBalls) {
+                    robot.servoLeftScooper.setPower(leftScooperGo);
+                    robot.servoRightScooper.setPower(rightScooperGo);
+                }
+
                 // go straight until hit the second white line
                 gyroTracker.breakDistance = 200;
                 int chargeDistance = gyroTracker.getWheelLandmarkOdometer();

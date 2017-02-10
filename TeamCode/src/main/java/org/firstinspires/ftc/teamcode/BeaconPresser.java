@@ -79,17 +79,18 @@ public class BeaconPresser extends RobotExecutor {
                 }
                 break;
             case 2:
-                // move slowly until it gets the team color
-                state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, searchingPower,
-                        beaconPressDistance, 2,3);
-
-                // hover beacon arm over beacon
-                beaconArm.hoverNear(distanceThreshold,slowSpeedGain);
 
                 // check team color
                 if (isColor(teamColor)) {
                     state = 3;
                 }
+
+                // hover beacon arm over beacon
+                beaconArm.hoverNear(distanceThreshold,slowSpeedGain);
+
+                // move slowly until it gets the team color
+                state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, searchingPower,
+                        beaconPressDistance, 2,3);
 
                 if (state == 3 ) {
                     gyroTracker.setWheelLandmark();

@@ -11,7 +11,7 @@ class ParticleShooter extends RobotExecutor {
     int armStartPosition = 0;
     int armFiringPosition = 500;
     int armFiringSafeZone = 200;
-    double armPower = 0.4;
+    double armPower = 0.45;
     private int armFiringPositionAdjust = 0;
     private int leftArmPositionTolerance = 10;
 
