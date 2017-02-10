@@ -65,6 +65,8 @@ public class VortexMeasureOp extends VortexTeleOp {
     boolean lastResetState = false;
     boolean curResetState  = false;
 
+    //2200 per 2 feet
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -170,8 +172,7 @@ public class VortexMeasureOp extends VortexTeleOp {
         telemetry.addData("Left Lower Arm Pos   ", leftBeaconArm.lowerArm.getPosition());
         telemetry.addData("Left Color sensor rgb", "%d,%d,%d", leftBeaconArm.colorSensor.red(),
                 leftBeaconArm.colorSensor.green(), leftBeaconArm.colorSensor.blue());
-        telemetry.addData("Left Color sensor background rgb", "%d,%d,%d", leftBeaconArm.ambientRGB.r,
-                leftBeaconArm.ambientRGB.g, leftBeaconArm.ambientRGB.b);
+        telemetry.addData("Left Color           ", leftBeaconArm.getColorBlueOrRed());
         telemetry.addData("Left Near counts     ", leftBeaconArm.nearCounts);
         telemetry.addData("Left Touch counts    ", leftBeaconArm.touchCounts);
         telemetry.addData("Left Arm State:", "%02d", leftBeaconArm.state);
@@ -180,8 +181,7 @@ public class VortexMeasureOp extends VortexTeleOp {
         telemetry.addData("Right Lower Arm Pos   ", rightBeaconArm.lowerArm.getPosition());
         telemetry.addData("Right Color sensor rgb", "%d,%d,%d", rightBeaconArm.colorSensor.red(),
                 rightBeaconArm.colorSensor.green(), rightBeaconArm.colorSensor.blue());
-        telemetry.addData("Right Color sensor rgb", "%d,%d,%d", rightBeaconArm.ambientRGB.r,
-                rightBeaconArm.ambientRGB.g, rightBeaconArm.ambientRGB.b);
+        telemetry.addData("Right Color           ", rightBeaconArm.getColorBlueOrRed());
         telemetry.addData("Right Near counts     ", rightBeaconArm.nearCounts);
         telemetry.addData("Right Touch counts    ", rightBeaconArm.touchCounts);
         telemetry.addData("Right Arm State:", "%02d", rightBeaconArm.state);

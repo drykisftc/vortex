@@ -40,7 +40,7 @@ public class HardwareBeaconArm extends HardwareBase {
     protected int touchCountLimit = 4;
 
     protected int nearCounts = 0;
-    protected int nearCountsLimit = 3;
+    protected int nearCountsLimit = 4;
 
     protected int numbOfSteps =0;
 
@@ -138,7 +138,7 @@ public class HardwareBeaconArm extends HardwareBase {
                     upperArmMin, upperArmMax));
             lowerArm.setPosition(Range.clip(lowerArm.getPosition()-lowerArmStepSize*speedGain,
                     lowerArmMin, lowerArmMax));
-        } else {
+        } else if (delta < 0){
             upperArm.setPosition(Range.clip(upperArm.getPosition()+upperArmStepSize*speedGain,
                     upperArmMin, upperArmMax));
             lowerArm.setPosition(Range.clip(lowerArm.getPosition()+lowerArmStepSize*speedGain,
@@ -185,20 +185,13 @@ public class HardwareBeaconArm extends HardwareBase {
         lowerArm.setPosition(upperArmHomePosition);
     }
 
-    /**
-     *
-     * @return less than 0 if red, bigger than 0 if blue
-     */
-    public int isBlueOrRed () {
-        return colorSensor.blue() - colorSensor.red();
-    }
 
     /**
      * Don't care about green color
      * @return team color in red or blue
      */
     public char getColorBlueOrRed () {
-        int d = isBlueOrRed();
+        int d = colorSensor.blue() - colorSensor.red();
         if ( d >= colorDiffThreshold) {
             return 'b';
         } else if (d <= -1*colorDiffThreshold) {
@@ -209,16 +202,22 @@ public class HardwareBeaconArm extends HardwareBase {
     }
 
     public char getColor () {
-        int r = colorSensor.red() - ambientRGB.r;
-        //int g = colorSensor.green()- ambientRGB.g;
-        int b = colorSensor.blue() - ambientRGB.b;
+        int r = colorSensor.red();
+        int g = colorSensor.green();
+        int b = colorSensor.blue();
 
         //int m = Math.max(Math.max(r,g),b);
-        int m = Math.max(r,b);
+        int m = Math.max(Math.max(r,b),g);
         if ( m == r ) {
             return 'r';
         }
-        return 'b';
+        if ( m == g) {
+            return 'g';
+        }
+        if ( m == b ) {
+            return 'b';
+        }
+        return 'u';
     }
 
     public double getColorDistance (RGB rgb) {

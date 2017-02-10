@@ -59,7 +59,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     double cruisingTurnGain = 1.0/180;
     double inPlaceTurnGain = 0.005;
     double turningPower = 0.0; // set to 0.0 to turn in-place
-    double parkTurningPower = -0.1;
+    double parkTurningPower = -0.15;
 
     /*
      * Code to run ONCE when the driver hits INIT

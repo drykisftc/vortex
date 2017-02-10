@@ -12,7 +12,7 @@ public class BeaconPresser extends RobotExecutor {
     protected int beaconPressDistance = 1000;
     protected int button1ToButton2Distance = 486;
     double cruisingPower = 0.4;
-    double searchingPower = 0.2;
+    double searchingPower = 0.15;
     double cruisingTurnGain = 0.002;
     int distanceThreshold = 1;
     char teamColor = 'b';
@@ -49,7 +49,6 @@ public class BeaconPresser extends RobotExecutor {
         landMarkAngle = gyroTracker.gyro.getHeading();
         bBeaconPressed = false;
         pressButtonTimes = 0;
-        distanceThreshold = beaconArm.colorSensorAmbient + 1;
     }
 
     public void calibrate_loop () {
@@ -80,17 +79,17 @@ public class BeaconPresser extends RobotExecutor {
                 break;
             case 2:
 
+                // hover beacon arm over beacon
+                beaconArm.hoverNear(distanceThreshold+1,slowSpeedGain);
+
+                // move slowly until it gets the team color, if not found skip to end state
+                state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, searchingPower,
+                        beaconPressDistance, 2,6);
+
                 // check team color
                 if (isColor(teamColor)) {
                     state = 3;
                 }
-
-                // hover beacon arm over beacon
-                beaconArm.hoverNear(distanceThreshold,slowSpeedGain);
-
-                // move slowly until it gets the team color
-                state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, searchingPower,
-                        beaconPressDistance, 2,3);
 
                 if (state == 3 ) {
                     gyroTracker.setWheelLandmark();

@@ -69,7 +69,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected int wall2BeaconDistance = 800; //953 actually
     protected int beacon2ParkTurnDegree = 45;
     protected int beacon2BeaconDistance =4800; //4325
-    protected int beacon2ParkingDistance =5700; //4318
+    protected int beacon2ParkingDistance =5400; //4318
     protected int jammingBackupDistance = 150;
     protected double sonicWallDistanceLimit = 5.0;
     protected double sonicBallDistanceLimit = 5.0;
@@ -275,9 +275,15 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                         gyroTracker.setWheelLandmark();
                         beaconPresser.start(0);
                     }
+
+                    if (pickUpBalls) {
+                        robot.servoLeftScooper.setPower(leftScooperGo);
+                        robot.servoRightScooper.setPower(rightScooperGo);
+                    }
                 }
                 break;
             case 6:
+
                 // check the ods for white line signal
                 if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
                     state = 7;
@@ -285,6 +291,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     gyroTracker.setWheelLandmark();
                     beaconPresser.start(0);
                 }
+
                 // go straight until hit first white line
                 gyroTracker.breakDistance = 200;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
@@ -292,6 +299,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
                 break;
             case 7:
+
                 // touch beacon
                 state = beaconPresser.loop(state, state+1);
                 if (state == 8) {
@@ -319,11 +327,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 } else {
                     state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
                             cruisingTurnGain, cruisingPower, beacon2BeaconDistance, state, state + 1);
-                }
-
-                if (pickUpBalls) {
-                    robot.servoLeftScooper.setPower(leftScooperGo);
-                    robot.servoRightScooper.setPower(rightScooperGo);
                 }
 
                 break;
