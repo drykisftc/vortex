@@ -338,6 +338,11 @@ class ParticleShooter extends RobotExecutor {
         motorArm.setPower(0.0);
     }
 
+    void slowDownArm() {
+        // Notice: don't set motor mode back to to USING_encoder. It will make encoder losing steps
+        motorArm.setPower(armPower/10.0);
+    }
+
     void reload() {
         servoCock.setPosition(cockLoadPosition);
     }
