@@ -66,7 +66,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected int fire2TurnDegree = 75;
     protected int fire2WallDistance = 4600; // 5121
     protected int wall2TurnDegree = -75;
-    protected int wall2BeaconDistance = 1500; //953 actually
+    protected int wall2BeaconDistance = 800; //953 actually
     protected int beacon2ParkTurnDegree = 45;
     protected int beacon2BeaconDistance =4800; //4325
     protected int beacon2ParkingDistance =5700; //4318
