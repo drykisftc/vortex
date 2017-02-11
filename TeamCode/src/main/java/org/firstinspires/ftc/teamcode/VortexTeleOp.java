@@ -164,7 +164,7 @@ class VortexTeleOp extends OpMode{
     double leftScooperStop = 0.0d;
     double leftScooperGo = 1.0d;
     double rightScooperStop = 0.0d;
-    double rightScooperGo = 1.0d;
+    double rightScooperGo = -1.0d;
 
     protected int leftArmCurrentPosition = 0;
     protected int rightArmCurrentPosition = 0;

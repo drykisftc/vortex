@@ -219,6 +219,11 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 if (state == 3) {
                     // activate jamming detection
                     jammingDetection.reset();
+                    // turn on scooper
+                    if (pickUpBalls) {
+                        robot.servoLeftScooper.setPower(leftScooperGo);
+                        robot.servoRightScooper.setPower(rightScooperGo);
+                    }
                 }
                 break;
             case 3:
@@ -277,11 +282,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                         stopWheels();
                         gyroTracker.setWheelLandmark();
                         beaconPresser.start(0);
-                    }
-
-                    if (pickUpBalls) {
-                        robot.servoLeftScooper.setPower(leftScooperGo);
-                        robot.servoRightScooper.setPower(rightScooperGo);
                     }
                 }
                 break;
