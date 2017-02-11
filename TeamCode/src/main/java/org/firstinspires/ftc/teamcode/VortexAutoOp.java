@@ -366,6 +366,10 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 }
                 state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
                         cruisingTurnGain, searchingPower * 0.5, beacon2PickBallDistance, state, state + 1);
+                if (state == 12) {
+                    gyroTracker.setWheelLandmark();
+                    lastTimeStamp = System.currentTimeMillis();
+                }
                 break;
             case 12:
                 // backup straight to central parking
