@@ -102,6 +102,7 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                 break;
             case 3:
                 // turn 45 degree
+                particleShooter.cock();
                 state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
                         turningPower,state,state+1);
                 break;
