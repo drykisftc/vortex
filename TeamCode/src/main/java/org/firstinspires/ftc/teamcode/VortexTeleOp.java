@@ -72,7 +72,7 @@ class VortexTeleOp extends OpMode{
 
     private int leftArmHomePosition = 0;
 
-    private final int leftArmHomeParkingOffset = 80;
+    private final int leftArmHomeParkingOffset = 40;
     private final int leftArmLoadPositionOffset = 650;
     protected int leftArmMovePositionOffset = 1050;
     private final int leftArmFirePositionOffset = 4610;
@@ -523,10 +523,12 @@ class VortexTeleOp extends OpMode{
         if (gamepad1.right_bumper && leftArmState == LOAD) {
             robot.servoLeftScooper.setPower(leftScooperGo);
             robot.servoRightScooper.setPower(rightScooperGo);
-        } else if (gamepad2.left_trigger > 0.5) {
-            robot.servoLeftScooper.setPower(leftScooperGo);
         } else if (gamepad2.right_trigger > 0.5) {
+            robot.servoLeftScooper.setPower(leftScooperGo);
             robot.servoRightScooper.setPower(rightScooperGo);
+        } else if (gamepad2.left_trigger > 0.5) {
+            robot.servoLeftScooper.setPower(-leftScooperGo);
+            robot.servoRightScooper.setPower(-rightScooperGo);
         } else {
             robot.servoLeftScooper.setPower(leftScooperStop);
             robot.servoRightScooper.setPower(rightScooperStop);

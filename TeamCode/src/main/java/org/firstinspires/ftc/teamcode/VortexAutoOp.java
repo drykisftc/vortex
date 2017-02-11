@@ -69,8 +69,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected int wall2BeaconDistance = 800; //953 actually
     protected int beacon2ParkTurnDegree = 45;
     protected int beacon2BeaconDistance = 4800; //4325
-    protected int beacon2PickBallDistance = 400; //4318
-    protected int beacon2ParkingDistance = 5000; //4318
+    protected int beacon2PickBallDistance = 1000; //4318
+    protected int beacon2ParkingDistance = 4400; //4318
     protected int jammingBackupDistance = 150;
     protected double sonicWallDistanceLimit = 5.0;
     protected double sonicBallDistanceLimit = 5.0;
@@ -365,7 +365,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     }
                 }
                 state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
-                        cruisingTurnGain, searchingPower * 0.5, beacon2PickBallDistance, state, state + 1);
+                        cruisingTurnGain, searchingPower * - 1.0, beacon2PickBallDistance, state, state + 1);
                 if (state == 12) {
                     gyroTracker.setWheelLandmark();
                     lastTimeStamp = System.currentTimeMillis();
