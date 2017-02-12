@@ -65,6 +65,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected int start2FireDistance = 2500; //2500
     protected int fire2TurnDegree = 75;
     protected int fire2WallDistance = 4600; // 5121
+    protected int jamTurnDegree = -179;
+    protected int jamTurnDegree2 = -90;
     protected int wall2TurnDegree = -75;
     protected int wall2BeaconDistance = 800; //953 actually
     protected int beacon2ParkTurnDegree = 45;
@@ -90,6 +92,13 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected boolean whiteLineFound = false;
 
     protected boolean pickUpBalls = true;
+
+    // for jamming recover
+    protected double defaultMinTurnPower = 0.01;
+    protected double defaultMaxTurnPower = 0.15;
+    protected double defaultSkewTolerance = 1;
+    protected int distanceAfterJamming = 0;
+    protected int jammingRecoverState = 0;
 
     // to do: add wall tracker
 
@@ -159,6 +168,9 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
         lastTimeStamp = System.currentTimeMillis();
         whiteLineFound= false;
+        defaultMinTurnPower = gyroTracker.minTurnPower;
+        defaultMaxTurnPower = gyroTracker.maxTurnPower;
+        defaultSkewTolerance = gyroTracker.skewTolerance;
         state = 0;
     }
 
@@ -253,14 +265,15 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     gyroTracker.minTurnPower = 0.01;
                     gyroTracker.breakDistance = 100;
                     stopWheels();
+                    distanceAfterJamming = fire2WallDistance - gyroTracker.getWheelLandmark();
+                    jammingRecoverState = 0;
                     gyroTracker.setWheelLandmark(); // important. otherwise it use last landmark
                     state = 4;
                 }
                 break;
             case 4:
-                // if jammed, back up a little bit
-                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
-                        -1.0 * searchingPower, jammingBackupDistance, state, state + 1);
+                // recover jamming
+                state = recoverJamming(fire2TurnDegree, distanceAfterJamming, state, state+1);
                 break;
             case 5:
 
@@ -324,7 +337,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     beaconPresser.start(0);
                 }
 
-                if (chargeDistance > 2500 || System.currentTimeMillis() - lastTimeStamp > 1000) {
+                if (chargeDistance > 2500 || System.currentTimeMillis() - lastTimeStamp > 1100) {
                     state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
                             cruisingTurnGain, searchingPower, beacon2BeaconDistance, state, state + 1);
                 } else {
@@ -470,6 +483,51 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         }
         beaconPresser.pressButtonTimesLimit = (int) numberTimePressBeacon;
         telemetry.addData("Press beacon times (a2+/b2-)       :", beaconPresser.pressButtonTimesLimit);
+    }
 
+    int recoverJamming (int targetHeading, int moveDistanceAfterJamming, int startState, int endState) {
+
+        switch (jammingRecoverState) {
+            case 0:
+                // backup
+                jammingRecoverState = gyroTracker.goStraight(targetHeading, cruisingTurnGain,
+                    -1.0 * searchingPower, jammingBackupDistance, jammingRecoverState, jammingRecoverState + 1);
+            break;
+            case 1:
+                // fast turn to clear jam
+                gyroTracker.minTurnPower = 0.3;
+                gyroTracker.minTurnPower = 0.5;
+                gyroTracker.skewTolerance = 30;
+                jammingRecoverState = gyroTracker.turn(targetHeading+ jamTurnDegree,
+                        inPlaceTurnGain, turningPower, jammingRecoverState, jammingRecoverState + 1);
+                break;
+            case 2:
+                // slow turn to clear jam
+                gyroTracker.minTurnPower = defaultMinTurnPower;
+                gyroTracker.minTurnPower = defaultMaxTurnPower;
+                gyroTracker.skewTolerance = defaultSkewTolerance;
+                jammingRecoverState = gyroTracker.turn(targetHeading + jamTurnDegree + jamTurnDegree2,
+                        inPlaceTurnGain, turningPower, jammingRecoverState, jammingRecoverState + 1);
+                break;
+            case 3:
+                // move back to correct heading
+                gyroTracker.minTurnPower = defaultMinTurnPower;
+                gyroTracker.minTurnPower = defaultMaxTurnPower;
+                gyroTracker.skewTolerance = defaultSkewTolerance;
+                jammingRecoverState = gyroTracker.turn(targetHeading,
+                        inPlaceTurnGain, turningPower, jammingRecoverState, jammingRecoverState + 1);
+                break;
+            case 4:
+                // move the rest of the distance
+                jammingRecoverState = gyroTracker.goStraight(targetHeading, cruisingTurnGain,
+                        searchingPower, moveDistanceAfterJamming+jammingBackupDistance, jammingRecoverState, jammingRecoverState + 1); // need to +2 to skip jam backup
+                break;
+            default:
+                gyroTracker.minTurnPower = defaultMinTurnPower;
+                gyroTracker.minTurnPower = defaultMaxTurnPower;
+                gyroTracker.skewTolerance = defaultSkewTolerance;
+                return endState;
+        }
+        return startState;
     }
 }
