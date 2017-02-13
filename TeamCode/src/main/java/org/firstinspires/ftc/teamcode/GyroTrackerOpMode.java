@@ -210,14 +210,13 @@ public class GyroTrackerOpMode extends VortexTeleOp {
 
     public void homeArm () {
         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPosition, 0.1);
-
     }
 
     /*
      * Code to run ONCE after the driver hits STOP
      */
     public void stop() {
-
+        super.stop();
         gyroTracker.stop();
     }
 

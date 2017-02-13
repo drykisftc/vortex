@@ -59,6 +59,6 @@ public class PlanARedRampAutoOp extends PlanARedAutoOp{
     public void start() {
         super.start();
         beacon2ParkingDistance = -7900;
-        beacon2ParkTurnDegree = 5;
+        beacon2ParkTurnDegree = 2;
     }
 }

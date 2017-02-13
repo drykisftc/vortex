@@ -72,7 +72,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected int beacon2ParkTurnDegree = 45;
     protected int beacon2BeaconDistance = 4800; //4325
     protected int beacon2PickBallDistance = 1000; //4318
-    protected int beacon2ParkingDistance = 4400; //4318
+    protected int beacon2ParkingDistance = 4500; //4318
     protected int jammingBackupDistance = 150;
     protected double sonicWallDistanceLimit = 5.0;
     protected double sonicBallDistanceLimit = 5.0;
@@ -231,11 +231,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 if (state == 3) {
                     // activate jamming detection
                     jammingDetection.reset();
-                    // turn on scooper
-                    if (pickUpBalls) {
-                        robot.servoLeftScooper.setPower(leftScooperGo);
-                        robot.servoRightScooper.setPower(rightScooperGo);
-                    }
                 }
                 break;
             case 3:
@@ -253,7 +248,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 telemetry.addData("Travel Distance: ", travelDistance);
 
                 // wall distance detection
-                if ((Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.8
+                if ((Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.7
                         && sonicDistance <= sonicWallDistanceLimit)) {
                     stopWheels();
                     gyroTracker.setWheelLandmark();
@@ -282,7 +277,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 }
 
                 // turn -90 degree back
-                state = gyroTracker.turn(fire2TurnDegree + wall2TurnDegree - 5,
+                state = gyroTracker.turn(fire2TurnDegree + wall2TurnDegree,
                         inPlaceTurnGain, turningPower, state, state + 1);
 
                 if (state == 6) {
@@ -295,6 +290,11 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                         stopWheels();
                         gyroTracker.setWheelLandmark();
                         beaconPresser.start(0);
+                    }
+                    // turn on scooper
+                    if (pickUpBalls) {
+                        robot.servoLeftScooper.setPower(leftScooperGo);
+                        robot.servoRightScooper.setPower(rightScooperGo);
                     }
                 }
                 break;
@@ -415,7 +415,6 @@ public class VortexAutoOp extends GyroTrackerOpMode{
      */
     @Override
     public void stop() {
-        homeArm();
         super.stop();
     }
 
