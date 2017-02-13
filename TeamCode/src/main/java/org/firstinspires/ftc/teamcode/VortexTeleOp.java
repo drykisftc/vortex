@@ -72,7 +72,7 @@ class VortexTeleOp extends OpMode{
 
     private int leftArmHomePosition = 0;
 
-    private final int leftArmHomeParkingOffset = 40;
+    private final int leftArmHomeParkingOffset = 100;
     private final int leftArmLoadPositionOffset = 650;
     protected int leftArmMovePositionOffset = 1050;
     private final int leftArmFirePositionOffset = 4610;
