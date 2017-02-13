@@ -35,7 +35,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
 import java.io.StringWriter;
@@ -72,14 +71,14 @@ class VortexTeleOp extends OpMode{
 
     private int leftArmHomePosition = 0;
 
-    private final int leftArmHomeParkingOffset = 40;
+    private final int leftArmHomeParkingOffset = 20;
     private final int leftArmLoadPositionOffset = 650;
     protected int leftArmMovePositionOffset = 1050;
     private final int leftArmFirePositionOffset = 4610;
     private final int leftArmMaxOffset = 4610;
     private int leftArmFiringSafeZoneOffset = 2800;
 
-    int leftArmHomeParkingPostion = leftArmHomeParkingOffset;
+    int leftArmHomeParkingPosition = leftArmHomeParkingOffset;
     private int leftArmLoadPosition = leftArmLoadPositionOffset;
     protected int leftArmMovePosition = leftArmMovePositionOffset;
     int leftArmFirePosition = leftArmFirePositionOffset;
@@ -254,7 +253,7 @@ class VortexTeleOp extends OpMode{
         telemetry.addData("left arm home",  "%2d", leftArmHomePosition);
         leftArmState = LeftArmState.HOME;
 
-        leftArmHomeParkingPostion = leftArmHomePosition + leftArmHomeParkingOffset;
+        leftArmHomeParkingPosition = leftArmHomePosition + leftArmHomeParkingOffset;
         leftArmMovePosition = leftArmHomePosition+leftArmMovePositionOffset;
         leftArmFirePosition = leftArmHomePosition+ leftArmFirePositionOffset;
         leftArmFiringSafeZone = leftArmHomePosition+ leftArmFiringSafeZoneOffset;
@@ -388,13 +387,13 @@ class VortexTeleOp extends OpMode{
             switch (leftArmState) {
                 case HOME: {
                     // go to home position
-                    if (leftArmCurrentPosition <= leftArmHomeParkingPostion) {
+                    if (leftArmCurrentPosition <= leftArmHomeParkingPosition) {
                         robot.motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         robot.motorLeftArm.setPower(0.0);
                     } else if (leftArmCurrentPosition < leftArmPeakPosition) {
-                        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPostion, leftArmAutoSlowMovePower);
+                        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPosition, leftArmAutoSlowMovePower);
                     } else {
-                        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPostion, leftArmAutoMovePower);
+                        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPosition, leftArmAutoMovePower);
                     }
                 }
                     break;
@@ -403,7 +402,7 @@ class VortexTeleOp extends OpMode{
                     double snapTrigger = gamepad1.right_trigger;
                     if (snapTrigger > leftArmJoystickDeadZone) {
                         int target = leftArmLoadPosition
-                                - (int) ((leftArmLoadPosition - leftArmHomePosition) * snapTrigger);
+                                - (int) ((leftArmLoadPosition - leftArmHomeParkingPosition) * snapTrigger);
                         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, target, leftArmAutoMovePower);
                     } else {
                         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
@@ -432,8 +431,8 @@ class VortexTeleOp extends OpMode{
                         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, armTargetPosition, leftArmHoldPower);
                     } else {
                         // set the target position to limits.
-                        if ( leftArmCurrentPosition >= leftArmHomeParkingPostion) {
-                            armTargetPosition = Math.max(leftArmHomeParkingPostion, leftArmCurrentPosition);
+                        if ( leftArmCurrentPosition >= leftArmHomeParkingPosition) {
+                            armTargetPosition = Math.max(leftArmHomeParkingPosition, leftArmCurrentPosition);
                             armTargetPosition = Math.min(leftArmMaxRange, armTargetPosition);
                             isArmHoldingPositionSet = true;
                         }

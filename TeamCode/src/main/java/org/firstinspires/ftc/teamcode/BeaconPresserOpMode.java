@@ -30,8 +30,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 
@@ -53,7 +51,7 @@ public class BeaconPresserOpMode extends VortexAutoOp {
         fire2WallDistance = 5420;
         wall2TurnDegree = -75;
         beacon2ParkTurnDegree = 45;
-        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPostion, leftArmAutoMovePower);
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPosition, leftArmAutoMovePower);
     }
 
     @Override

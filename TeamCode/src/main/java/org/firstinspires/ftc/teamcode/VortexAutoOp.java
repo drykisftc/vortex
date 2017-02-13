@@ -65,7 +65,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected int start2FireDistance = 2500; //2500
     protected int fire2TurnDegree = 75;
     protected int fire2WallDistance = 4600; // 5121
-    protected int jamTurnDegree = -179;
+    protected int jamTurnDegree = -160;
     protected int jamTurnDegree2 = -90;
     protected int wall2TurnDegree = -75;
     protected int wall2BeaconDistance = 800; //953 actually
@@ -253,7 +253,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 telemetry.addData("Travel Distance: ", travelDistance);
 
                 // wall distance detection
-                if ((Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.6
+                if ((Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.8
                         && sonicDistance <= sonicWallDistanceLimit)) {
                     stopWheels();
                     gyroTracker.setWheelLandmark();
@@ -374,7 +374,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                         particleShooter.relaxArm();
                     } else {
                         VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                                leftArmHomeParkingPostion, leftArmAutoMovePower);
+                                leftArmHomeParkingPosition, leftArmAutoMovePower);
                     }
                 }
                 state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
@@ -495,9 +495,9 @@ public class VortexAutoOp extends GyroTrackerOpMode{
             break;
             case 1:
                 // fast turn to clear jam
-                gyroTracker.minTurnPower = 0.3;
-                gyroTracker.minTurnPower = 0.5;
-                gyroTracker.skewTolerance = 30;
+                gyroTracker.minTurnPower = 0.1;
+                gyroTracker.minTurnPower = 0.4;
+                gyroTracker.skewTolerance = 20;
                 jammingRecoverState = gyroTracker.turn(targetHeading+ jamTurnDegree,
                         inPlaceTurnGain, turningPower, jammingRecoverState, jammingRecoverState + 1);
                 break;

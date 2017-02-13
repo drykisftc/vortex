@@ -31,7 +31,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 @Autonomous(name="Auto: gyro tracker", group="Testing")
 public class GyroTrackerOpMode extends VortexTeleOp {
@@ -210,7 +209,7 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     }
 
     public void homeArm () {
-        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPostion, 0.1);
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPosition, 0.1);
 
     }
 

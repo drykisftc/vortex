@@ -61,6 +61,8 @@ public class PlanARedAutoOp extends VortexAutoOp{
         beaconPresser.teamColor = 'r';
         start2FireDistance = 2600;
         fire2TurnDegree = 74;
+        jamTurnDegree = -160;
+        jamTurnDegree2 = -90;
         fire2WallDistance = 5100;
         wall2TurnDegree = -72;  // purposely turn 1 degress less to allow beacon arm close to wall
         beacon2ParkTurnDegree = 42;
