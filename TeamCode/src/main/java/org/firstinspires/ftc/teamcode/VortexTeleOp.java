@@ -139,8 +139,8 @@ class VortexTeleOp extends OpMode{
     // left arm control information
     HardwareBeaconArm leftBeaconArm = null;
     private double leftUpHomePosition = 0.96;
-    private double leftUpStepSize = -0.025;
-    private double leftLowHomePosition = 0.92;
+    private double leftUpStepSize = -0.041;
+    private double leftLowHomePosition = 0.90;
     private double leftLowStepSize = -0.08;
 
     /* Important: use the core device discovery tool to set color sensor address to 0x40
@@ -151,8 +151,8 @@ class VortexTeleOp extends OpMode{
     // right arm control information
     HardwareBeaconArm rightBeaconArm = null;
     private double rightUpHomePosition = 0.1;
-    private double rightUpStepSize = 0.025;
-    private double rightLowHomePosition = 0.02;
+    private double rightUpStepSize = 0.041;
+    private double rightLowHomePosition = 0.01;
     private double rightLowStepSize = 0.08;
     /* Important: use the core device discovery tool to set color sensor address to 0x48
     Then, use the 7 bit version of it 0x24
@@ -514,8 +514,8 @@ class VortexTeleOp extends OpMode{
             leftBeaconArm.state = 0;
             rightBeaconArm.state = 0;
         }
-        leftBeaconArm.pressButton_loop (5.0);
-        rightBeaconArm.pressButton_loop(5.0);
+        leftBeaconArm.pressButton_loop (2.0);
+        rightBeaconArm.pressButton_loop(2.0);
     }
 
     void scooperControl () {

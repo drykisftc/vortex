@@ -8,8 +8,8 @@ public class BeaconPresser extends RobotExecutor {
     protected long lastTimeStamp = 0;
 
     // navigation info
-    protected int lineToBeaconDistance = 380; //509
-    protected int beaconPressDistance = 1000;
+    protected int lineToBeaconDistance = 400; //509
+    protected int beaconPressDistance = 1500;
     protected int button1ToButton2Distance = 486;
     double cruisingPower = 0.4;
     double searchingPower = 0.15;
@@ -26,8 +26,8 @@ public class BeaconPresser extends RobotExecutor {
     int teamColorCount = 0;
     int teamColorCountThreshold = 3;
 
-    double slowSpeedGain = 0.2;
-    double fastSpeedGain = 5.0;
+    double slowSpeedGain = 0.09;
+    double fastSpeedGain = 2.0;
 
     protected long longPressTimeLimit = 1000; // 1.5 seconds
     protected long shotPressTimeLimit = 200; // 0.3 seconds
@@ -80,7 +80,7 @@ public class BeaconPresser extends RobotExecutor {
             case 2:
 
                 // hover beacon arm over beacon
-                beaconArm.hoverNear(distanceThreshold+1,slowSpeedGain);
+                beaconArm.hoverNear(distanceThreshold,slowSpeedGain);
 
                 // move slowly until it gets the team color, if not found skip to end state
                 state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, searchingPower,
@@ -154,6 +154,6 @@ public class BeaconPresser extends RobotExecutor {
         } else {
             teamColorCount = 0;
         }
-        return teamColorCount > teamColorCountThreshold;
+        return teamColorCount >= teamColorCountThreshold;
     }
 }

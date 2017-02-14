@@ -91,7 +91,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
     protected boolean whiteLineFound = false;
 
-    protected boolean pickUpBalls = true;
+    protected boolean pickUpBalls = false;
 
     // for jamming recover
     protected double defaultMinTurnPower = 0.01;
@@ -248,7 +248,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 telemetry.addData("Travel Distance: ", travelDistance);
 
                 // wall distance detection
-                if ((Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.7
+                if ((Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.8
                         && sonicDistance <= sonicWallDistanceLimit)) {
                     stopWheels();
                     gyroTracker.setWheelLandmark();
@@ -495,7 +495,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
             case 1:
                 // fast turn to clear jam
                 gyroTracker.minTurnPower = 0.1;
-                gyroTracker.minTurnPower = 0.4;
+                gyroTracker.maxTurnPower = 0.4;
                 gyroTracker.skewTolerance = 20;
                 jammingRecoverState = gyroTracker.turn(targetHeading+ jamTurnDegree,
                         inPlaceTurnGain, turningPower, jammingRecoverState, jammingRecoverState + 1);
@@ -503,7 +503,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
             case 2:
                 // slow turn to clear jam
                 gyroTracker.minTurnPower = defaultMinTurnPower;
-                gyroTracker.minTurnPower = defaultMaxTurnPower;
+                gyroTracker.maxTurnPower = defaultMaxTurnPower;
                 gyroTracker.skewTolerance = defaultSkewTolerance;
                 jammingRecoverState = gyroTracker.turn(targetHeading + jamTurnDegree + jamTurnDegree2,
                         inPlaceTurnGain, turningPower, jammingRecoverState, jammingRecoverState + 1);
@@ -511,7 +511,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
             case 3:
                 // move back to correct heading
                 gyroTracker.minTurnPower = defaultMinTurnPower;
-                gyroTracker.minTurnPower = defaultMaxTurnPower;
+                gyroTracker.maxTurnPower = defaultMaxTurnPower;
                 gyroTracker.skewTolerance = defaultSkewTolerance;
                 jammingRecoverState = gyroTracker.turn(targetHeading,
                         inPlaceTurnGain, turningPower, jammingRecoverState, jammingRecoverState + 1);
@@ -523,7 +523,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             default:
                 gyroTracker.minTurnPower = defaultMinTurnPower;
-                gyroTracker.minTurnPower = defaultMaxTurnPower;
+                gyroTracker.maxTurnPower = defaultMaxTurnPower;
                 gyroTracker.skewTolerance = defaultSkewTolerance;
                 return endState;
         }

@@ -67,8 +67,8 @@ public class PlanARedAutoOp extends VortexAutoOp{
         wall2TurnDegree = -73;  // purposely turn 1 degress less to allow beacon arm close to wall
         beacon2ParkTurnDegree = 43;
         startWaitingTime = 0;
-        sonicWallDistanceLimit = 5.0;
         particleShooter.handFirePower = 0.60;
+        sonicWallDistanceLimit = 4;
     }
 
     @Override
