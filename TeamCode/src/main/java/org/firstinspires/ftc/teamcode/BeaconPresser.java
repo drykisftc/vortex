@@ -109,7 +109,7 @@ public class BeaconPresser extends RobotExecutor {
                     lastTimeStamp = System.currentTimeMillis();
                     beaconArm.retract();
                     if (pressButtonTimes >= pressButtonTimesLimit) {
-                        state = 5;
+                        state = 6;
                     } else {
                         state = 4;
                     }
@@ -126,7 +126,6 @@ public class BeaconPresser extends RobotExecutor {
                     pressButtonTimes ++;
                     bBeaconPressed = true;
                     lastTimeStamp = System.currentTimeMillis();
-                    beaconArm.retract();
                 }
                 break;
             case 5:

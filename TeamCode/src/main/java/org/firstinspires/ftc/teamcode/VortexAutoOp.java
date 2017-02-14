@@ -80,7 +80,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
     protected double leftArmFastAutoMovePower = 0.40;
     protected double numberBallsShoot = 2.0;
-    protected double numberTimePressBeacon= 1.0;
+    protected double numberTimePressBeacon= 2.0;
 
     protected long lastTimeStamp = 0;
 
