@@ -266,10 +266,10 @@ public class HardwareBeaconArm extends HardwareBase {
                 retract();
                 break;
             case 1:
-                extendUntilNearLoop(colorSensorForegroundThreshold, speedGain);
+                extend(speedGain);
                 break;
             case 2:
-                extend(speedGain);
+                extendUntilNearLoop(colorSensorForegroundThreshold, speedGain);
                 break;
             case 3:
                 hoverNear(colorSensorForegroundThreshold, speedGain);

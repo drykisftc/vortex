@@ -139,7 +139,7 @@ class VortexTeleOp extends OpMode{
     // left arm control information
     HardwareBeaconArm leftBeaconArm = null;
     private double leftUpHomePosition = 0.96;
-    private double leftUpStepSize = -0.041;
+    private double leftUpStepSize = -0.025;
     private double leftLowHomePosition = 0.90;
     private double leftLowStepSize = -0.08;
 
@@ -151,7 +151,7 @@ class VortexTeleOp extends OpMode{
     // right arm control information
     HardwareBeaconArm rightBeaconArm = null;
     private double rightUpHomePosition = 0.1;
-    private double rightUpStepSize = 0.041;
+    private double rightUpStepSize = 0.025;
     private double rightLowHomePosition = 0.01;
     private double rightLowStepSize = 0.08;
     /* Important: use the core device discovery tool to set color sensor address to 0x48
@@ -507,15 +507,15 @@ class VortexTeleOp extends OpMode{
     public void beaconArmControl () {
 
         if (gamepad1.dpad_left || gamepad2.dpad_left ) {
-            leftBeaconArm.state = 2;
+            leftBeaconArm.state = 1;
         } else if (gamepad1.dpad_right || gamepad2.dpad_right) {
-            rightBeaconArm.state = 2;
+            rightBeaconArm.state = 1;
         } else {
             leftBeaconArm.state = 0;
             rightBeaconArm.state = 0;
         }
-        leftBeaconArm.pressButton_loop (2.0);
-        rightBeaconArm.pressButton_loop(2.0);
+        leftBeaconArm.pressButton_loop (1.0);
+        rightBeaconArm.pressButton_loop(1.0);
     }
 
     void scooperControl () {

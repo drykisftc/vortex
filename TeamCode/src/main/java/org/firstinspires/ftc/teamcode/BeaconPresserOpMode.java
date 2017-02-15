@@ -116,6 +116,10 @@ public class BeaconPresserOpMode extends VortexAutoOp {
                 beaconPresser.beaconArm.ambientRGB.r,
                 beaconPresser.beaconArm.ambientRGB.g,
                 beaconPresser.beaconArm.ambientRGB.b);
+        telemetry.addData("Color sensor intensity:", beaconPresser.beaconArm.getColorIntensity());
+        telemetry.addData("Intensity threshold   :", beaconPresser.beaconArm.colorSensorForegroundThreshold);
+        telemetry.addData("Color sensor color:   ", beaconPresser.beaconArm.getColorBlueOrRed());
+
         telemetry.addData("Near counts:        ", beaconPresser.beaconArm.nearCounts);
     }
 
