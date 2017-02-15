@@ -68,11 +68,12 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected int jamTurnDegree = -160;
     protected int jamTurnDegree2 = -90;
     protected int wall2TurnDegree = -75;
+    protected int secondBeaconDegree = -75;
     protected int wall2BeaconDistance = 800; //953 actually
     protected int beacon2ParkTurnDegree = 45;
     protected int beacon2BeaconDistance = 4800; //4325
     protected int beacon2PickBallDistance = 1000; //4318
-    protected int beacon2ParkingDistance = 4500; //4318
+    protected int beacon2ParkingDistance = 5500; //4318
     protected int jammingBackupDistance = 150;
     protected double sonicWallDistanceLimit = 5.0;
     protected double sonicBallDistanceLimit = 5.0;
@@ -268,7 +269,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 4:
                 // recover jamming
-                state = recoverJamming(fire2TurnDegree, distanceAfterJamming, state, state+1);
+                state = recoverJamming(fire2TurnDegree, distanceAfterJamming, state, state + 1);
                 break;
             case 5:
 
@@ -338,7 +339,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 }
 
                 if (chargeDistance > 2500 || System.currentTimeMillis() - lastTimeStamp > 1100) {
-                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
+                    state = gyroTracker.goStraight(fire2TurnDegree + secondBeaconDegree,
                             cruisingTurnGain, searchingPower, beacon2BeaconDistance, state, state + 1);
                 } else {
                     state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
@@ -361,26 +362,27 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 if (state == 11) {
                     gyroTracker.setWheelLandmark();
                     lastTimeStamp = System.currentTimeMillis();
+                    if (pickUpBalls == false) {
+                        state = 12;
+                    }
                 }
                 break;
             case 11:
-                if (pickUpBalls == true) {
-                    if (robot.armStopMin.isPressed()) {
-                        leftArmMinLimitSwitchOnCount++;
-                    } else {
-                        leftArmMinLimitSwitchOnCount = 0;
-                    }
-                    if (leftArmMinLimitSwitchOnCount > leftArmLimitSwitchCountThreshold) {
-                        particleShooter.relaxArm();
-                    } else {
-                        VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                                leftArmHomeParkingPosition, leftArmAutoMovePower);
-                    }
+                if (robot.armStopMin.isPressed()) {
+                    leftArmMinLimitSwitchOnCount++;
+                } else {
+                    leftArmMinLimitSwitchOnCount = 0;
                 }
+                if (leftArmMinLimitSwitchOnCount > leftArmLimitSwitchCountThreshold) {
+                    particleShooter.relaxArm();
+                } else {
+                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                            leftArmHomeParkingPosition, leftArmAutoMovePower);
+                }
+
                 state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
-                        cruisingTurnGain, searchingPower * - 1.0, beacon2PickBallDistance, state, state + 1);
+                        cruisingTurnGain, searchingPower * -1.0, beacon2PickBallDistance, state, state + 1);
                 if (state == 12) {
-                    gyroTracker.setWheelLandmark();
                     lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
