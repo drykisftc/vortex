@@ -81,7 +81,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
     protected double leftArmFastAutoMovePower = 0.40;
     protected double numberBallsShoot = 2.0;
-    protected double numberTimePressBeacon= 2.0;
+    protected double numberTimePressBeacon= 4.0;
 
     protected long lastTimeStamp = 0;
 
@@ -376,6 +376,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 if (leftArmMinLimitSwitchOnCount > leftArmLimitSwitchCountThreshold) {
                     particleShooter.relaxArm();
                 } else {
+                    // pick up balls
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
                             leftArmHomeParkingPosition, leftArmAutoMovePower);
                 }
@@ -391,8 +392,13 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 gyroTracker.breakDistance = 0;
                 robot.servoLeftScooper.setPower(leftScooperStop);
                 robot.servoRightScooper.setPower(rightScooperStop);
-                state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
-                        cruisingTurnGain, back2BasePower, beacon2ParkingDistance, state, state + 1);
+                if (pickUpBalls) {
+                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
+                            cruisingTurnGain, back2BasePower, beacon2ParkingDistance-beacon2PickBallDistance, state, state + 1);
+                } else {
+                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
+                            cruisingTurnGain, back2BasePower, beacon2ParkingDistance, state, state + 1);
+                }
 
                 if (System.currentTimeMillis() - lastTimeStamp > 500) {
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
@@ -482,8 +488,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 numberTimePressBeacon = 0.0;
             }
         }
-        beaconPresser.pressButtonTimesLimit = (int) numberTimePressBeacon;
-        telemetry.addData("Press beacon times (a2+/b2-)       :", beaconPresser.pressButtonTimesLimit);
+        beaconPresser.setNumOfTimesPressBeacon((int) numberTimePressBeacon);
     }
 
     int recoverJamming (int targetHeading, int moveDistanceAfterJamming, int startState, int endState) {

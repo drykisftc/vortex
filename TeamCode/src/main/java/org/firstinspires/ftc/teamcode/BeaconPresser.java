@@ -19,6 +19,7 @@ public class BeaconPresser extends RobotExecutor {
 
     int pressButtonTimes = 0;
     int pressButtonTimesLimit = 2;
+    int pressButtonTimesMaxLimit = 6;
 
     // bookkeeping
     int landMarkAngle = 0;
@@ -30,7 +31,7 @@ public class BeaconPresser extends RobotExecutor {
     double fastSpeedGain = 1.0;
 
     protected long longPressTimeLimit = 1000; // 1.5 seconds
-    protected long shotPressTimeLimit = 200; // 0.3 seconds
+    protected long shotPressTimeLimit = 80; // 0.3 seconds
     protected long travelTimeLimit = 4000; // 4 seconds
 
     protected int waggleDegree = 0;
@@ -97,6 +98,10 @@ public class BeaconPresser extends RobotExecutor {
                     beaconArm.retract();
                     lastTimeStamp = System.currentTimeMillis();
                 }
+
+                if (pressButtonTimes >= pressButtonTimesLimit) {
+                    state = 7;
+                }
                 break;
             case 3:
                 // touch beacon button
@@ -107,7 +112,6 @@ public class BeaconPresser extends RobotExecutor {
                     pressButtonTimes ++;
                     bBeaconPressed = true;
                     lastTimeStamp = System.currentTimeMillis();
-                    beaconArm.retract();
                     if (pressButtonTimes >= pressButtonTimesLimit) {
                         state = 6;
                     } else {
@@ -129,14 +133,30 @@ public class BeaconPresser extends RobotExecutor {
                 }
                 break;
             case 5:
-                if (System.currentTimeMillis() - lastTimeStamp < shotPressTimeLimit*2)  {
-                    beaconArm.extend(fastSpeedGain);
-                } else if (pressButtonTimes >= pressButtonTimesLimit) {
-                    state = 6;
-                } else {
-                    state = 4;
-                    lastTimeStamp = System.currentTimeMillis();
-                    waggleDegree *= -1.0; // flip the waggle angle
+                beaconArm.extend(fastSpeedGain);
+                if (System.currentTimeMillis() - lastTimeStamp > shotPressTimeLimit*3) {
+                    if (pressButtonTimes >= pressButtonTimesLimit) {
+                        state = 6;
+                    } else {
+                        state = 4;
+                        lastTimeStamp = System.currentTimeMillis();
+                        waggleDegree *= -1.0; // flip the waggle angle
+                    }
+                }
+                break;
+            case 6:
+                if (pressButtonTimes >= pressButtonTimesMaxLimit
+                        || isColor(teamColor)) {
+                    state = 7;
+                }
+                // hover beacon arm over beacon
+                if (beaconArm.hoverNear(distanceThreshold,slowSpeedGain)>=0) {
+                    // check beacon color again
+                    if (!isColor(teamColor)) {
+                        state = 4;
+                    } else {
+                        state = 7;
+                    }
                 }
                 break;
             default: {
@@ -154,5 +174,12 @@ public class BeaconPresser extends RobotExecutor {
             teamColorCount = 0;
         }
         return teamColorCount >= teamColorCountThreshold;
+    }
+
+    void setNumOfTimesPressBeacon (int times ) {
+        if (times > 0) {
+            pressButtonTimesLimit = (int) times;
+            pressButtonTimesMaxLimit = times*10;
+        }
     }
 }

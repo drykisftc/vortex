@@ -67,7 +67,7 @@ public class PlanABlueAutoOp extends VortexAutoOp{
         wall2TurnDegree = 74;
         secondBeaconDegree = 76;
         beacon2ParkTurnDegree = -48;
-        particleShooter.handFirePower = 0.60;
+        particleShooter.handFirePower = 0.65;
         sonicWallDistanceLimit = 4+Math.abs(45.72 * Math.sin((90-Math.abs(fire2TurnDegree))/180.0*Math.PI)); // 18 inch * sine(fire2TurnDegree)
     }
 
