@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import java.util.Random;
+
 public class BeaconPresser extends RobotExecutor {
 
     GyroTracker gyroTracker = null;
@@ -25,7 +27,7 @@ public class BeaconPresser extends RobotExecutor {
     int landMarkAngle = 0;
     boolean bBeaconPressed = false;
     int teamColorCount = 0;
-    int teamColorCountThreshold = 3;
+    int teamColorCountThreshold = 2;
 
     double slowSpeedGain = 0.09;
     double fastSpeedGain = 1.0;
@@ -36,6 +38,10 @@ public class BeaconPresser extends RobotExecutor {
 
     protected int waggleDegree = 0;
     protected double waggleGain = 0.01;
+    protected int waggleDistance = 100;
+    protected double wagglePower = searchingPower;
+
+    Random random = new Random();
 
     public BeaconPresser(GyroTracker g,
                          HardwareBeaconArm arm){
@@ -114,6 +120,7 @@ public class BeaconPresser extends RobotExecutor {
                     lastTimeStamp = System.currentTimeMillis();
                     if (pressButtonTimes >= pressButtonTimesLimit) {
                         state = 6;
+
                     } else {
                         state = 4;
                     }
@@ -129,18 +136,24 @@ public class BeaconPresser extends RobotExecutor {
                     state = 5;
                     pressButtonTimes ++;
                     bBeaconPressed = true;
+                    gyroTracker.setWheelLandmark();
                     lastTimeStamp = System.currentTimeMillis();
                 }
                 break;
             case 5:
+                gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, wagglePower,
+                        waggleDistance, state,state);
                 beaconArm.extend(fastSpeedGain);
                 if (System.currentTimeMillis() - lastTimeStamp > shotPressTimeLimit*3) {
                     if (pressButtonTimes >= pressButtonTimesLimit) {
                         state = 6;
+                        gyroTracker.stopWheels();
+                        lastTimeStamp = System.currentTimeMillis();
                     } else {
                         state = 4;
                         lastTimeStamp = System.currentTimeMillis();
                         waggleDegree *= -1.0; // flip the waggle angle
+                        wagglePower *= -1.0;
                     }
                 }
                 break;
@@ -149,6 +162,14 @@ public class BeaconPresser extends RobotExecutor {
                         || isColor(teamColor)) {
                     state = 7;
                 }
+
+                gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, wagglePower,
+                        waggleDistance, state,state);
+                // randomly change direction
+                if ( random.nextInt(2)== 0) {
+                    wagglePower *=-1.0;
+                }
+
                 // hover beacon arm over beacon
                 if (beaconArm.hoverNear(distanceThreshold,slowSpeedGain)>=0) {
                     // check beacon color again
@@ -160,6 +181,9 @@ public class BeaconPresser extends RobotExecutor {
                 }
                 break;
             default: {
+                gyroTracker.stopWheels();
+                gyroTracker.setWheelLandmark();
+                lastTimeStamp = System.currentTimeMillis();
                 beaconArm.retract();
                 return endState;
             }
