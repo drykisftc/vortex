@@ -34,13 +34,13 @@ public class HardwareBeaconArm extends HardwareBase {
     int colorSensorAmbient = 0;
     protected int calibrationCount = 0;
     final protected int calibrationCountLimit = 10000;
-    int colorSensorForegroundThreshold = 0;
+    int colorSensorForegroundThreshold = 1;
 
     protected int touchCounts = 0;
     protected int touchCountLimit = 4;
 
     protected int nearCounts = 0;
-    protected int nearCountsLimit = 4;
+    protected int nearCountsLimit = 3;
 
     protected int numbOfSteps =0;
 
@@ -246,18 +246,17 @@ public class HardwareBeaconArm extends HardwareBase {
 
     public void commitCalibration () {
         // compute ambient intensity
-        if (calibrationCount <=0) {
+        if (calibrationCount <= 0) {
             ambientRGB.r = colorSensor.red();
             ambientRGB.g = colorSensor.green();
             ambientRGB.b = colorSensor.blue();
-            colorSensorAmbient = ambientRGB.r+ambientRGB.g+ambientRGB.b;
+            colorSensorAmbient = ambientRGB.r + ambientRGB.g + ambientRGB.b;
         } else {
             ambientRGB.r /= calibrationCount;
             ambientRGB.g /= calibrationCount;
             ambientRGB.b /= calibrationCount;
-            colorSensorAmbient = (ambientRGB.r + ambientRGB.g + ambientRGB.b)/calibrationCount;
+            colorSensorAmbient = (ambientRGB.r + ambientRGB.g + ambientRGB.b) / calibrationCount;
         }
-        colorSensorForegroundThreshold = colorSensorAmbient+2;
     }
 
     public void pressButton_loop(double speedGain) {
@@ -267,10 +266,10 @@ public class HardwareBeaconArm extends HardwareBase {
                 retract();
                 break;
             case 1:
-                extendUntilNearLoop(colorSensorForegroundThreshold, speedGain);
+                extend(speedGain);
                 break;
             case 2:
-                extend(speedGain);
+                extendUntilNearLoop(colorSensorForegroundThreshold, speedGain);
                 break;
             case 3:
                 hoverNear(colorSensorForegroundThreshold, speedGain);
