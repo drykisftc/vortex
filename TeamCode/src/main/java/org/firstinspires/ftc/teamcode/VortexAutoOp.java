@@ -498,7 +498,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 // backup
                 jammingRecoverState = gyroTracker.goStraight(targetHeading, cruisingTurnGain,
                     -1.0 * searchingPower, jammingBackupDistance, jammingRecoverState, jammingRecoverState + 1);
-            break;
+                break;
             case 1:
                 // fast turn to clear jam
                 gyroTracker.minTurnPower = 0.1;
