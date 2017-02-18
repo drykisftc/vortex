@@ -260,7 +260,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 if (jammingDetection.isJammed(travelDistance)) {
                     gyroTracker.minTurnPower = 0.01;
                     gyroTracker.breakDistance = 100;
-                    stopWheels();
+                    gyroTracker.stopWheels();
                     distanceAfterJamming = fire2WallDistance - gyroTracker.getWheelLandmark();
                     jammingRecoverState = 0;
                     gyroTracker.setWheelLandmark(); // important. otherwise it use last landmark
@@ -511,7 +511,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 // slow turn to clear jam
                 gyroTracker.minTurnPower = defaultMinTurnPower;
                 gyroTracker.maxTurnPower = defaultMaxTurnPower;
-                gyroTracker.skewTolerance = defaultSkewTolerance;
+                gyroTracker.skewTolerance = 10;
                 jammingRecoverState = gyroTracker.turn(targetHeading + jamTurnDegree + jamTurnDegree2,
                         inPlaceTurnGain, turningPower, jammingRecoverState, jammingRecoverState + 1);
                 break;
@@ -522,11 +522,25 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 gyroTracker.skewTolerance = defaultSkewTolerance;
                 jammingRecoverState = gyroTracker.turn(targetHeading,
                         inPlaceTurnGain, turningPower, jammingRecoverState, jammingRecoverState + 1);
+
+                if (jammingRecoverState == 4 ) {
+                    gyroTracker.stopWheels();
+                    gyroTracker.setWheelLandmark();
+                }
                 break;
             case 4:
+                // read wall distance
+                wallTracker.readDistance();
+
                 // move the rest of the distance
                 jammingRecoverState = gyroTracker.goStraight(targetHeading, cruisingTurnGain,
                         searchingPower, moveDistanceAfterJamming+jammingBackupDistance, jammingRecoverState, jammingRecoverState + 1); // need to +2 to skip jam backup
+
+                double sonicDistance = wallTracker.getHistoryDistanceAverage();
+                telemetry.addData("Wall Distance: ", "%02f", sonicDistance);
+                if (( sonicDistance <= sonicWallDistanceLimit)) {
+                    jammingRecoverState = 5;
+                }
                 break;
             default:
                 gyroTracker.minTurnPower = defaultMinTurnPower;
