@@ -63,7 +63,7 @@ public class PlanABlueAutoOp extends VortexAutoOp{
         fire2TurnDegree = -76;
         jamTurnDegree = 160;
         jamTurnDegree2 = 90;
-        fire2WallDistance = 3600;
+        fire2WallDistance = 3900;
         wall2TurnDegree = 74;
         secondBeaconDegree = 76;
         beacon2ParkTurnDegree = -48;

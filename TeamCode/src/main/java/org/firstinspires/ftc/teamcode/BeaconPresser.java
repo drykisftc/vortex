@@ -11,7 +11,7 @@ public class BeaconPresser extends RobotExecutor {
 
     // navigation info
     protected int lineToBeaconDistance = 390; //509
-    protected int beaconPressDistance = 610;
+    protected int beaconPressDistance = 750;
     protected int button1ToButton2Distance = 486;
     double cruisingPower = 0.4;
     double searchingPower = 0.15;
@@ -119,7 +119,7 @@ public class BeaconPresser extends RobotExecutor {
                     bBeaconPressed = true;
                     lastTimeStamp = System.currentTimeMillis();
                     if (pressButtonTimes >= pressButtonTimesLimit) {
-                        state = 6;
+                        state = 7;
 
                     } else {
                         state = 4;
@@ -146,7 +146,7 @@ public class BeaconPresser extends RobotExecutor {
                 beaconArm.extend(fastSpeedGain);
                 if (System.currentTimeMillis() - lastTimeStamp > shotPressTimeLimit*3) {
                     if (pressButtonTimes >= pressButtonTimesLimit) {
-                        state = 6;
+                        state = 7;
                         gyroTracker.stopWheels();
                         lastTimeStamp = System.currentTimeMillis();
                     } else {
