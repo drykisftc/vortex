@@ -24,7 +24,6 @@ public class AccelerationOdometer extends Tracker{
     private double d;
     public AccelerationOdometer(ModernRoboticsI2cGyro g){
         gyro = g;
-
     }
     public void loop() {
         switch(state){
