@@ -8,12 +8,18 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 public class AccelerationOdometerOpMode extends VortexTeleOp{
     HardwareGyroTracker GTH = null;
     AccelerationOdometer AO = null;
+    HardwareCompass HC = null;
     @Override
     public void init(){
         GTH = new HardwareGyroTracker();
         GTH.init(hardwareMap);
+        HC = new HardwareCompass();
+        HC.init(hardwareMap);
+
         super.init();
-        AO= new AccelerationOdometer(GTH.gyro);
+        AO= new AccelerationOdometer(GTH.gyro,robot.motorLeftWheel,
+                robot.motorRightWheel, HC.Compass);
+
 
     }
     @Override
@@ -21,12 +27,14 @@ public class AccelerationOdometerOpMode extends VortexTeleOp{
         super.init_loop();
                     // make sure the gyro is calibrated.
             if (GTH.gyro.isCalibrating())  {
-                telemetry.addData("Gyro measuring mode", GTH.gyro.getMeasurementMode());
             telemetry.addData(">", "Gyro is calibrating.  DO NOT start!!!!");
         }
-        else {
+        else if(!HC.Compass.isCalibrating()) {
             telemetry.addData(">", "Press Start.");
         }
+            if (HC.Compass.isCalibrating()) {
+                telemetry.addData(">", "Compass is calibrating, DO NOT START");
+            }
     }
 
 
