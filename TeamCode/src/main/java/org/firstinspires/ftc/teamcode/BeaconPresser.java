@@ -159,7 +159,7 @@ public class BeaconPresser extends RobotExecutor {
                 break;
             case 6:
                 if (pressButtonTimes >= pressButtonTimesMaxLimit
-                        || isColor(teamColor)) {
+                        || isColorSatisfied(teamColor)) {
                     state = 7;
                 }
 
@@ -193,6 +193,16 @@ public class BeaconPresser extends RobotExecutor {
 
     private boolean isColor (char color) {
         if (beaconArm.getColorBlueOrRed() == color) {
+            teamColorCount ++;
+        } else {
+            teamColorCount = 0;
+        }
+        return teamColorCount >= teamColorCountThreshold;
+    }
+
+    private boolean isColorSatisfied (char color) {
+        char c = beaconArm.getColorBlueOrRed();
+        if ( c == color || c == 'u') {
             teamColorCount ++;
         } else {
             teamColorCount = 0;
