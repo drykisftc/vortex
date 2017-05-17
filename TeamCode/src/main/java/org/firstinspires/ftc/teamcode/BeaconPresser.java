@@ -146,7 +146,7 @@ public class BeaconPresser extends RobotExecutor {
                 beaconArm.extend(fastSpeedGain);
                 if (System.currentTimeMillis() - lastTimeStamp > shotPressTimeLimit*3) {
                     if (pressButtonTimes >= pressButtonTimesLimit) {
-                        state = 7;
+                        state = 6;
                         gyroTracker.stopWheels();
                         lastTimeStamp = System.currentTimeMillis();
                     } else {
@@ -173,7 +173,7 @@ public class BeaconPresser extends RobotExecutor {
                 // hover beacon arm over beacon
                 if (beaconArm.hoverNear(distanceThreshold,slowSpeedGain)>=0) {
                     // check beacon color again
-                    if (!isColor(teamColor)) {
+                    if (!isColorSatisfied(teamColor)) {
                         state = 4;
                     } else {
                         state = 7;

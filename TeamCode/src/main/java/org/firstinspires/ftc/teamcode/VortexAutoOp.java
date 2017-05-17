@@ -57,11 +57,13 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected BeaconPresser beaconPresser = null;
     protected HardwareLineTracker hardwareLineTracker = null;
     protected WallTracker wallTracker = null;
+    protected EncoderTracker encoderTracker = null;
 
     protected double groundBrightness = 0.0;
     protected double minLineBrightness = 0.02;
 
     // navigation settings
+    protected int leftRightWheelDistance = 1500;
     protected int start2FireDistance = 2500; //2500
     protected int fire2TurnDegree = 75;
     protected int fire2WallDistance = 4600; // 5121
@@ -115,6 +117,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         hardwareLineTracker = new HardwareLineTracker();
         hardwareLineTracker.init(hardwareMap, 4);
         groundBrightness = Math.max(minLineBrightness,hardwareLineTracker.getBaseLineBrightness()*2.5);
+        encoderTracker = new EncoderTracker(robot.motorLeftWheel, robot.motorRightWheel, leftRightWheelDistance);
 
         // beacon presser
         initBeaconPresser();
