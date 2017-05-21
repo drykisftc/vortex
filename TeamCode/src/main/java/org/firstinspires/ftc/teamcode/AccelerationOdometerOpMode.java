@@ -9,6 +9,7 @@ public class AccelerationOdometerOpMode extends VortexTeleOp{
     HardwareGyroTracker GTH = null;
     AccelerationOdometer AO = null;
     HardwareCompass HC = null;
+    private int state = 0;
     @Override
     public void init(){
         GTH = new HardwareGyroTracker();
@@ -36,6 +37,21 @@ public class AccelerationOdometerOpMode extends VortexTeleOp{
                 telemetry.addData(">", "Compass is calibrating, DO NOT START");
             }
     }
+    @Override
+    public void start() {
+        super.start();
+        // compute baseline brightness
+        AO.start(0);
+        raiseArm();
+        state = 0;
+    }
+    public void raiseArm () {
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
 
+    }
 
+    public void homeArm () {
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPostion, 0.1);
+
+    }
 }
