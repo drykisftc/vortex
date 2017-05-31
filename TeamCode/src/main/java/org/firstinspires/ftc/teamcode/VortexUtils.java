@@ -143,6 +143,7 @@ public class VortexUtils {
      * @param value
      * @return heading in [0,360]
      */
+    //what does this do?
     static double normalizeHeading (double value) {
         // set it to [-360, 360]
         double v = value/360.0;
