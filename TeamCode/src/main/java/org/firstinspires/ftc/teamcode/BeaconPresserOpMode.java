@@ -30,8 +30,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 
@@ -53,7 +51,7 @@ public class BeaconPresserOpMode extends VortexAutoOp {
         fire2WallDistance = 5420;
         wall2TurnDegree = -75;
         beacon2ParkTurnDegree = 45;
-        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPostion, leftArmAutoMovePower);
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPosition, leftArmAutoMovePower);
     }
 
     @Override
@@ -118,9 +116,11 @@ public class BeaconPresserOpMode extends VortexAutoOp {
                 beaconPresser.beaconArm.ambientRGB.r,
                 beaconPresser.beaconArm.ambientRGB.g,
                 beaconPresser.beaconArm.ambientRGB.b);
+        telemetry.addData("Color sensor intensity:", beaconPresser.beaconArm.getColorIntensity());
+        telemetry.addData("Intensity threshold   :", beaconPresser.beaconArm.colorSensorForegroundThreshold);
+        telemetry.addData("Color sensor color:   ", beaconPresser.beaconArm.getColorBlueOrRed());
+
         telemetry.addData("Near counts:        ", beaconPresser.beaconArm.nearCounts);
-        telemetry.addData("Touch sensor on:    ", "%b", beaconPresser.beaconArm.touchSensor.isPressed());
-        telemetry.addData("Touch counts:       ", beaconPresser.beaconArm.touchCounts);
     }
 
 }

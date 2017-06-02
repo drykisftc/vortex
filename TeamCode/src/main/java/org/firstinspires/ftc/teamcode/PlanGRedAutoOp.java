@@ -58,9 +58,9 @@ public class PlanGRedAutoOp extends VortexAutoOp{
 
 
     @Override
-    public void init() {
-        super.init();
-        start2FireDistance = 2500; //2500
+    public void start() {
+        super.start();
+        start2FireDistance = 3800; //2500 per block
         fire2TurnDegree = 45;
         fire2WallDistance = 6800;
         wall2TurnDegree = -45;
@@ -85,6 +85,7 @@ public class PlanGRedAutoOp extends VortexAutoOp{
                 break;
             case 1:
                 // go straight
+                particleShooter.moveArmToFirePosition();
                 state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state, state + 1);
                 telemetry.addData("State:", "%02d", state);

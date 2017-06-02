@@ -52,23 +52,18 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="DanceAutoOp", group="zDance")
-public class DanceAutoOp extends Dance {
+@Autonomous(name="Dance:", group="Dance")
+@Disabled
+public class DanceAutoOp extends VortexAutoOp{
 
     protected int headPositionA = 2500;
     protected int headPositionB = 2800;
     protected int headPositionC = 3000;
-    protected int beacon2ParkTurnDegree = 90;
     int danceState = 0;
     int danceBeats = 556;
     double headPower = 0.4;
     double armSpeed = 2.0;
 
-    @Override
-    public void init() {
-        super.init();
-        jammingDetection = new JammingDetection(1000L);
-    }
 
     @Override
     public void start() {
@@ -80,11 +75,10 @@ public class DanceAutoOp extends Dance {
 
     }
 
-    protected void dancePatternReset() {
+    protected void dancePatternReset () {
         danceState = 0;
         lastTimeStamp = System.currentTimeMillis();
     }
-
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
@@ -95,14 +89,13 @@ public class DanceAutoOp extends Dance {
         telemetry.addData("Current Time: ", "%02d", System.currentTimeMillis() - lastTimeStamp);
         switch (state) {
             case 0:
-                gyroTracker.skewTolerance = 0;
-                if (gyroTracker.goStraight(0, cruisingTurnGain, 0.2,
-                        start2FireDistance, 0, 1) == 1) {
+                if(gyroTracker.goStraight (0, cruisingTurnGain, 0.2,
+                        start2FireDistance, 0, 1) == 1){
                     start2FireDistance = 0;
                 }
                 VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
                         leftArmFirePosition, 0.25);
-                if (System.currentTimeMillis() - lastTimeStamp < 7000) {
+                if(System.currentTimeMillis() - lastTimeStamp < 7000){
                     armB(0.2);
                 } else {
                     armA();
@@ -114,303 +107,17 @@ public class DanceAutoOp extends Dance {
                 break;
             case 1:
                 state = beforeShootDance(danceBeats, 1, 2);
-                if (state == 2) {
-                    dancePatternReset();
-                    particleShooter.start(0);
-                    particleShooter.armPower = leftArmAutoMovePower;
-                    particleShooter.armStartPosition = leftArmFiringSafeZone;
-                }
+                if(state == 2) dancePatternReset();
                 break;
             case 2:
-                //shoot
-                particleShooter.loop(state, state + 1);
-                state = cowboyDance(danceBeats, 2, 4);
-                if (state == 4) dancePatternReset();
+                particleShooter.loop(state, state+1);
+                state = cowboyDance2(danceBeats, 2, 3);
+                if(state == 3) dancePatternReset();
                 break;
             case 3:
-                state++;
-            case 4:
-                gyroTracker.skewTolerance = 1;
-                gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
-                        turningPower, state, state + 1);
-                state = cowboyDance2(danceBeats, 4, 5);
-                if (state == 5) dancePatternReset();
-
-                if (state == 5) {
-                    // activate jamming detection
-                    jammingDetection.reset();
-                }
+                state = cowboyDance3(danceBeats, 3, 4);
+                if(state == 4) dancePatternReset();
                 break;
-            case 5:
-                wallTracker.readDistance();
-
-                // go straight until hit the wall
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 800;
-                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, fire2WallDistance, state, state + 2); // need to +2 to skip jam backup
-
-                double sonicDistance = wallTracker.getHistoryDistanceAverage();
-                telemetry.addData("Wall Distance: ", "%02f", sonicDistance);
-                int travelDistance = Math.min(robot.motorLeftWheel.getCurrentPosition(),
-                        robot.motorRightWheel.getCurrentPosition());
-                telemetry.addData("Travel Distance: ", travelDistance);
-                // wall distance detection
-                if ((Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.6
-                        && sonicDistance <= sonicWallDistanceLimit)) {
-                    stopWheels();
-                    gyroTracker.setWheelLandmark();
-                    state = 7;
-                }
-
-                // jamming detection
-                if (jammingDetection.isJammed(travelDistance)) {
-                    gyroTracker.minTurnPower = 0.01;
-                    gyroTracker.breakDistance = 100;
-                    stopWheels();
-                    gyroTracker.setWheelLandmark();
-                    state = 6;
-                }
-                cowboyDance3(danceBeats, 5, 6);
-                if (state == 6 || state == 7) dancePatternReset();
-                break;
-            case 6:
-                // if jammed, back up a little bit
-                gyroTracker.breakDistance = 0;
-                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
-                        -1.0 * searchingPower, jammingBackupDistance, state, state + 1);
-                break;
-            case 7:
-                // turn -45 degree back
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.maxTurnPower = 0.2;
-                state = gyroTracker.turn(fire2TurnDegree + wall2TurnDegree,
-                        inPlaceTurnGain, turningPower, state, state + 1);
-                if (state == 8) {
-                    // reset min turning power to avoid jerky movements
-                    gyroTracker.minTurnPower = 0.01;
-                }
-                break;
-            case 8:
-                // go straight until hit first white line
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 200;
-                state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
-                        cruisingTurnGain, searchingPower, wall2BeaconDistance, state, state + 1);
-
-                // check the ods for white line signal
-
-                if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
-                    state = 9;
-                    stopWheels();
-                    gyroTracker.setWheelLandmark();
-                    beaconPresser.start(0);
-                }
-                break;
-            case 9:
-                // touch beacon
-                state = beaconPresser.loop(state, state + 1);
-                if (state == 10) {
-                    gyroTracker.setWheelLandmark();
-                    lastTimeStamp = System.currentTimeMillis();
-                }
-                break;
-            case 10:
-                // go straight until hit the second white line
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 200;
-                if (System.currentTimeMillis() - lastTimeStamp > 1500) {
-                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
-                            cruisingTurnGain, searchingPower, beacon2BeaconDistance, state, state + 1);
-                } else {
-                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
-                            cruisingTurnGain, cruisingPower, beacon2BeaconDistance, state, state + 1);
-                }
-
-                // check the ods for white line signal
-                if (gyroTracker.getWheelLandmarkOdometer() > 1000
-                        && hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
-                    state = 11;
-                    stopWheels();
-                    gyroTracker.setWheelLandmark();
-                    beaconPresser.start(0);
-                }
-                break;
-            case 11:
-                // touch beacon
-                state = beaconPresser.loop(state, state + 1);
-
-                if (state == 12) {
-                    gyroTracker.setWheelLandmark();
-                }
-                break;
-            case 12:
-                // turn 90 degrees
-                gyroTracker.skewTolerance = 1;
-                wall2TurnDegree -= 90;
-                state = gyroTracker.turn(fire2TurnDegree + wall2TurnDegree,
-                        inPlaceTurnGain, parkTurningPower, state, state + 1);
-                if (state == 13) {
-                    lastTimeStamp = System.currentTimeMillis();
-                    gyroTracker.minTurnPower = 0.01;
-                }
-                break;
-            case 13:
-                // other wall beacons
-                // go straight until hit first white line
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 200;
-                state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
-                        cruisingTurnGain, searchingPower, wall2BeaconDistance, state, state + 1);
-
-                // check the ods for white line signal
-
-                if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
-                    state = 14;
-                    stopWheels();
-                    gyroTracker.setWheelLandmark();
-                    beaconPresser.start(0);
-                }
-                break;
-            case 14:
-                // touch beacon
-                state = beaconPresser.loop(state, state + 1);
-                if (state == 15) {
-                    gyroTracker.setWheelLandmark();
-                    lastTimeStamp = System.currentTimeMillis();
-                }
-                break;
-            case 15:
-                // go straight until hit the second white line
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 200;
-                if (System.currentTimeMillis() - lastTimeStamp > 1500) {
-                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
-                            cruisingTurnGain, searchingPower, beacon2BeaconDistance, state, state + 1);
-                } else {
-                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
-                            cruisingTurnGain, cruisingPower, beacon2BeaconDistance, state, state + 1);
-                }
-
-                // check the ods for white line signal
-                if (gyroTracker.getWheelLandmarkOdometer() > 1000
-                        && hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
-                    state = 16;
-                    stopWheels();
-                    gyroTracker.setWheelLandmark();
-                    beaconPresser.start(0);
-                }
-                break;
-            case 16:
-                // touch beacon
-                state = beaconPresser.loop(state, state + 1);
-
-                if (state == 17) {
-                    gyroTracker.setWheelLandmark();
-                }
-                break;
-            case 17:
-                wallTracker.readDistance();
-
-                // go straight until hit the wall
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 800;
-                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, fire2WallDistance, state, state + 2); // need to +2 to skip jam backup
-
-                sonicDistance = wallTracker.getHistoryDistanceAverage();
-                telemetry.addData("Wall Distance: ", "%02f", sonicDistance);
-                travelDistance = Math.min(robot.motorLeftWheel.getCurrentPosition(),
-                        robot.motorRightWheel.getCurrentPosition());
-                telemetry.addData("Travel Distance: ", travelDistance);
-                // wall distance detection
-                if ((Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.6
-                        && sonicDistance <= sonicWallDistanceLimit)) {
-                    stopWheels();
-                    gyroTracker.setWheelLandmark();
-                    state = 19;
-                }
-
-                // jamming detection
-                if (jammingDetection.isJammed(travelDistance)) {
-                    gyroTracker.minTurnPower = 0.01;
-                    gyroTracker.breakDistance = 100;
-                    stopWheels();
-                    gyroTracker.setWheelLandmark();
-                    state = 18;
-                }
-                cowboyDance3(danceBeats, 5, 6);
-                if (state == 6 || state == 7) dancePatternReset();
-                break;
-            case 18:
-                // if jammed, back up a little bit
-                gyroTracker.breakDistance = 0;
-                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
-                        -1.0 * searchingPower, jammingBackupDistance, state, state + 1);
-                break;
-            case 19:
-                // turn 90 degrees
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.maxTurnPower = 0.2;
-                wall2TurnDegree += -90;
-                state = gyroTracker.turn(fire2TurnDegree + wall2TurnDegree,
-                        inPlaceTurnGain, turningPower, state, state + 1);
-                break;
-            case 20:
-                wallTracker.readDistance();
-
-                // go straight until hit the wall
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 800;
-                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, fire2WallDistance, state, state + 2); // need to +2 to skip jam backup
-
-                sonicDistance = wallTracker.getHistoryDistanceAverage();
-                telemetry.addData("Wall Distance: ", "%02f", sonicDistance);
-                travelDistance = Math.min(robot.motorLeftWheel.getCurrentPosition(),
-                        robot.motorRightWheel.getCurrentPosition());
-                telemetry.addData("Travel Distance: ", travelDistance);
-                // wall distance detection
-                if ((Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.6
-                        && sonicDistance <= sonicWallDistanceLimit)) {
-                    stopWheels();
-                    gyroTracker.setWheelLandmark();
-                    state = 22;
-                }
-
-                // jamming detection
-                if (jammingDetection.isJammed(travelDistance)) {
-                    gyroTracker.minTurnPower = 0.01;
-                    gyroTracker.breakDistance = 100;
-                    stopWheels();
-                    gyroTracker.setWheelLandmark();
-                    state = 21;
-                }
-
-                cowboyDance3(danceBeats, 5, 6);
-                if (state == 6 || state == 7) dancePatternReset();
-                break;
-            case 21:
-                // if jammed, back up a little bit
-                gyroTracker.breakDistance = 0;
-                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
-                        -1.0 * searchingPower, jammingBackupDistance, state, state + 1);
-                break;
-            case 22:
-                // turn 90 degrees
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.maxTurnPower = 0.2;
-                wall2TurnDegree -= 90;
-                state = gyroTracker.turn(fire2TurnDegree + wall2TurnDegree,
-                        inPlaceTurnGain, turningPower, state, state + 1);
-                break;
-            case 23:
-                // go straight
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 800;
-                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, fire2WallDistance, state, state + 1);
-
             default:
                 dancePatternReset();
                 //state = 0; // repeat
@@ -418,4 +125,381 @@ public class DanceAutoOp extends Dance {
         }
     }
 
+    public void findEmptySpot () {
+        // make circle to collect data
+
+        // move to empty spot
+    }
+
+    public int beforeShootDance (int beatInterval, int startState, int endState) {
+        telemetry.addData("Pre-shoot State:", "%02d", danceState);
+        switch (danceState) {
+            case 0:
+                telemetry.addData("STATE", "%02d", danceState);
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval) {
+                    armC(5.0);
+                } else {
+                    danceState = 1;
+                }
+                break;
+            case 1:
+                telemetry.addData("STATE", "%02d", danceState);
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*2) {
+
+                } else {
+                    danceState = 2;
+                }
+                break;
+            case 2:
+                telemetry.addData("STATE", "%02d", danceState);
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*3) {
+                    armD(5.0);
+                } else {
+                    danceState = 3;
+                }
+                break;
+            case 3:
+                telemetry.addData("STATE", "%02d", danceState);
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*4) {
+                } else {
+                    danceState = 4;
+                }
+                break;
+            case 4:
+                telemetry.addData("STATE", "%02d", danceState);
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
+                    armC(5.0);
+                } else {
+                    danceState = 5;
+                }
+                break;
+            case 5:
+                telemetry.addData("STATE", "%02d", danceState);
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
+                    armD(5.0);
+                } else {
+                    danceState = 6;
+                }
+                break;
+            case 6:
+                telemetry.addData("STATE", "%02d", danceState);
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*7) {
+                    armC(5.0);
+                } else {
+                    danceState = 7;
+                }
+                break;
+            case 7:
+                telemetry.addData("STATE", "%02d", danceState);
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*8) {
+                    armD(5.0);
+                } else {
+                    danceState = 8;
+                }
+                break;
+            default:
+                return endState; // done
+        }
+        telemetry.addData("back to", "state", "0");
+        return startState;
+    }
+
+    public int cowboyDance (int beatInterval, int startState, int endState) {
+        telemetry.addData("Cowboy Dance State:", "%02d", danceState);
+        switch (danceState) {
+            case 0:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval) {
+                    armB(2.0);
+                    headA(headPower);
+                } else {
+                    danceState = 1;
+                }
+                break;
+            case 1:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*2) {
+                    armC(5.0);
+                } else {
+                    danceState = 2;
+                }
+                break;
+            case 2:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*3) {
+                    headC(headPower);
+                    armD(5.0);
+                } else {
+                    danceState = 3;
+                }
+                break;
+            case 3:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*4) {
+                    armE();
+                } else {
+                    danceState = 4;
+                }
+                break;
+            case 4:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
+                    armF();
+                    headB(headPower);
+                } else {
+                    danceState = 5;
+                }
+                break;
+            case 5:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
+                    armG();
+                    headC(headPower);
+                } else {
+                    danceState = 6;
+                }
+                break;
+            case 6:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*7) {
+                    armH();
+                    headB(headPower);
+                } else {
+                    danceState = 7;
+                }
+                break;
+            case 7:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*8) {
+                    armA();
+                    headC(headPower);
+                } else {
+                    danceState = 8;
+                }
+                break;
+            default:
+                return endState; // done
+        }
+        return startState;
+    }
+
+    public int cowboyDance2 (int beatInterval, int startSate, int endState) {
+        telemetry.addData("Cowboy Dance2 State:", "%02d", danceState);
+        switch (danceState) {
+            case 0:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval) {
+                    armB(5.0);
+                    headA(headPower);
+                    wheelB(0.0,15);
+                } else {
+                    danceState = 1;
+                }
+                break;
+            case 1:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*2) {
+                    armC(5.0);
+                } else {
+                    danceState = 2;
+                }
+                break;
+            case 2:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*3) {
+                    headC(headPower);
+                    armD(5.0);
+                    wheelB(0.0,-15);
+                } else {
+                    danceState = 3;
+                }
+                break;
+            case 3:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*4) {
+                    armE();
+                } else {
+                    danceState = 4;
+                }
+                break;
+            case 4:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
+                    armC(5.0);
+                    headB(headPower);
+                    wheelB(0.0,15);
+                } else {
+                    danceState = 5;
+                }
+                break;
+            case 5:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
+                    armD(5.0);
+                    headC(headPower);
+                    wheelB(0.0,-15);
+                } else {
+                    danceState = 6;
+                }
+                break;
+            case 6:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*7) {
+                    armC(5.0);
+                    headB(headPower);
+                    wheelB(0.0,15);
+                } else {
+                    danceState = 7;
+                }
+                break;
+            case 7:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*8) {
+                    armD(5.0);
+                    headC(headPower);
+                    wheelB(0.0,-15);
+                } else {
+                    danceState = 8;
+                }
+                break;
+            default:
+                return endState; // done
+        }
+        return endState;
+    }
+
+    public int cowboyDance3 (int beatInterval, int startState, int endState) {
+        telemetry.addData("Cowboy Dance3 State:", "%02d", danceState);
+        switch (danceState) {
+            case 0:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval) {
+                    armB(5.0);
+                    headA(headPower);
+                    wheelB(0.0,15);
+                } else {
+                    danceState = 1;
+                }
+                break;
+            case 1:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*2) {
+                    armC(5.0);
+                    wheelB(0.0,50);
+                } else {
+                    danceState = 2;
+                }
+                break;
+            case 2:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*3) {
+                    headC(headPower);
+                    armD(5.0);
+                    wheelB(0.0,90);
+                } else {
+                    danceState = 3;
+                }
+                break;
+            case 3:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*4) {
+                    armE();
+                    wheelB(0.0,135);
+                } else {
+                    danceState = 4;
+                }
+                break;
+            case 4:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*5) {
+                    armG();
+                    headB(headPower);
+                    wheelB(0.0,180);
+                } else {
+                    danceState = 5;
+                }
+                break;
+            case 5:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*6) {
+                    armH();
+                    headC(headPower);
+                    wheelB(0.0,240);
+                } else {
+                    danceState = 6;
+                }
+                break;
+            case 6:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*7) {
+                    armG();
+                    headB(headPower);
+                    wheelB(0.0,290);
+                } else {
+                    danceState = 7;
+                }
+                break;
+            case 7:
+                if (System.currentTimeMillis() - lastTimeStamp < beatInterval*8) {
+                    armH();
+                    headC(headPower);
+                    wheelB(0.0,0);
+                } else {
+                    danceState = 8;
+                }
+                break;
+            default:
+                return endState; // done
+        }
+        return startState;
+    }
+
+    // arm dance modes
+    public void armA () {
+        leftBeaconArm.retract();
+        rightBeaconArm.retract();
+    }
+
+    public void armB (double speed) {
+        leftBeaconArm.extend(speed);
+        rightBeaconArm.extend(speed);
+    }
+
+    public void armC (double speed) {
+        leftBeaconArm.extend(speed);
+        rightBeaconArm.retract();
+    }
+
+    public void armD (double speed) {
+        leftBeaconArm.retract();
+        rightBeaconArm.extend(speed);
+    }
+
+    public void armE () {
+        leftBeaconArm.raiseUpperArm();
+        leftBeaconArm.raiseLowerArm();
+        rightBeaconArm.raiseUpperArm();
+        rightBeaconArm.raiseLowerArm();
+    }
+
+    public void armF () {
+        leftBeaconArm.lowerUpperArm();
+        leftBeaconArm.raiseLowerArm();
+        rightBeaconArm.lowerUpperArm();
+        rightBeaconArm.raiseLowerArm();
+    }
+
+    public void armG () {
+        leftBeaconArm.raiseUpperArm();
+        leftBeaconArm.raiseLowerArm();
+        rightBeaconArm.retract();
+    }
+
+    public void armH () {
+        leftBeaconArm.retract();
+        rightBeaconArm.raiseUpperArm();
+        rightBeaconArm.raiseLowerArm();
+    }
+
+    // wheel dance modes
+    public void  wheelA (double power, int distance) {
+        gyroTracker.goStraight (0, cruisingTurnGain, power,
+                distance, 0,1);
+    }
+
+    public void wheelB (double turnPower, int heading) {
+        gyroTracker.maxTurnPower = 0.15;
+        state = gyroTracker.turn(heading,
+                inPlaceTurnGain,turnPower,0,0);
+    }
+
+    // head dance mode
+    public void headA ( double power) {
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, headPositionA, power);
+    }
+
+    public void headB ( double power) {
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, headPositionB, power);
+    }
+
+    public void headC ( double power) {
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, headPositionC, power);
+    }
 }

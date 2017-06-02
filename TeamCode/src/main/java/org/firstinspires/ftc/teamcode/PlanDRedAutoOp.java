@@ -66,14 +66,12 @@ public class PlanDRedAutoOp extends PlanARedAutoOp{
         switch (state) {
             case 0:
                 // go straight
-                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state,state+1);
 
                 if (System.currentTimeMillis() - lastTimeStamp > 200) {
                     // move and raise arm at same time
-                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                            leftArmFirePosition, leftArmFastAutoMovePower);
+                    particleShooter.moveArmToFirePosition();
                     state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
                             start2FireDistance, state,state+1);
                     particleShooter.reload();
@@ -99,7 +97,6 @@ public class PlanDRedAutoOp extends PlanARedAutoOp{
                 break;
             case 2:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 3;
                 state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
                         turningPower,state,state+1);
 
@@ -110,7 +107,6 @@ public class PlanDRedAutoOp extends PlanARedAutoOp{
                 break;
             case 3:
                 // go straight until hit the wall
-                gyroTracker.skewTolerance = 0;
                 gyroTracker.breakDistance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
                         cruisingPower, fire2WallDistance, state,state+2); // need to +2 to skip jam backup
@@ -132,8 +128,6 @@ public class PlanDRedAutoOp extends PlanARedAutoOp{
                 break;
             case 5:
                 // turn -45 degree back
-                gyroTracker.skewTolerance = 1;
-                gyroTracker.maxTurnPower = 0.2;
                 state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
                         inPlaceTurnGain,turningPower,state,state+1);
                 if (state == 6 ) {
@@ -143,7 +137,6 @@ public class PlanDRedAutoOp extends PlanARedAutoOp{
                 break;
             case 6:
                 // go straight until hit first white line
-                gyroTracker.skewTolerance = 0;
                 gyroTracker.breakDistance = 200;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
                         cruisingTurnGain, searchingPower, wall2BeaconDistance, state,state+1);
@@ -166,7 +159,6 @@ public class PlanDRedAutoOp extends PlanARedAutoOp{
                 break;
             case 8:
                 // go straight until hit the second white line
-                gyroTracker.skewTolerance = 0;
                 gyroTracker.breakDistance = 200;
                 if (System.currentTimeMillis() - lastTimeStamp > 800) {
                     state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
@@ -195,7 +187,6 @@ public class PlanDRedAutoOp extends PlanARedAutoOp{
                 break;
             case 10:
                 // backup straight to central parking
-                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
                         cruisingTurnGain, -1*chargingPower, beacon2ParkingDistance, state,state+1);
 

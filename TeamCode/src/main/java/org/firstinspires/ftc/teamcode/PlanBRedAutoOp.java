@@ -55,10 +55,14 @@ public class PlanBRedAutoOp extends VortexAutoOp{
     @Override
     public void start() {
         super.start();
+        start2FireDistance = 2900;
+        fire2TurnDegree = 160;
+        wall2TurnDegree = 19;
+        fire2WallDistance= 2600;
+        cruisingPower = 0.5;
         startWaitingTime = 10000;
-        start2FireDistance = 3400;
-        fire2WallDistance = 800;
         lastTimeStamp = System.currentTimeMillis();
+        particleShooter.handFirePower = 0.65;
     }
 
     /*
@@ -74,9 +78,15 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                 break;
             case 1:
                 // go straight
+                gyroTracker.breakDistance = 1000;
                 state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
                         start2FireDistance, state, state + 1);
                 telemetry.addData("State:", "%02d", state);
+
+                if (System.currentTimeMillis() - lastTimeStamp > 200) {
+                    particleShooter.moveArmToFirePosition();
+                }
+
                 if (state == 2) {
                     // prepare to shoot
                     robot.motorLeftWheel.setPower(0.0);
@@ -91,9 +101,24 @@ public class PlanBRedAutoOp extends VortexAutoOp{
                 state = particleShooter.loop(state, state + 1);
                 break;
             case 3:
-                // go straight
-                state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
-                        fire2WallDistance, state, state + 1);
+                // turn 45 degree
+                particleShooter.cock();
+                state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
+                        turningPower,state,state+1);
+                break;
+            case 4:
+                // turn 45 degree
+                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree, inPlaceTurnGain,
+                        turningPower,state,state+1);
+                VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                        leftArmMovePosition, leftArmAutoMovePower);
+                break;
+            case 5:
+                // go backward and park
+                gyroTracker.breakDistance = 0;
+                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
+                        -1.0*cruisingPower, fire2WallDistance, state,state+1);
+                break;
             default:
                 // stop
                 telemetry.addData("State:", "End");

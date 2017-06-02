@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import java.util.Random;
+
 public class BeaconPresser extends RobotExecutor {
 
     GyroTracker gyroTracker = null;
@@ -8,33 +10,38 @@ public class BeaconPresser extends RobotExecutor {
     protected long lastTimeStamp = 0;
 
     // navigation info
-    protected int lineToBeaconDistance = 400; //509
-    protected int beaconPressDistance = 2500;
+    protected int lineToBeaconDistance = 390; //509
+    protected int beaconPressDistance = 1500;
     protected int button1ToButton2Distance = 486;
-    double cruisingPower = 0.5;
-    double searchingPower = 0.2;
+    double cruisingPower = 0.4;
+    double searchingPower = 0.15;
     double cruisingTurnGain = 0.002;
     int distanceThreshold = 1;
     char teamColor = 'b';
 
     int pressButtonTimes = 0;
-    int pressButtonTimesLimit = 3;
+    int pressButtonTimesLimit = 2;
+    int pressButtonTimesMaxLimit = 6;
 
     // bookkeeping
     int landMarkAngle = 0;
     boolean bBeaconPressed = false;
     int teamColorCount = 0;
-    int teamColorCountThreshold = 3;
+    int teamColorCountThreshold = 2;
 
-    double slowSpeedGain = 0.1;
+    double slowSpeedGain = 0.09;
     double fastSpeedGain = 1.0;
 
-    protected long longPressTimeLimit = 1500; // 1.5 seconds
-    protected long shotPressTimeLimit = 500; // 0.3 seconds
-    protected long travelTimeLimit = 10000; // 10 seconds
+    protected long longPressTimeLimit = 1000; // 1.5 seconds
+    protected long shotPressTimeLimit = 80; // 0.3 seconds
+    protected long travelTimeLimit = 4000; // 4 seconds
 
-    protected int waggleDegree = 2;
+    protected int waggleDegree = 0;
     protected double waggleGain = 0.01;
+    protected int waggleDistance = 100;
+    protected double wagglePower = searchingPower;
+
+    Random random = new Random();
 
     public BeaconPresser(GyroTracker g,
                          HardwareBeaconArm arm){
@@ -49,7 +56,6 @@ public class BeaconPresser extends RobotExecutor {
         landMarkAngle = gyroTracker.gyro.getHeading();
         bBeaconPressed = false;
         pressButtonTimes = 0;
-        distanceThreshold = beaconArm.colorSensorAmbient + 1;
     }
 
     public void calibrate_loop () {
@@ -79,12 +85,13 @@ public class BeaconPresser extends RobotExecutor {
                 }
                 break;
             case 2:
-                // move slowly until it gets the team color
-                state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, searchingPower,
-                        beaconPressDistance, 2,3);
 
                 // hover beacon arm over beacon
                 beaconArm.hoverNear(distanceThreshold,slowSpeedGain);
+
+                // move slowly until it gets the team color, if not found skip to end state
+                state = gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, searchingPower,
+                        beaconPressDistance, 2,6);
 
                 // check team color
                 if (isColor(teamColor)) {
@@ -97,51 +104,86 @@ public class BeaconPresser extends RobotExecutor {
                     beaconArm.retract();
                     lastTimeStamp = System.currentTimeMillis();
                 }
+
+                if (pressButtonTimes >= pressButtonTimesLimit) {
+                    state = 7;
+                }
                 break;
             case 3:
                 // touch beacon button
                 // waggle wheels to touch beacon at different angles
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.turn(landMarkAngle+waggleDegree*((pressButtonTimes+2)%3-1), waggleGain,
-                        0.0,state, state);
-
-                if (beaconArm.extendUntilTouch(fastSpeedGain)
-                        || System.currentTimeMillis() - lastTimeStamp > longPressTimeLimit){
+                //gyroTracker.turn(landMarkAngle+waggleDegree*((pressButtonTimes+2)%3-1), waggleGain, 0.0,state, state);
+                beaconArm.extend(fastSpeedGain);
+                if (System.currentTimeMillis() - lastTimeStamp > longPressTimeLimit){
                     pressButtonTimes ++;
                     bBeaconPressed = true;
                     lastTimeStamp = System.currentTimeMillis();
-                    beaconArm.retract();
-                    state = 4;
+                    if (pressButtonTimes >= pressButtonTimesLimit) {
+                        state = 6;
+
+                    } else {
+                        state = 4;
+                    }
                 }
                 break;
             case 4:
                 // waggle wheels to touch beacon at different angles
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.turn(landMarkAngle+waggleDegree*((pressButtonTimes+2)%3-1), waggleGain,
-                        0.0,state, state);
+                //gyroTracker.turn(landMarkAngle+waggleDegree*((pressButtonTimes+2)%3-1), waggleGain, 0.0,state, state);
 
                 // touch beacon button
-                if (beaconArm.extendUntilTouch(fastSpeedGain)
-                        || System.currentTimeMillis() - lastTimeStamp > shotPressTimeLimit){
+                beaconArm.retract();
+                if (System.currentTimeMillis() - lastTimeStamp > shotPressTimeLimit){
                     state = 5;
                     pressButtonTimes ++;
                     bBeaconPressed = true;
+                    gyroTracker.setWheelLandmark();
                     lastTimeStamp = System.currentTimeMillis();
-                    beaconArm.retract();
                 }
                 break;
             case 5:
-                if (System.currentTimeMillis() - lastTimeStamp < shotPressTimeLimit)  {
-                    beaconArm.retract();
-                } else if (pressButtonTimes >= pressButtonTimesLimit) {
-                    state = 6;
-                } else {
-                    state = 4;
-                    lastTimeStamp = System.currentTimeMillis();
-                    waggleDegree *= -1.0; // flip the waggle angle
+                gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, wagglePower,
+                        waggleDistance, state,state);
+                beaconArm.extend(fastSpeedGain);
+                if (System.currentTimeMillis() - lastTimeStamp > shotPressTimeLimit*3) {
+                    if (pressButtonTimes >= pressButtonTimesLimit) {
+                        state = 6;
+                        gyroTracker.stopWheels();
+                        lastTimeStamp = System.currentTimeMillis();
+                    } else {
+                        state = 4;
+                        lastTimeStamp = System.currentTimeMillis();
+                        waggleDegree *= -1.0; // flip the waggle angle
+                        wagglePower *= -1.0;
+                    }
+                }
+                break;
+            case 6:
+                if (pressButtonTimes >= pressButtonTimesMaxLimit
+                        || isColor(teamColor)) {
+                    state = 7;
+                }
+
+                gyroTracker.goStraight (landMarkAngle, cruisingTurnGain, wagglePower,
+                        waggleDistance, state,state);
+                // randomly change direction
+                if ( random.nextInt(2)== 0) {
+                    wagglePower *=-1.0;
+                }
+
+                // hover beacon arm over beacon
+                if (beaconArm.hoverNear(distanceThreshold,slowSpeedGain)>=0) {
+                    // check beacon color again
+                    if (!isColor(teamColor)) {
+                        state = 4;
+                    } else {
+                        state = 7;
+                    }
                 }
                 break;
             default: {
+                gyroTracker.stopWheels();
+                gyroTracker.setWheelLandmark();
+                lastTimeStamp = System.currentTimeMillis();
                 beaconArm.retract();
                 return endState;
             }
@@ -155,6 +197,13 @@ public class BeaconPresser extends RobotExecutor {
         } else {
             teamColorCount = 0;
         }
-        return teamColorCount > teamColorCountThreshold;
+        return teamColorCount >= teamColorCountThreshold;
+    }
+
+    void setNumOfTimesPressBeacon (int times ) {
+        if (times > 0) {
+            pressButtonTimesLimit = (int) times;
+            pressButtonTimesMaxLimit = times*10;
+        }
     }
 }

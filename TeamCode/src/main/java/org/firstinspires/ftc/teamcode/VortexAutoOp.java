@@ -62,19 +62,26 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     protected double minLineBrightness = 0.04;
 
     // navigation settings
-    protected int start2FireDistance = 3100; //2500
+    protected int start2FireDistance = 2500; //2500
     protected int fire2TurnDegree = 75;
-    protected int fire2WallDistance = 5200; // 5121
+    protected int fire2WallDistance = 4600; // 5121
+    protected int jamTurnDegree = -160;
+    protected int jamTurnDegree2 = -90;
     protected int wall2TurnDegree = -75;
-    protected int wall2BeaconDistance = 1500; //953 actually
+    protected int secondBeaconDegree = -75;
+    protected int wall2BeaconDistance = 800; //953 actually
     protected int beacon2ParkTurnDegree = 45;
-    protected int beacon2BeaconDistance =4800; //4325
-    protected int beacon2ParkingDistance =5700; //4318
+    protected int beacon2BeaconDistance = 4800; //4325
+    protected int beacon2PickBallDistance = 1000; //4318
+    protected int beacon2ParkingDistance = 5800; //4318
     protected int jammingBackupDistance = 150;
-    protected double sonicWallDistanceLimit = 10.0;
+    protected double sonicWallDistanceLimit = 5.0;
+    protected double sonicBallDistanceLimit = 5.0;
     protected double back2BasePower = -1* chargingPower;
 
-    protected double leftArmFastAutoMovePower = 0.45;
+    protected double leftArmFastAutoMovePower = 0.40;
+    protected double numberBallsShoot = 2.0;
+    protected double numberTimePressBeacon= 4.0;
 
     protected long lastTimeStamp = 0;
 
@@ -82,6 +89,17 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
     // jam detection
     protected JammingDetection  jammingDetection = null;
+
+    protected boolean whiteLineFound = false;
+
+    protected boolean pickUpBalls = false;
+
+    // for jamming recover
+    protected double defaultMinTurnPower = 0.01;
+    protected double defaultMaxTurnPower = 0.15;
+    protected double defaultSkewTolerance = 1;
+    protected int distanceAfterJamming = 0;
+    protected int jammingRecoverState = 0;
 
     // to do: add wall tracker
 
@@ -108,6 +126,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
 
         state = 0;
 
+        // load configuration
+
     }
 
     public void initBeaconPresser() {
@@ -130,6 +150,7 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         super.init_loop();
         beaconPresser.calibrate_loop();
         wallTracker.readDistance();
+        adjustConfigurationViaGamePad();
     }
 
     /*
@@ -138,15 +159,19 @@ public class VortexAutoOp extends GyroTrackerOpMode{
     @Override
     public void start() {
         super.start();
-        gyroTracker.maxTurnPower = 0.35;
         particleShooter.start(0);
         particleShooter.armPower = leftArmAutoMovePower;
         particleShooter.armStartPosition = leftArmMovePosition;
+        particleShooter.handFirePower = 0.55;
         particleShooter.reload();
         beaconPresser.beaconArm.commitCalibration();
         beaconPresser.start(0);
         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
         lastTimeStamp = System.currentTimeMillis();
+        whiteLineFound= false;
+        defaultMinTurnPower = gyroTracker.minTurnPower;
+        defaultMaxTurnPower = gyroTracker.maxTurnPower;
+        defaultSkewTolerance = gyroTracker.skewTolerance;
         state = 0;
     }
 
@@ -158,24 +183,32 @@ public class VortexAutoOp extends GyroTrackerOpMode{
         telemetry.addData("State:", "%02d", state);
         switch (state) {
             case 0:
+                particleShooter.reload();
                 // go straight
-                gyroTracker.skewTolerance = 0;
-                state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
-                        start2FireDistance, state,state+1);
+                gyroTracker.breakDistance = 800;
+                state = gyroTracker.goStraight(0, cruisingTurnGain, searchingPower,
+                        start2FireDistance, state, state + 1);
+
+                // move arm
+                particleShooter.moveArmToFirePosition();
 
                 if (System.currentTimeMillis() - lastTimeStamp > 200) {
                     // move and raise arm at same time
-                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
-                            leftArmFirePosition, leftArmFastAutoMovePower);
-                    state = gyroTracker.goStraight (0, cruisingTurnGain, cruisingPower,
-                            start2FireDistance, state,state+1);
+                    state = gyroTracker.goStraight(0, cruisingTurnGain, cruisingPower,
+                            start2FireDistance, state, state + 1);
                     particleShooter.reload();
                     particleShooter.relaxHand();
                 } else {
                     // slow start to avoid turning
-                    state = gyroTracker.goStraight (0, cruisingTurnGain, searchingPower,
-                            start2FireDistance, state,state+1);
+                    state = gyroTracker.goStraight(0, cruisingTurnGain, searchingPower,
+                            start2FireDistance, state, state + 1);
                 }
+
+                // almost touch the ball
+                //                wallTracker.readDistance();
+                //                if (wallTracker.getHistoryDistanceAverage() < sonicBallDistanceLimit) {
+                //                    state = 1;
+                //                }
 
                 if (state == 1) {
                     // prepare to shoot
@@ -183,18 +216,18 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     robot.motorRightWheel.setPower(0.0);
                     particleShooter.start(0);
                     particleShooter.armPower = leftArmAutoMovePower;
-                    particleShooter.armStartPosition = leftArmFiringSafeZone;
+                    particleShooter.armStartPosition = leftArmFiringSafeZone - 700;
                 }
                 break;
             case 1:
                 // shoot particles
-                state = particleShooter.loop(state, state+1);
+                state = particleShooter.loop(state, state + 1);
                 break;
             case 2:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 1;
+                particleShooter.cock();
                 state = gyroTracker.turn(fire2TurnDegree, inPlaceTurnGain,
-                        turningPower,state,state+1);
+                        turningPower, state, state + 1);
 
                 if (state == 3) {
                     // activate jamming detection
@@ -205,10 +238,9 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 wallTracker.readDistance();
 
                 // go straight until hit the wall
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 800;
-                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
-                        cruisingPower, fire2WallDistance, state,state+2); // need to +2 to skip jam backup
+                gyroTracker.breakDistance = 1600;
+                state = gyroTracker.goStraight(fire2TurnDegree, cruisingTurnGain,
+                        cruisingPower, fire2WallDistance, state, state + 2); // need to +2 to skip jam backup
 
                 double sonicDistance = wallTracker.getHistoryDistanceAverage();
                 telemetry.addData("Wall Distance: ", "%02f", sonicDistance);
@@ -217,8 +249,8 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 telemetry.addData("Travel Distance: ", travelDistance);
 
                 // wall distance detection
-                if ( (Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.6
-                        && sonicDistance <= sonicWallDistanceLimit))  {
+                if ((Math.abs(travelDistance - gyroTracker.getWheelLandmark()) > fire2WallDistance * 0.8
+                        && sonicDistance <= sonicWallDistanceLimit)) {
                     stopWheels();
                     gyroTracker.setWheelLandmark();
                     state = 5;
@@ -229,33 +261,45 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     gyroTracker.minTurnPower = 0.01;
                     gyroTracker.breakDistance = 100;
                     stopWheels();
+                    distanceAfterJamming = fire2WallDistance - gyroTracker.getWheelLandmark();
+                    jammingRecoverState = 0;
                     gyroTracker.setWheelLandmark(); // important. otherwise it use last landmark
                     state = 4;
                 }
                 break;
             case 4:
-                // if jammed, back up a little bit
-                gyroTracker.breakDistance = 0;
-                state = gyroTracker.goStraight (fire2TurnDegree, cruisingTurnGain,
-                        -1.0*searchingPower, jammingBackupDistance, state,state+1);
+                // recover jamming
+                state = recoverJamming(fire2TurnDegree, distanceAfterJamming, state, state + 1);
                 break;
             case 5:
-                // turn -45 degree back
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.maxTurnPower = 0.2;
-                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree,
-                        inPlaceTurnGain,turningPower,state,state+1);
-                if (state == 6 ) {
+
+                if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
+                    whiteLineFound = true;
+                }
+
+                // turn -90 degree back
+                state = gyroTracker.turn(fire2TurnDegree + wall2TurnDegree,
+                        inPlaceTurnGain, turningPower, state, state + 1);
+
+                if (state == 6) {
                     // reset min turning power to avoid jerky movements
                     gyroTracker.minTurnPower = 0.01;
+                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                            leftArmFiringSafeZone, leftArmAutoMovePower);
+                    if (whiteLineFound) {
+                        state = 7; // skip find white line step
+                        stopWheels();
+                        gyroTracker.setWheelLandmark();
+                        beaconPresser.start(0);
+                    }
+                    // turn on scooper
+                    if (pickUpBalls) {
+                        robot.servoLeftScooper.setPower(leftScooperGo);
+                        robot.servoRightScooper.setPower(rightScooperGo);
+                    }
                 }
                 break;
             case 6:
-                // go straight until hit first white line
-                gyroTracker.skewTolerance = 0;
-                gyroTracker.breakDistance = 200;
-                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree,
-                        cruisingTurnGain, searchingPower, wall2BeaconDistance, state,state+1);
 
                 // check the ods for white line signal
                 if (hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
@@ -264,10 +308,17 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                     gyroTracker.setWheelLandmark();
                     beaconPresser.start(0);
                 }
+
+                // go straight until hit first white line
+                gyroTracker.breakDistance = 200;
+                state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
+                        cruisingTurnGain, searchingPower, wall2BeaconDistance, state, state + 1);
+
                 break;
             case 7:
+
                 // touch beacon
-                state = beaconPresser.loop(state, state+1);
+                state = beaconPresser.loop(state, state + 1);
                 if (state == 8) {
                     gyroTracker.setWheelLandmark();
                     lastTimeStamp = System.currentTimeMillis();
@@ -275,28 +326,30 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 8:
                 // go straight until hit the second white line
-                gyroTracker.skewTolerance = 0;
                 gyroTracker.breakDistance = 200;
-                if (System.currentTimeMillis() - lastTimeStamp > 1500) {
-                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
+                int chargeDistance = gyroTracker.getWheelLandmarkOdometer();
+
+                // check the ods for white line signal
+                if (chargeDistance > 1000
+                        && hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
+                    state = 9;
+                    stopWheels();
+                    gyroTracker.setWheelLandmark();
+                    beaconPresser.start(0);
+                }
+
+                if (chargeDistance > 2500 || System.currentTimeMillis() - lastTimeStamp > 1100) {
+                    state = gyroTracker.goStraight(fire2TurnDegree + secondBeaconDegree,
                             cruisingTurnGain, searchingPower, beacon2BeaconDistance, state, state + 1);
                 } else {
                     state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree,
                             cruisingTurnGain, cruisingPower, beacon2BeaconDistance, state, state + 1);
                 }
 
-                // check the ods for white line signal
-                if (gyroTracker.getWheelLandmarkOdometer() > 1000
-                && hardwareLineTracker.onWhiteLine(groundBrightness, 2)) {
-                    state = 9;
-                    stopWheels();
-                    gyroTracker.setWheelLandmark();
-                    beaconPresser.start(0);
-                }
                 break;
             case 9:
                 // touch beacon
-                state = beaconPresser.loop(state, state+1);
+                state = beaconPresser.loop(state, state + 1);
 
                 if (state == 10) {
                     gyroTracker.setWheelLandmark();
@@ -304,26 +357,53 @@ public class VortexAutoOp extends GyroTrackerOpMode{
                 break;
             case 10:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 1;
-                state = gyroTracker.turn(fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
-                        inPlaceTurnGain,parkTurningPower,state,state+1);
+                state = gyroTracker.turn(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
+                        inPlaceTurnGain, parkTurningPower, state, state + 1);
                 if (state == 11) {
+                    gyroTracker.setWheelLandmark();
                     lastTimeStamp = System.currentTimeMillis();
-                    gyroTracker.minTurnPower = 0.01;
+                    if (pickUpBalls == false) {
+                        state = 12;
+                    }
                 }
-
                 break;
             case 11:
+                if (robot.armStopMin.isPressed()) {
+                    leftArmMinLimitSwitchOnCount++;
+                } else {
+                    leftArmMinLimitSwitchOnCount = 0;
+                }
+                if (leftArmMinLimitSwitchOnCount > leftArmLimitSwitchCountThreshold) {
+                    particleShooter.relaxArm();
+                } else {
+                    // pick up balls
+                    VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
+                            leftArmHomeParkingPosition, leftArmAutoMovePower);
+                }
+
+                state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
+                        cruisingTurnGain, searchingPower * -1.0, beacon2PickBallDistance, state, state + 1);
+                if (state == 12) {
+                    lastTimeStamp = System.currentTimeMillis();
+                }
+                break;
+            case 12:
                 // backup straight to central parking
-                gyroTracker.skewTolerance = 0;
-                state = gyroTracker.goStraight (fire2TurnDegree+wall2TurnDegree+beacon2ParkTurnDegree,
-                        cruisingTurnGain, back2BasePower, beacon2ParkingDistance, state,state+1);
+                gyroTracker.breakDistance = 0;
+                robot.servoLeftScooper.setPower(leftScooperStop);
+                robot.servoRightScooper.setPower(rightScooperStop);
+                if (pickUpBalls) {
+                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
+                            cruisingTurnGain, back2BasePower, beacon2ParkingDistance-beacon2PickBallDistance, state, state + 1);
+                } else {
+                    state = gyroTracker.goStraight(fire2TurnDegree + wall2TurnDegree + beacon2ParkTurnDegree,
+                            cruisingTurnGain, back2BasePower, beacon2ParkingDistance, state, state + 1);
+                }
 
                 if (System.currentTimeMillis() - lastTimeStamp > 500) {
                     VortexUtils.moveMotorByEncoder(robot.motorLeftArm,
                             leftArmMovePosition, leftArmAutoMovePower);
                 }
-
                 break;
             default:
                 // stop
@@ -343,8 +423,117 @@ public class VortexAutoOp extends GyroTrackerOpMode{
      */
     @Override
     public void stop() {
-        homeArm();
         super.stop();
     }
 
+    protected void adjustConfigurationViaGamePad () {
+        // adjust the number of balls to shoot
+        if (gamepad1.b) {
+            numberBallsShoot += 0.01;
+        } else if (gamepad1.a) {
+            numberBallsShoot -= 0.01;
+            if (numberBallsShoot < 0.0) {
+                numberBallsShoot = 0;
+            }
+        }
+        particleShooter.autoShootCountLimit = (int) numberBallsShoot;
+        telemetry.addData("Num of balls to shoot (a-/b+)    :", particleShooter.autoShootCountLimit);
+
+        // adjust autonomous turning power
+        if (gamepad1.dpad_up) {
+            gyroTracker.minTurnPower += 0.0001;
+        } else if (gamepad1.dpad_down) {
+            gyroTracker.minTurnPower -= 0.0001;
+            if (gyroTracker.minTurnPower < 0.0 ) {
+                gyroTracker.minTurnPower = 0.0;
+            }
+        }
+        telemetry.addData("Min turn power (pad up+/down-)   :", gyroTracker.minTurnPower);
+
+        if (gamepad1.dpad_left) {
+            gyroTracker.maxTurnPower += 0.0001;
+        } else if (gamepad1.dpad_right) {
+            gyroTracker.maxTurnPower -= 0.0001;
+            if (gyroTracker.maxTurnPower < gyroTracker.minTurnPower) {
+                gyroTracker.maxTurnPower = gyroTracker.minTurnPower + 0.01;
+            }
+        }
+        telemetry.addData("Max turn power (pad left+/right-):", gyroTracker.maxTurnPower);
+
+        // adjust waiting time
+        if (gamepad1.left_bumper) {
+            startWaitingTime += 10;
+        } else if (gamepad1.right_bumper) {
+            startWaitingTime -=10;
+            if (startWaitingTime < 0 ) {
+                startWaitingTime = 0;
+            }
+        }
+        telemetry.addData("Waiting ms (bumper left+/right-) :", startWaitingTime);
+
+        // enable/disable ball picking
+        if (gamepad1.x) {
+            pickUpBalls = true;
+        } else if (gamepad1.y) {
+            pickUpBalls = false;
+        }
+        telemetry.addData("Enable ball picking (x+/y-)    :", pickUpBalls);
+
+        // number of time beacon to press
+        if (gamepad2.a) {
+            numberTimePressBeacon += 0.01;
+        } else if (gamepad2.b) {
+            numberTimePressBeacon -= 0.01;
+            if (numberTimePressBeacon < 0.0) {
+                numberTimePressBeacon = 0.0;
+            }
+        }
+        beaconPresser.setNumOfTimesPressBeacon((int) numberTimePressBeacon);
+    }
+
+    int recoverJamming (int targetHeading, int moveDistanceAfterJamming, int startState, int endState) {
+
+        switch (jammingRecoverState) {
+            case 0:
+                // backup
+                jammingRecoverState = gyroTracker.goStraight(targetHeading, cruisingTurnGain,
+                    -1.0 * searchingPower, jammingBackupDistance, jammingRecoverState, jammingRecoverState + 1);
+                break;
+            case 1:
+                // fast turn to clear jam
+                gyroTracker.minTurnPower = 0.1;
+                gyroTracker.maxTurnPower = 0.4;
+                gyroTracker.skewTolerance = 20;
+                jammingRecoverState = gyroTracker.turn(targetHeading+ jamTurnDegree,
+                        inPlaceTurnGain, turningPower, jammingRecoverState, jammingRecoverState + 1);
+                break;
+            case 2:
+                // slow turn to clear jam
+                gyroTracker.minTurnPower = defaultMinTurnPower;
+                gyroTracker.maxTurnPower = defaultMaxTurnPower;
+                gyroTracker.skewTolerance = defaultSkewTolerance;
+                jammingRecoverState = gyroTracker.turn(targetHeading + jamTurnDegree + jamTurnDegree2,
+                        inPlaceTurnGain, turningPower, jammingRecoverState, jammingRecoverState + 1);
+                break;
+            case 3:
+                // move back to correct heading
+                gyroTracker.minTurnPower = defaultMinTurnPower;
+                gyroTracker.maxTurnPower = defaultMaxTurnPower;
+                gyroTracker.skewTolerance = defaultSkewTolerance;
+                jammingRecoverState = gyroTracker.turn(targetHeading,
+                        inPlaceTurnGain, turningPower, jammingRecoverState, jammingRecoverState + 1);
+                break;
+            case 4:
+                // move the rest of the distance
+                jammingRecoverState = gyroTracker.goStraight(targetHeading, cruisingTurnGain,
+                        searchingPower, moveDistanceAfterJamming+jammingBackupDistance, jammingRecoverState, jammingRecoverState + 1); // need to +2 to skip jam backup
+                break;
+            default:
+                gyroTracker.minTurnPower = defaultMinTurnPower;
+                gyroTracker.maxTurnPower = defaultMaxTurnPower;
+                gyroTracker.skewTolerance = defaultSkewTolerance;
+                return endState;
+        }
+        return startState;
+    }
 }

@@ -64,10 +64,9 @@ public class HardwareVortex extends HardwareBase
         super.init(ahwMap);
 
         servoCock = hwMap.servo.get("cock");
-        servoLeftScooper = hwMap.crservo.get("leftScooper");
+
         servoRightScooper = hwMap.crservo.get("rightScooper");
-        servoLeftScooper.setPower(0);
-        servoRightScooper.setPower(0);
+        servoLeftScooper = hwMap.crservo.get("leftScooper");
 
         armStopMin = hwMap.touchSensor.get("armStopMin");
         armStopMax = hwMap.touchSensor.get("armStopMax");
@@ -85,8 +84,8 @@ public class HardwareVortex extends HardwareBase
 
         motorLeftArm   = hwMap.dcMotor.get("leftArm");
         motorRightArm  = hwMap.dcMotor.get("rightArm");
-        motorLeftArm.setDirection(DcMotor.Direction.FORWARD);
-        motorRightArm.setDirection(DcMotor.Direction.REVERSE);
+        motorLeftArm.setDirection(DcMotor.Direction.REVERSE);
+        motorRightArm.setDirection(DcMotor.Direction.FORWARD);
         motorLeftArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorRightArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorLeftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

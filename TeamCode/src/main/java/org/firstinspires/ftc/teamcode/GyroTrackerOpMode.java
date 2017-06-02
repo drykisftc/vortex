@@ -31,7 +31,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 @Autonomous(name="Auto: gyro tracker", group="Testing")
 public class GyroTrackerOpMode extends VortexTeleOp {
@@ -46,20 +45,20 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     int bufferSize= 10;
 
     // navigation path info
-    int testDistance1 = 6000; //2500
-    int testDistance2 = 6000;
-    int testTurnAngle1 = 90;
-    int testTurnAngle2 = 180;
-    int backDistance = -6000;
+    final int testDistance1 = 6000; //2500
+    final int testDistance2 = 6000;
+    final int testTurnAngle1 = 90;
+    final int testTurnAngle2 = 180;
+    final int backDistance = -6000;
 
     // navigation control info
-    double chargingPower = 1.0;
-    double cruisingPower = 0.5;
-    double searchingPower = 0.2;
-    double cruisingTurnGain = 0.01;
+    double chargingPower = 0.99;
+    double cruisingPower = 0.65;
+    double searchingPower = 0.18;
+    double cruisingTurnGain = 1.0/180;
     double inPlaceTurnGain = 0.005;
     double turningPower = 0.0; // set to 0.0 to turn in-place
-    double parkTurningPower = -0.1;
+    double parkTurningPower = -0.15;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -80,10 +79,8 @@ public class GyroTrackerOpMode extends VortexTeleOp {
                 bufferSize);
         gyroTracker.setReporter(telemetry);
         gyroTracker.init();
-        gyroTracker.minTurnPower = 0.01;
-        gyroTracker.maxTurnPower = 0.35;
-        gyroTracker.skewPowerGain = 1.0; // 180 for track wheels
-        gyroTracker.skewTolerance = 0;
+        gyroTracker.skewPowerGain = 1.0/180; // 180 for track wheels
+        gyroTracker.skewTolerance = 1;
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("GyroTracker", "Init");    //
@@ -138,74 +135,66 @@ public class GyroTrackerOpMode extends VortexTeleOp {
         switch (state) {
             case 0:
                 // go straight
-                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (0, cruisingTurnGain,
                         cruisingPower, testDistance1, state, state+1);
                 break;
             case 1:
                 // turn 90 degree
-                gyroTracker.skewTolerance = 2;
                 state = gyroTracker.turn(testTurnAngle1, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 2:
                 // go straight
-                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (testTurnAngle1, cruisingTurnGain,
                         searchingPower, testDistance1,state, state+1);
                 break;
             case 3:
-                // turn 45 degree
-                gyroTracker.skewTolerance = 2;
-                state = gyroTracker.turn(testTurnAngle1*2, inPlaceTurnGain,turningPower,state, state+1);
+                // turn 90 degree
+                state = gyroTracker.turn(testTurnAngle1+testTurnAngle1, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 4:
                 // go straight
-                gyroTracker.skewTolerance = 0;
-                state = gyroTracker.goStraight (testTurnAngle1*2, cruisingTurnGain,
+                state = gyroTracker.goStraight (testTurnAngle1+testTurnAngle1, cruisingTurnGain,
                         chargingPower, testDistance1, state, state+1);
                 break;
             case 5:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 2;
                 state = gyroTracker.turn(testTurnAngle1*3, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 6:
                 // go straight
-                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (testTurnAngle1*3, cruisingTurnGain,
                         cruisingPower, testDistance1, state, state+1);
                 break;
             case 7:
                 // backup
-                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (testTurnAngle1*3, cruisingTurnGain,
                         -1.0*cruisingPower, backDistance, state, state+1);
                 break;
             case 8:
                 // turn 180 degree
-                gyroTracker.skewTolerance = 2;
                 state = gyroTracker.turn(testTurnAngle1*3+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 9:
                 // backup
-                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (testTurnAngle1*3+testTurnAngle2, cruisingTurnGain,
                         -1.0*cruisingPower, backDistance, state, state+1);
                 break;
             case 10:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 2;
                 state = gyroTracker.turn(testTurnAngle1*2+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
                 break;
             case 11:
-                gyroTracker.skewTolerance = 0;
                 state = gyroTracker.goStraight (testTurnAngle1*2+testTurnAngle2, cruisingTurnGain,
                         cruisingPower, testDistance1, state, state+1);
                 break;
             case 12:
                 // turn 45 degree
-                gyroTracker.skewTolerance = 2;
-                state = gyroTracker.turn(testTurnAngle1*3+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
+                gyroTracker.turn(testTurnAngle1*3+testTurnAngle2, inPlaceTurnGain,turningPower,state, state+1);
+
+                // unless button b is press. it is used to test gyro drifting. Robt should not rotate after the turn is done.
+                if (gamepad1.b) {
+                    state +=1;
+                }
                 break;
             default:
                 homeArm();
@@ -220,15 +209,14 @@ public class GyroTrackerOpMode extends VortexTeleOp {
     }
 
     public void homeArm () {
-        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPostion, 0.1);
-
+        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPosition, 0.1);
     }
 
     /*
      * Code to run ONCE after the driver hits STOP
      */
     public void stop() {
-
+        super.stop();
         gyroTracker.stop();
     }
 

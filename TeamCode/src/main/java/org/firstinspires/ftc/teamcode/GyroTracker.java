@@ -24,7 +24,7 @@ public class GyroTracker extends Tracker {
      */
     private double minTurnSpeed = 1.0;
     private double maxTurnSpeed = 10;
-    private double minAnglePowerStepSize = 0.001;
+    private double minAnglePowerStepSize = 0.0008;
     private int flipCountLimit = 1;
     
     private long lastLogTimeStamp = 0;
@@ -80,18 +80,19 @@ public class GyroTracker extends Tracker {
      */
     public boolean maintainHeading(double target, double power) {
 
-        targetHeading = VortexUtils.normalizeHeading(target);
+        //targetHeading = VortexUtils.normalizeHeading(target);
+        targetHeading = target;
 
         boolean boolNoTurning = false;
         int heading = gyro.getHeading();
-        double delta = VortexUtils.getAngleError(targetHeading, heading);
+        double delta = VortexUtils.getAngleError(target, heading);
 
         // compute power delta
         double deltaPower = computeTurnPower(delta);
         leftWheel.setPower(Range.clip(power - deltaPower, -1, 1));
         rightWheel.setPower(Range.clip(power + deltaPower, -1, 1));
 
-        // move motor
+        //  complete state checking
         if ( deltaPower  ==  0.0) {
             boolNoTurning = true;
         }
@@ -135,9 +136,12 @@ public class GyroTracker extends Tracker {
             if (deltaChange < minTurnSpeed) {
                 // robot could not turn, boost min turn power to over come the friction
                 minTurnPower += minAnglePowerStepSize;
+                maxTurnPower += minAnglePowerStepSize;
             } else if (flipCount >= flipCountLimit ) {
                 // robot always over-compensated, tune down the min turn power
-                minTurnPower -= minAnglePowerStepSize;
+                minTurnPower = Math.max(0.0, minTurnPower-minAnglePowerStepSize);
+            } else if (deltaChange > maxTurnSpeed) {
+                maxTurnPower = Math.max(minTurnPower+0.01, maxTurnPower-minAnglePowerStepSize);
             }
         }
     }

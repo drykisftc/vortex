@@ -60,7 +60,7 @@ public class PlanDBlueAutoOp extends PlanDRedAutoOp{
         super.start();
         beaconPresser.teamColor = 'b';
         fire2TurnDegree = -85;
-        fire2WallDistance = 3500;
+        fire2WallDistance = 3800;
         wall2TurnDegree = 85;
         beacon2ParkingDistance = -7500;
         beacon2ParkTurnDegree = -5;

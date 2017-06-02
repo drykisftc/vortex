@@ -49,7 +49,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Dance", group="zDance")
+@Autonomous(name="Dance: Eye of Tiger", group="zDance")
 public class Dance extends VortexAutoOp{
     protected int headPositionA = 2500;
     protected int headPositionB = 2800;
@@ -84,7 +84,6 @@ public class Dance extends VortexAutoOp{
         telemetry.addData("Current Time: ", System.currentTimeMillis() - lastTimeStamp);
         switch (state) {
             case 0:
-                gyroTracker.skewTolerance = 0;
                 if(gyroTracker.goStraight (0, cruisingTurnGain, 0.2,
                     start2FireDistance, 0, 1) == 1){
                     start2FireDistance = 0;
@@ -542,14 +541,12 @@ public class Dance extends VortexAutoOp{
 
     // wheel dance modes
     public void  wheelA (double power, int distance) {
-        gyroTracker.skewTolerance = 0;
         gyroTracker.goStraight (0, cruisingTurnGain, power,
                 distance, 0,1);
     }
 
     public void wheelB (double turnPower, int heading) {
-        gyroTracker.skewTolerance = 1;
-        gyroTracker.maxTurnPower = 0.2;
+        gyroTracker.maxTurnPower = 0.15;
         state = gyroTracker.turn(heading,
                 inPlaceTurnGain,turnPower,0,0);
     }

@@ -50,12 +50,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  */
 
 @Autonomous(name="Plan B NW: Red", group="Far Side")
-public class PlanBRedNWAutoOp extends PlanBRedAutoOp{
+public class PlanBRedNWAutoOp extends PlanBRedAutoOp {
 
     @Override
     public void start() {
         super.start();
-        startWaitingTime =0;
+        startWaitingTime = 0;
     }
-
 }

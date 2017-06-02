@@ -50,7 +50,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
  */
 
 @Autonomous(name="Plan B NW: Blue", group="Far Side")
-public class PlanBBlueNWAutoOp extends PlanBBlueAutoOp{
+public class PlanBBlueNWAutoOp extends PlanBBlueAutoOp {
 
     @Override
     public void start() {
