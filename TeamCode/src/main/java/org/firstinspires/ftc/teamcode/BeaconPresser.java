@@ -11,7 +11,7 @@ public class BeaconPresser extends RobotExecutor {
 
     // navigation info
     protected int lineToBeaconDistance = 390; //509
-    protected int beaconPressDistance = 1500;
+    protected int beaconPressDistance = 750;
     protected int button1ToButton2Distance = 486;
     double cruisingPower = 0.4;
     double searchingPower = 0.15;
@@ -119,7 +119,7 @@ public class BeaconPresser extends RobotExecutor {
                     bBeaconPressed = true;
                     lastTimeStamp = System.currentTimeMillis();
                     if (pressButtonTimes >= pressButtonTimesLimit) {
-                        state = 6;
+                        state = 7;
 
                     } else {
                         state = 4;
@@ -159,7 +159,7 @@ public class BeaconPresser extends RobotExecutor {
                 break;
             case 6:
                 if (pressButtonTimes >= pressButtonTimesMaxLimit
-                        || isColor(teamColor)) {
+                        || isColorSatisfied(teamColor)) {
                     state = 7;
                 }
 
@@ -173,7 +173,7 @@ public class BeaconPresser extends RobotExecutor {
                 // hover beacon arm over beacon
                 if (beaconArm.hoverNear(distanceThreshold,slowSpeedGain)>=0) {
                     // check beacon color again
-                    if (!isColor(teamColor)) {
+                    if (!isColorSatisfied(teamColor)) {
                         state = 4;
                     } else {
                         state = 7;
@@ -193,6 +193,16 @@ public class BeaconPresser extends RobotExecutor {
 
     private boolean isColor (char color) {
         if (beaconArm.getColorBlueOrRed() == color) {
+            teamColorCount ++;
+        } else {
+            teamColorCount = 0;
+        }
+        return teamColorCount >= teamColorCountThreshold;
+    }
+
+    private boolean isColorSatisfied (char color) {
+        char c = beaconArm.getColorBlueOrRed();
+        if ( c == color || c == 'u') {
             teamColorCount ++;
         } else {
             teamColorCount = 0;

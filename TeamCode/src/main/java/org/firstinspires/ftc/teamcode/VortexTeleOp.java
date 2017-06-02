@@ -140,7 +140,7 @@ class VortexTeleOp extends OpMode{
     HardwareBeaconArm leftBeaconArm = null;
     private double leftUpHomePosition = 0.96;
     private double leftUpStepSize = -0.025;
-    private double leftLowHomePosition = 0.90;
+    private double leftLowHomePosition = 0.97;
     private double leftLowStepSize = -0.08;
 
     /* Important: use the core device discovery tool to set color sensor address to 0x40
@@ -475,13 +475,13 @@ class VortexTeleOp extends OpMode{
             robot.motorRightArm.setPower(0.15);
             rightArmCurrentPosition = robot.motorRightArm.getCurrentPosition();
         } else {
-            if ( gamepad2.right_stick_y < -0.02 ) {
+            if ( gamepad2.right_stick_y < -0.02 && leftArmState == FIRE) {
                 robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 telemetry.addData("left arm highering", "%1d", 1);
                 double throttle = VortexUtils.lookUpTableFunc(gamepad2.right_stick_y, rightArmUpPowerLUT);
                 robot.motorRightArm.setPower(Range.clip(throttle, -1.0, 1.0));
                 rightArmCurrentPosition = robot.motorRightArm.getCurrentPosition();
-            } else if ( gamepad2.right_stick_y > 0.02 ) {
+            } else if ( gamepad2.right_stick_y > 0.02 && leftArmState == FIRE) {
                 robot.motorRightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 telemetry.addData("left arm lowering", "%1d", 1);
                 double throttle = VortexUtils.lookUpTableFunc(gamepad2.right_stick_y, rightArmDowPowerLUT);
