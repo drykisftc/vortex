@@ -79,12 +79,12 @@ public class AccelerationOdometer extends Tracker{
         return speed;
     }
     //drive function
-    protected void drive(double speed){
+    private void drive(double speed){
         leftWheel.setPower(speed);
         rightWheel.setPower(speed);
     }
     //loop for drive a certian distance
-    public boolean dloop(double tempx, double tempy){
+    private boolean dloop(double tempx, double tempy){
         double destx;
         double desty;
         double tempa = angle;
@@ -141,8 +141,10 @@ public class AccelerationOdometer extends Tracker{
         }
         return false;
     }
+
     //loop for moving to certian location
-    public boolean mloop(double tempx, double tempy,double x1, double y1){
+
+    private boolean mloop(double tempx, double tempy,double x1, double y1){
         double pied = Math.atan(tempy/tempx);
         double angle = fromrad(pied);
         if (x < x1 + tolerance&& x1 - tolerance < x && y < y1 + tolerance&& y1 - tolerance < y){

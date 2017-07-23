@@ -9,6 +9,8 @@ public class AccelerationOdometerOpMode extends VortexTeleOp{
     HardwareGyroTracker GTH = null;
     AccelerationOdometer AO = null;
     HardwareCompass HC = null;
+    boolean temp = true;
+    int dist = 1000;
     private int state = 0;
     @Override
     public void init(){
@@ -49,9 +51,15 @@ public class AccelerationOdometerOpMode extends VortexTeleOp{
         VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmMovePosition, leftArmAutoMovePower);
 
     }
-
-    public void homeArm () {
-        VortexUtils.moveMotorByEncoder(robot.motorLeftArm, leftArmHomeParkingPostion, 0.1);
-
+    @Override
+    public void loop(){
+        if(temp) {
+            telemetry.addData(">", "Moving "+dist+" units");
+            temp = AO.driveforward(1000);
+        }else{
+            telemetry.addData(">", "Moved "+dist+" units");
+        }
     }
+
+
 }
