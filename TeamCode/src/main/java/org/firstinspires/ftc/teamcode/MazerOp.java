@@ -7,6 +7,7 @@ package org.firstinspires.ftc.teamcode;
 public class MazerOp extends VortexTeleOp{
     HardwareGyroTracker GTH = null;
     Mazer AO = null;
+    HardwareInterface HI = null;
     HardwareCompass HC = null;
     boolean temp = true;
     int dist = 1000;
@@ -17,10 +18,12 @@ public class MazerOp extends VortexTeleOp{
         GTH.init(hardwareMap);
         HC = new HardwareCompass();
         HC.init(hardwareMap);
+        HI = new HardwareInterface();
+        HI.init(hardwareMap);
 
         super.init();
         AO= new Mazer(robot.motorLeftWheel,
-                robot.motorRightWheel, );
+                robot.motorRightWheel, HI.Interface, wallTrackerHW );
 
 
     }
@@ -51,7 +54,10 @@ public class MazerOp extends VortexTeleOp{
 
     }
     @Override
-    public void loop(){
-
+    public void loop() {
+        switch (state) {
+            case 1:
+                //
+        }
     }
     }

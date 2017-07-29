@@ -16,6 +16,7 @@ public class HardwareInterface extends HardwareBase {
 
         // Initialize base Motor and Servo objects
         super.init(ahwMap);
-        Interface = (DeviceInterfaceModule) hwMap.compassSensor.get("DeviceInterfaceModule");
+        //replace Placeholder with the DeviceInterfaceModule's address
+        Interface = (DeviceInterfaceModule) hwMap.compassSensor.get("Placeholder");
     }
 }
